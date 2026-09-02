@@ -1,0 +1,32 @@
+MATURITA DESK 0.10.1 — SERVERLESS „OVĚŘIT / DOHLEDAT“
+=====================================================
+
+ÚČEL
+----
+Tento postup je pro dobu, kdy ještě neexistuje školní server. Maturita Desk může zůstat statická PWA; pouze online dohledávání používá malou edge/serverless službu.
+
+BEZPEČNOSTNÍ PRINCIP
+--------------------
+- OpenAI API klíč nikdy není v browseru ani na GitHubu.
+- Browser posílá jen ručně napsaný dotaz.
+- Pro dočasný serverless provoz se používá samostatný silný učitelský přístupový kód.
+- Přístupový kód není OpenAI API klíč.
+- Kód se v aplikaci ukládá pouze do sessionStorage aktivního panelu.
+- CORS/Origin sám o sobě není autentizace; proto je přístupový kód + rate limit povinný.
+
+CO JE TŘEBA NASADIT
+-------------------
+1. serverless/fact-check-worker.mjs na podporovanou edge/serverless platformu;
+2. serverové secret OPENAI_API_KEY;
+3. serverové secret FACTCHECK_ACCESS_TOKEN (náhodný, alespoň 32 znaků);
+4. rate limiter binding FACTCHECK_RATE_LIMITER;
+5. přesný ALLOWED_ORIGINS;
+6. do runtime-config.js a config/deployment.json doplnit HTTPS endpoint a jeho origin.
+
+DŮLEŽITÉ
+--------
+Dokud body 1–6 nejsou udělané, aplikace správně hlásí, že online služba není připojena. Exam, Practice, Content Pack a Notes na ní nejsou závislé.
+
+PRODUKČNÍ PŘECHOD
+-----------------
+Až vznikne školní server/SSO, dočasný FACTCHECK_ACCESS_TOKEN se odstraní. Worker nebo jeho ekvivalent se přepne na inner-gate režim a browser používá školní session.

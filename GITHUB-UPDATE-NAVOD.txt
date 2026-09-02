@@ -1,0 +1,38 @@
+MATURITA DESK 0.10.1 — JAK NAHRÁT STAGE 13R UPDATE NA GITHUB
+=============================================================
+
+CO JE TENTO BALÍK
+- Je bezpečný pro veřejný repozitář Daniel22-dev/maturita-desk.
+- Neobsahuje reálný maturitní Content Pack, jeho heslo ani API klíče.
+- Obsahuje i .github/workflows/deploy.yml, takže deployment workflow zůstává součástí releasu.
+
+POSTUP PŘES GITHUB DESKTOP
+1. Stáhněte a ROZBALTE tento ZIP. Samotný ZIP do repozitáře nevkládejte.
+2. Otevřete svou již naklonovanou lokální složku repozitáře maturita-desk.
+3. Z rozbaleného balíku zkopírujte VŠECHEN jeho obsah do kořene lokálního repozitáře a potvrďte nahrazení stejnojmenných souborů.
+4. NESMAZÁVEJTE složku .git ve svém lokálním klonu.
+5. Zkontrolujte, že v GitHub Desktop vidíte změny verze 0.10.1 / Stage 13R.
+6. Commit message například: Maturita Desk 0.10.1 Stage 13R serverless candidate
+7. Push origin.
+8. Na GitHubu zkontrolujte Actions -> Maturita Desk - QA and Deploy. Workflow musí skončit zeleně.
+9. Po nasazení otevřete GitHub Pages a proveďte Ctrl+F5.
+
+CO NA GITHUB NIKDY NEDÁVAT
+- Maturita-Desk-AJ-2027-interni-revize-2027.0.1.mdesk
+- soubor s jeho přístupovou frází
+- OPENAI_API_KEY
+- FACTCHECK_ACCESS_TOKEN
+- FACTCHECK_GATE_TOKEN
+- skutečná studentská data
+
+CO BUDE PO PUSHI NA VEŘEJNÉM WEBU
+- Maturita Desk 0.10.1 Stage 13R;
+- public režim zůstane SYNTHETIC-ONLY;
+- Content Pack import hotfix bude aktivní;
+- UI Ověřit / dohledat bude přítomné;
+- online Ověřit / dohledat bude správně hlásit, že služba není připojena, dokud nebude samostatně nasazen a nakonfigurován serverless Worker.
+
+JAK TESTOVAT REÁLNÁ TÉMATA
+- Nepoužívejte k tomu veřejnou GitHub Pages adresu.
+- Rozbalený tentýž balík spusťte lokálně přes START-MATURITA-DESK-INTERNAL.cmd.
+- Teprve do lokálního localhost režimu importujte samostatný reálný encrypted .mdesk.

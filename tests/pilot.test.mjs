@@ -4,7 +4,7 @@ import {
   pilotReportText, pilotSummary, recordPilotMetric, serializePilotReport, setPilotCheck
 } from '../src/pilot.js';
 
-const run = createPilotRun({ appVersion: '0.10.0', device: { viewport: { width: 1024, height: 768 }, touchPoints: 5 } });
+const run = createPilotRun({ appVersion: '0.10.1', device: { viewport: { width: 1024, height: 768 }, touchPoints: 5 } });
 assert.equal(run.schema, 'maturita-desk-pilot-run-v1');
 assert.equal(run.syntheticOnly, true);
 assert.equal(Object.keys(run.checks).length, PILOT_CHECKS.length);
@@ -35,7 +35,7 @@ const normalized = normalizePilotRun({
   ...run,
   checks: { ...run.checks, bogus: { status: 'pass' } },
   metrics: { 'ok.metric': 1, 'bad metric with spaces': 2 }
-}, { appVersion: '0.10.0' });
+}, { appVersion: '0.10.1' });
 assert.equal(Object.hasOwn(normalized.checks, 'bogus'), false);
 assert.equal(normalized.metrics['ok.metric'], 1);
 assert.equal(Object.hasOwn(normalized.metrics, 'bad metric with spaces'), false);

@@ -65,6 +65,8 @@ globalThis.MATURITA_DESK_RUNTIME = {
   factCheck: { provider: 'isolated-http', endpoint: 'https://example.invalid/fact-check', timeoutMs: 18000 }
 };
 globalThis.localStorage = new StorageStub();
+globalThis.sessionStorage = new StorageStub();
+sessionStorage.setItem('ghrab.maturita-desk.fact-access.v1', 'SYNTHETIC-TEACHER-ACCESS-1234567890');
 Object.defineProperty(globalThis, 'navigator', { value: { onLine: true, maxTouchPoints: 5 }, configurable: true });
 Object.defineProperty(globalThis, 'BroadcastChannel', { value: undefined, configurable: true });
 globalThis.window = {
@@ -72,6 +74,7 @@ globalThis.window = {
   innerHeight: 844,
   visualViewport,
   setInterval: () => 1,
+  setTimeout: () => 1,
   clearTimeout: () => {},
   matchMedia(query) { return { matches: query === '(pointer: coarse)' }; },
   addEventListener(type, cb) { (winListeners[type] ||= []).push(cb); },
@@ -160,6 +163,7 @@ await click({ action: 'fact-submit' });
 assert(capturedFactRequest, 'Fact Check request was not sent from the real app call site');
 assert.deepEqual(Object.keys(capturedFactRequest.body), ['query']);
 assert.equal(capturedFactRequest.body.query, 'Verify only this synthetic claim.');
+assert.equal(capturedFactRequest.options.headers['X-Maturita-Desk-Access'], 'SYNTHETIC-TEACHER-ACCESS-1234567890');
 const factSerialized = JSON.stringify(capturedFactRequest);
 for (const canary of ['TOPIC_CANARY_SYNTH','NOTES_CANARY_SYNTH','SESSION_CANARY_SYNTH','PACK_CANARY_SYNTH']) {
   assert.equal(factSerialized.includes(canary), false, `actual app egress leaked ${canary}`);

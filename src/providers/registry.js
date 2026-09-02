@@ -8,7 +8,8 @@ export function createProviderRegistry(runtime, {
   storage = globalThis.localStorage,
   cryptoImpl = globalThis.crypto,
   locationLike = globalThis.location,
-  now = () => Date.now()
+  now = () => Date.now(),
+  getFactAccessToken = () => ''
 } = {}) {
   let authState = null;
   const auth = runtime.mode === 'school-server'
@@ -31,7 +32,8 @@ export function createProviderRegistry(runtime, {
     fetchImpl,
     credentials: runtime.factCheck.provider === 'school-server' ? 'include' : 'omit',
     mode: runtime.factCheck.provider === 'school-server' ? 'same-origin' : 'cors',
-    getCsrfToken: () => authState?.csrfToken || ''
+    getCsrfToken: () => authState?.csrfToken || '',
+    getAccessToken: runtime.factCheck.provider === 'isolated-http' ? getFactAccessToken : () => ''
   });
 
   return Object.freeze({

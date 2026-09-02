@@ -1,29 +1,39 @@
-# Maturita Desk 0.10.0 — Stage 13 Synthetic Device Pilot
+# Maturita Desk 0.10.1 — Stage 13R Serverless / Internal Review Candidate
 
-Maturita Desk je učitelská PWA pro průběh ústní zkoušky z anglického jazyka. Verze **0.10.0** je řízený pilotní build určený k reálnému testování zařízení po dokončení Stage 12R security re-auditu.
+Maturita Desk je učitelská PWA pro přípravu a průběh ústní maturitní zkoušky z anglického jazyka. Verze **0.10.1** je kandidát určený k uživatelskému a zařízení testování před produkčním serverless releasem.
 
-## Důležité omezení
+## Dva bezpečně oddělené způsoby spuštění téhož balíku
 
-Stage 13 je **SYNTHETIC-ONLY**. Aplikace v této verzi záměrně odmítá `CONFIDENTIAL-EXAM` Content Pack při inicializaci, importu i odemčení. Build není určen pro ostrou maturitu ani pro skutečná studentská data.
+### 1. Veřejný GitHub Pages build
 
-## Co Stage 13 měří
+Repozitář lze bezpečně zveřejnit. Neobsahuje reálný maturitní Content Pack, přístupovou frázi ani OpenAI API klíč. Na `daniel22-dev.github.io` zůstává ochrana **SYNTHETIC-ONLY** a `CONFIDENTIAL-EXAM` Content Pack je odmítnut.
 
-Pilot má na cílovém iPadu/telefonu ověřit zejména výkon importu a dešifrování velkého `.mdesk`, celou 15minutovou relaci, sleep/background/Back/Restore/Reopen, offline cold start, Service Worker update/recovery, dotykovou ergonomii a reálný multi-tab race.
+### 2. Lokální interní revize na notebooku
 
-Aplikace má nový **Pilot panel**, který vede lokální checklist, automaticky zachytí několik technických metrik a umí exportovat JSON/TXT report. Nic se neodesílá automaticky.
+Stejný balík lze spustit přes `START-MATURITA-DESK-INTERNAL.cmd`. Pouze na `localhost` / loopback adrese se aktivuje interní review režim, který dovolí ručně importovat samostatně držený šifrovaný `CONFIDENTIAL-EXAM` Content Pack. Reálný pack ani heslo nejsou součástí tohoto repozitáře a nesmí se na GitHub nahrát.
 
-## Multi-tab guard
+Tento režim je určen pro interní obsahové, UX a zařízení testování. Reálný obsah 2027.0.1-review stále vyžaduje pedagogickou revizi a není tímto releasem schválen pro ostrou maturitu.
 
-Stage 12R měl pouze varovný BroadcastChannel mechanismus. Stage 13 přidává krátkodobý lokální writer lease. Aktivní panel pravidelně obnovuje vlastnictví session; jiný panel nesmí zapisovat do stejného session storage, pokud lease vlastní jiná instance. Explicitní takeover je dostupný pouze přes viditelnou konflikt obrazovku.
+## Serverless je plnohodnotná cílová cesta
 
-Při zavádění této vrstvy byl zároveň nalezen a opraven problém pořadí inicializace `BroadcastChannel` runtime stavu, který předchozí Node smoke neodhalil, protože BroadcastChannel v testu vypínal.
+Maturita Desk nemusí čekat na školní server. Core aplikace — Exam, Practice, Pictures, Task Box, Topic, Notes, časování, PWA/offline režim a lokálně šifrovaný Content Pack — je navržena pro `standalone-local` provoz.
 
-## Stress pack
+Budoucí školní server má přidat zejména SSO, centrální autorizaci a automatickou distribuci šifrovaného obsahu; nemá být podmínkou pro základní používání aplikace.
 
-Samostatně se vydává syntetický `.mdesk` o velikosti přibližně 29,5 MiB. Není součástí veřejného ZIPu aplikace. Slouží výhradně pro Stage 13 měření cílového iPadu.
+## Ověřit / dohledat
 
-## Otevřené gate
+Původní Fact Check je v UI rozšířen a přejmenován na **Ověřit / dohledat**. Učitel může přímo v Maturita Desk:
 
-Automatický PASS neuzavírá Stage 13. Fyzický iPad/Safari, telefon, SW update/recovery a plná 15minutová relace zůstávají `PENDING`, dokud se nevrátí reálné pilotní reporty.
+- ověřit tvrzení pronesené studentem;
+- rychle dohledat aktuální faktickou informaci;
+- zobrazit krátkou odpověď, míru jistoty a webové zdroje bez otevírání Google nebo další aplikace.
 
-Podrobný postup je v `STAGE13-PILOT-NAVOD.txt` a `DEVICE-PILOT-CHECKLIST.txt`.
+Soukromí je fail-closed: do online služby se odesílá pouze text, který učitel výslovně napíše do pole `query`. Téma, zadání, Teacher Guidance, Notes, Content Pack ani identita studenta se automaticky neposílají.
+
+Public ZIP má endpoint záměrně prázdný. Samotné nahrání na GitHub tedy nevytvoří placenou AI bránu. Pro dobu před školním serverem je připraven samostatný edge/serverless Worker s OpenAI klíčem uloženým pouze jako serverový secret, povinným rate limiterem a dočasným učitelským přístupovým tokenem. Postup je v `serverless/SERVERLESS-FACT-CHECK-SETUP.txt`.
+
+## Stage 13R acceptance
+
+Automatické testy nenahrazují fyzickou akceptaci. Stále je třeba ověřit zejména notebook/iPad/telefon, 15minutovou relaci, background/lock/reopen, multi-tab ochranu, Service Worker update/recovery, offline cold start a výkon velkého syntetického packu.
+
+Podrobnosti jsou v `STAGE-13-STATUS.md`, `STAGE13-PILOT-NAVOD.txt` a `DEVICE-PILOT-CHECKLIST.txt`.

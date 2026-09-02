@@ -1,9 +1,13 @@
 /*
- * Maturita Desk Stage 13 controlled synthetic pilot runtime profile (provider contract unchanged from Stage 10).
+ * Maturita Desk Stage 13R serverless/internal-review runtime profile (provider contract unchanged from Stage 10).
  * PUBLIC/standalone profile: no user identity is asserted and no API secret exists here.
  * A school-server deployment replaces this non-secret config with the approved server profile;
  * application source code remains unchanged.
  */
+// Internal review capability is honored by the app only on localhost/loopback.
+// It does not weaken the public GitHub Pages deployment.
+globalThis.MATURITA_DESK_INTERNAL_REVIEW = true;
+
 globalThis.MATURITA_DESK_RUNTIME = Object.freeze({
   schema: 'maturita-desk-runtime-v1',
   version: 1,

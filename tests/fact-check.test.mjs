@@ -39,6 +39,17 @@ const result = normalizeFactCheckResult({
 assert.equal(result.sources.length, 1);
 assert.equal(result.verdict, 'confirmed');
 
+
+const lookup = normalizeFactCheckResult({
+  schema: 'maturita-desk-fact-check-v1',
+  verdict: 'informational',
+  confidence: 'high',
+  answer: 'Synthetic lookup result.',
+  sources: [{ title: 'Source', url: 'https://example.org/info' }],
+  searched: true
+});
+assert.equal(lookup.verdict, 'informational');
+
 let captured = null;
 const provider = createHttpFactCheckProvider({
   endpoint: 'https://fact.example/check',
@@ -66,6 +77,22 @@ assert.equal(captured.options.headers['X-Maturita-Desk-Client'], 'fact-check-v1'
 assert.equal('topic' in captured.body, false);
 assert.equal('notes' in captured.body, false);
 assert.equal('session' in captured.body, false);
+
+let accessHeader = '';
+const accessProvider = createHttpFactCheckProvider({
+  endpoint: 'https://fact.example/check',
+  getAccessToken: () => 'synthetic-teacher-access-token-000000000001',
+  fetchImpl: async (url, options) => {
+    accessHeader = options.headers['X-Maturita-Desk-Access'] || '';
+    return new Response(JSON.stringify({
+      schema: 'maturita-desk-fact-check-v1', verdict: 'informational', confidence: 'medium',
+      answer: 'Synthetic direct lookup.', searched: true,
+      sources: [{ title: 'Synthetic source', url: 'https://example.org/direct' }]
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  }
+});
+await accessProvider.check('Who is the synthetic office holder?');
+assert.equal(accessHeader, 'synthetic-teacher-access-token-000000000001');
 
 const failingProvider = createHttpFactCheckProvider({
   endpoint: 'https://fact.example/check',

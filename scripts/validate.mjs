@@ -4,11 +4,11 @@ import path from 'node:path';
 const root = path.resolve(new URL('..', import.meta.url).pathname);
 const required = [
   'index.html','manifest.webmanifest','sw.js','runtime-config.js','config/deployment.json','config/platform-manifest.json','config/brand-manifest.json','ghrab-platform.consumer.json',
-  'src/main.js','src/styles.css','src/demo-content.js','src/exam-engine.js','src/notes.js','src/content-validator.js','src/content-pack.js','src/content-pack-store.js',
+  'src/main.js','src/content-import-bridge.js','src/styles.css','src/demo-content.js','src/exam-engine.js','src/notes.js','src/content-validator.js','src/content-pack.js','src/content-pack-store.js',
   'src/review-model.js','src/review-store.js','src/review-patch.js','src/fact-check.js','src/net/read-limited.js','src/device-runtime.js','src/pilot.js','src/session-coordinator.js',
   'src/providers/runtime.js','src/providers/auth-lease.js','src/providers/auth-provider.js','src/providers/content-provider.js','src/providers/registry.js',
-  'scripts/security-scan.mjs','tests/response-limits.test.mjs','tests/runtime-config.test.mjs','tests/runtime-pair.test.mjs','tests/auth-provider.test.mjs','tests/server-mode-integration.test.mjs','tests/content-provider.test.mjs','tests/provider-registry.test.mjs','tests/device-runtime.test.mjs','tests/pwa-hardening.test.mjs','tests/device-session-resume.test.mjs','tests/security-stage12.test.mjs','tests/claude-stage12-findings.test.mjs','tests/ai-red-structural.test.mjs','tests/pilot.test.mjs','tests/session-coordinator.test.mjs','tests/main-multitab-smoke.mjs','tests/main-runtime-smoke.mjs',
-  'serverless/fact-check-worker.mjs','school-server/CONTRACT.md','school-server/README.md','school-server/DEPLOY-CHECKLIST.txt','school-server/deployment.school-server.example.json','school-server/runtime-config.school-server.example.js','school-server/session-response.example.json','school-server/content-delivery.example.json',
+  'scripts/security-scan.mjs','tests/content-import-bridge.test.mjs','tests/response-limits.test.mjs','tests/runtime-config.test.mjs','tests/runtime-pair.test.mjs','tests/auth-provider.test.mjs','tests/server-mode-integration.test.mjs','tests/content-provider.test.mjs','tests/provider-registry.test.mjs','tests/device-runtime.test.mjs','tests/pwa-hardening.test.mjs','tests/device-session-resume.test.mjs','tests/security-stage12.test.mjs','tests/claude-stage12-findings.test.mjs','tests/ai-red-structural.test.mjs','tests/pilot.test.mjs','tests/session-coordinator.test.mjs','tests/main-multitab-smoke.mjs','tests/main-runtime-smoke.mjs',
+  'serverless/fact-check-worker.mjs','serverless/SERVERLESS-FACT-CHECK-SETUP.txt','serverless/runtime-config.serverless-fact-check.example.js','START-MATURITA-DESK-INTERNAL.cmd','tools/local-server.ps1','GITHUB-UPDATE-NAVOD.txt','STAGE13R-UPDATE-NOTES.txt','school-server/CONTRACT.md','school-server/README.md','school-server/DEPLOY-CHECKLIST.txt','school-server/deployment.school-server.example.json','school-server/runtime-config.school-server.example.js','school-server/session-response.example.json','school-server/content-delivery.example.json',
   'samples/synthetic-demo-2027.mdesk','tools/create-stage13-stress-pack.mjs','Maturita-Desk-Stage10-SERVER-NAVOD.txt','README.md','SECURITY-NOTES.md','STAGE-10-STATUS.md','STAGE-11-STATUS.md','STAGE-12-STATUS.md','STAGE-12R-STATUS.md','STAGE-13-STATUS.md','SECURITY-AUDIT-STAGE12.md','SECURITY-REVIEW-STAGE12R.md','CLAUDE-REAUDIT-NOTES.txt','SECURITY-QA-SUMMARY.json','BUILD-REPORT.md','SERVER-ARCHITECTURE-QA-SUMMARY.json','PWA-HARDENING-QA-SUMMARY.json','DEVICE-PILOT-CHECKLIST.txt','STAGE13-PILOT-NAVOD.txt','PILOT-QA-SUMMARY.json'
 ];
 const failures = [];
@@ -50,11 +50,11 @@ const worker = readText('serverless/fact-check-worker.mjs');
 const sampleText = readText('samples/synthetic-demo-2027.mdesk');
 const sample = JSON.parse(sampleText);
 
-if (pkg.version !== '0.10.0') failures.push('Stage 13 pilot version must be 0.10.0');
+if (pkg.version !== '0.10.1') failures.push('Stage 13R version must be 0.10.1');
 for (const [name, version] of [['manifest',manifest.version],['consumer',consumer.appVersion],['platform',platform.version]]) if (version !== pkg.version) failures.push(`${name} version mismatch`);
-if (!consumer.cache?.name?.includes('v0.10.0') || !manifest.ghrab_platform?.cache_name?.includes('v0.10.0') || !sw.includes("ghrab-maturita-desk-v0.10.0")) failures.push('Stage 13 cache version mismatch');
-if (platform.stage !== 'stage-13-synthetic-device-pilot' || consumer.quality?.stage !== 'stage-13-synthetic-device-pilot') failures.push('Stage 13 marker missing');
-if (platform.pilot?.syntheticOnly !== true || platform.pilot?.confidentialExamPackAccepted !== false || platform.pilot?.physicalDeviceAcceptance !== 'PENDING') failures.push('Stage 13 synthetic-only pilot manifest invalid');
+if (!consumer.cache?.name?.includes('v0.10.1') || !manifest.ghrab_platform?.cache_name?.includes('v0.10.1') || !sw.includes("ghrab-maturita-desk-v0.10.1")) failures.push('Stage 13R cache version mismatch');
+if (platform.stage !== 'stage-13r-serverless-internal-review' || consumer.quality?.stage !== 'stage-13r-serverless-internal-review') failures.push('Stage 13R marker missing');
+if (platform.pilot?.syntheticOnly !== true || platform.pilot?.confidentialExamPackAccepted !== false || platform.pilot?.localInternalReviewConfidentialAccepted !== true || platform.pilot?.physicalDeviceAcceptance !== 'PENDING') failures.push('Stage 13R public/local review policy manifest invalid');
 if (deployment.mode !== 'standalone-local' || deployment.auth?.provider !== 'local-device' || deployment.content?.provider !== 'encrypted-local') failures.push('Public deployment profile must remain standalone-local');
 if (deployment.factCheck?.endpoint !== '') failures.push('Public Fact Check endpoint must ship unconfigured');
 if (serverExample.mode !== 'school-server' || serverExample.auth?.provider !== 'school-server-session' || serverExample.content?.provider !== 'school-server-encrypted-pack' || serverExample.factCheck?.provider !== 'school-server') failures.push('School-server example provider map invalid');
@@ -75,8 +75,8 @@ if (!content.includes("CONTENT_DELIVERY_SCHEMA = 'maturita-desk-content-delivery
 if (content.includes('decryptContentPack')) failures.push('Content delivery provider must never decrypt server response');
 if (!registry.includes('createLocalDeviceAuthProvider') || !registry.includes('createSchoolServerAuthProvider') || !registry.includes('createSchoolServerContentProvider')) failures.push('Provider registry incomplete');
 
-if (!main.includes("APP_VERSION = '0.10.0'") || !main.includes('data-action="open-pilot"') || !main.includes('function renderPilotDrawer') || !main.includes('Stage 13 je pilotní build pouze pro syntetická data')) failures.push('Stage 13 pilot UX incomplete');
-if (!pilot.includes("PILOT_SCHEMA = 'maturita-desk-pilot-run-v1'") || !pilot.includes('PILOT_SYNTHETIC_ONLY = true') || !pilot.includes('content.import-stress') || !pilot.includes('multitab.guard') || !pilot.includes('offline.cold-start')) failures.push('Stage 13 pilot model incomplete');
+if (!main.includes("APP_VERSION = '0.10.1'") || !main.includes('data-action="open-pilot"') || !main.includes('function renderPilotDrawer') || !main.includes('Veřejný Stage 13R build je pouze pro syntetická data') || !main.includes('Ověřit / dohledat')) failures.push('Stage 13R UX incomplete');
+if (!pilot.includes("PILOT_SCHEMA = 'maturita-desk-pilot-run-v1'") || !pilot.includes('PILOT_SYNTHETIC_ONLY = true') || !pilot.includes('PILOT_INTERNAL_REVIEW') || !pilot.includes('127.0.0.1') || !pilot.includes('content.import-stress') || !pilot.includes('multitab.guard') || !pilot.includes('offline.cold-start')) failures.push('Stage 13R pilot/internal-review model incomplete');
 if (!main.includes('pilotClassificationAllowed(envelope.classification)') || !main.includes('pilotClassificationAllowed(pack.manifest.classification)')) failures.push('Stage 13 synthetic-only Content Pack gate missing');
 if (!coordinator.includes("SESSION_OWNER_KEY = 'ghrab.maturita-desk.session-owner.v1'") || !coordinator.includes('SESSION_OWNER_STALE_MS = 12000') || !coordinator.includes('claimSessionOwnership') || !main.includes('function setupSessionCoordination') || !main.includes('function takeOverSession')) failures.push('Stage 13 multi-tab writer guard missing');
 if (!main.includes('session.write-blocked') || !main.includes('Aktivní relaci zapisuje jiný panel')) failures.push('Conflicted tab write protection UX missing');
@@ -88,13 +88,13 @@ if (!runtime.includes('!auth.logoutEndpoint')) failures.push('School-server logo
 if (!main.includes('configurationLoadError') || !main.includes('runtime-fallback-warning')) failures.push('Runtime config fallback must be visible in UI');
 if (!contentValidator.includes("typeof numericId !== 'number'") || !main.includes('data-topic="${escapeHtml(String(topic.id))}"')) failures.push('Strict/escaped topic.id regression');
 if (!sw.includes("canonicalEntry = relative === './' || relative === './index.html'") || !sw.includes('tato offline cesta není dostupná')) failures.push('Offline deep-navigation fail-safe regression');
-if (!worker.includes("const GATE_HEADER = 'X-Maturita-Desk-Gate'") || !worker.includes('gateAuthorized(request, env)') || !worker.includes('MIN_GATE_TOKEN_CHARS = 32')) failures.push('Fact Check server-side gateway authentication regression');
+if (!worker.includes("const GATE_HEADER = 'X-Maturita-Desk-Gate'") || !worker.includes("const ACCESS_HEADER = 'X-Maturita-Desk-Access'") || !worker.includes('requestAuthorized(request, env)') || !worker.includes('MIN_ACCESS_TOKEN_CHARS = 32')) failures.push('Fact Check authentication regression');
 if (!readText('tests/main-runtime-smoke.mjs').includes('TOPIC_CANARY_SYNTH') || !readText('tests/main-runtime-smoke.mjs').includes("Object.keys(capturedFactRequest.body), ['query']")) failures.push('Actual app-state Fact Check canary regression');
 
-if (!fact.includes('JSON.stringify({ query })') || !main.includes('No topic, Content Pack, Teacher Guidance, Notes or session object is passed here')) failures.push('Fact Check query-only boundary regression');
+if (!fact.includes('JSON.stringify({ query })') || !main.includes('No topic, Content Pack, Teacher Guidance, Notes or session object is passed here') || !fact.includes('X-Maturita-Desk-Access')) failures.push('Verify/lookup query-only boundary regression');
 if (!fact.includes("credentials: credentials === 'include' ? 'include' : 'omit'")) failures.push('Fact Check provider credential-mode switch missing');
-if (!registry.includes("provider === 'school-server' ? 'include' : 'omit'")) failures.push('School Fact Check session integration missing');
-if (!worker.includes('env.OPENAI_API_KEY') || !worker.includes('FACTCHECK_RATE_LIMITER') || !worker.includes('FACTCHECK_GATE_TOKEN') || !worker.includes('https://api.openai.com/v1/responses') || !worker.includes("Object.keys(body).some(key => key !== 'query')")) failures.push('Serverless Fact Check proxy/anti-abuse regression');
+if (!registry.includes("provider === 'school-server' ? 'include' : 'omit'") || !registry.includes('getFactAccessToken')) failures.push('Fact Check provider auth integration missing');
+if (!worker.includes('env.OPENAI_API_KEY') || !worker.includes('FACTCHECK_RATE_LIMITER') || !worker.includes('FACTCHECK_GATE_TOKEN') || !worker.includes('FACTCHECK_ACCESS_TOKEN') || !worker.includes('https://api.openai.com/v1/responses') || !worker.includes("Object.keys(body).some(key => key !== 'query')") || !worker.includes('informational')) failures.push('Serverless Verify/lookup proxy/anti-abuse regression');
 
 if (!sw.includes('if (!isCoreAsset(url, scopePath)) return;')) failures.push('Service worker must cache only explicit core assets');
 if (!sw.includes('navigationNetworkFirst') || /navigationNetworkFirst[\s\S]{0,900}cache\.put\(request/.test(sw)) failures.push('Navigation cache policy may persist dynamic/auth URLs');
@@ -139,18 +139,18 @@ if (combined.includes('OPENAI_API_KEY=')) failures.push('OpenAI key assignment i
 if (/data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/=]{200000,}/.test(combined)) failures.push('Large embedded raster media found');
 
 if (failures.length) {
-  console.error('Maturita Desk Stage 13 validation: FAIL');
+  console.error('Maturita Desk Stage 13R validation: FAIL');
   failures.forEach(item => console.error(`- ${item}`));
   process.exit(1);
 }
-console.log('Maturita Desk Stage 13 validation: PASS');
+console.log('Maturita Desk Stage 13R validation: PASS');
 console.log(`Version: ${pkg.version}`);
 console.log('Public shell classification: SYNTHETIC-ONLY');
-console.log('Pilot policy: CONFIDENTIAL-EXAM content blocked in this build');
+console.log('Public policy: CONFIDENTIAL-EXAM blocked on shared GitHub origin; localhost internal review explicitly supported');
 console.log('Pilot recorder: local-only report; no automatic upload; no student identity fields');
 console.log('Concurrency: writer lease + BroadcastChannel guard; physical multi-tab acceptance still pending');
 console.log('Deployment: standalone-local active; school-server contract prepared but not connected');
-console.log('Fact Check: query-only; public endpoint unconfigured');
+console.log('Verify/lookup: query-only; public endpoint unconfigured; temporary serverless teacher-token auth supported');
 console.log('Physical device acceptance: PENDING — must not be inferred from automated PASS');
 console.log(`Checked ${required.length} required artifacts and ${files.length} files.`);
 

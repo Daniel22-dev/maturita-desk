@@ -1,34 +1,19 @@
-# SECURITY NOTES — Maturita Desk 0.10.0 / Stage 13
+# SECURITY NOTES — Maturita Desk 0.10.1 / Stage 13R
 
 ## Status
 
-Stage 13 vychází z nezávisle znovu ověřeného 0.9.2 / Stage 12R kandidáta. Bezpečnostní opravy Stage 12R zůstávají zachované. Tato etapa přidává pilotní instrumentation a souběhovou ochranu; **není to ostrý release**.
+Stage 13R vychází ze Stage 12R hardeningu a ze Stage 13 device-pilot vrstvy. Přidává opravu ručního Content Pack importu, localhost-only interní review reálného obsahu a serverless-ready **Ověřit / dohledat**. **Není to produkční 1.0.0.**
 
-## Synthetic-only safety gate
+## Public GitHub vs. localhost internal review
 
-Stage 13 je záměrně omezen na `SYNTHETIC-DEMO` Content Pack. `CONFIDENTIAL-EXAM` je blokovaný:
+Stejný zdrojový balík má dvě odlišné provozní politiky:
 
-- při načtení metadat již uloženého packu;
-- před uložením ručně importovaného `.mdesk`;
-- před odemčením;
-- po dešifrování jako druhá kontrola;
-- serverový Content Pack sync je v tomto pilotním buildu vypnutý.
+- na veřejném `daniel22-dev.github.io` je `CONFIDENTIAL-EXAM` aktivně odmítán a běh zůstává `SYNTHETIC-ONLY`;
+- na `localhost`, `127.0.0.1` nebo `[::1]` se interní review režim aktivuje pouze tehdy, když je baked flag `MATURITA_DESK_INTERNAL_REVIEW` zapnutý;
+- samotný real Content Pack ani passphrase nejsou v repozitáři;
+- localhost je výjimka pouze pro interní obsahovou/UX revizi, nikoli schválení veřejné distribuce ostrého obsahu.
 
-To je provozní pojistka Stage 13, nikoli nový obecný Content Pack formát. Produkční verze po pilotu bude mít jinou release politiku.
-
-## Multi-tab / concurrent writer
-
-Stage 13 zavádí `ghrab.maturita-desk.session-owner.v1`:
-
-- krátkodobý writer lease v localStorage;
-- heartbeat aktivního panelu;
-- BroadcastChannel signalizaci;
-- fail-closed blokaci `saveSession`, pokud čerstvý lease vlastní jiná instance;
-- explicitní takeover pouze z viditelné konflikt obrazovky.
-
-Tato vrstva omezuje dřívější `last write wins` problém, ale stále nejde o distribuovaný databázový lock ani hardware bezpečnost. Reálný Safari multi-tab race je povinný Stage 13 device test.
-
-Při implementaci byl nalezen init-order problém předchozího kandidáta: multi-tab setup mohl při dostupném `BroadcastChannel` přistoupit k `sessionChannel` před jeho inicializací. Stage 13 přesouvá stav koordinátoru před bootstrap a obsahuje runtime test s aktivním BroadcastChannel stubem.
+Tento model umožňuje testovat reálný šifrovaný pack bez jeho vložení do GitHubu a současně zachovat fail-closed veřejnou stránku.
 
 ## Content Pack
 
@@ -42,37 +27,61 @@ Kryptografické schéma zůstává:
 - passphrase ani plaintext pack se nepersistují;
 - service worker `.mdesk` necachuje.
 
-Stage 13 vydává samostatný ~29,5 MiB **syntetický** stress pack pro reálné měření iPadu. Není uvnitř public app ZIPu.
+Ruční browserový import má nově regresní test pro případ, kdy je file input renderován v body-level draweru mimo `#app`.
 
-## Fact Check
+## Multi-tab / concurrent writer
 
-Query-only hranice zůstává beze změny. Browser automaticky nepřidává Topic, zadání, Content Pack, Teacher Guidance, Notes ani session objekt. Public profil nemá živý Fact Check endpoint. Inner worker stále vyžaduje rate limiter a server-side gateway secret.
+Stage 13/13R používá `ghrab.maturita-desk.session-owner.v1`:
 
-Behaviorální AIR proti živému produkčnímu provideru nebyl proveden a není tímto buildem uzavřen.
+- krátkodobý writer lease v localStorage;
+- heartbeat aktivního panelu;
+- BroadcastChannel signalizaci;
+- fail-closed blokaci zápisu, pokud čerstvý lease vlastní jiná instance;
+- explicitní takeover pouze z viditelné konflikt obrazovky.
 
-## Release / origin dluh před ostrým obsahem
+Tato vrstva není distribuovaný databázový lock ani hardware attestation. Reálný multi-tab race na cílových prohlížečích zůstává fyzickým acceptance testem.
 
-Před uložením ostrého Content Packu je stále nutné řešit zejména:
+## Ověřit / dohledat — privacy boundary
 
-1. oddělený origin/subdoménu místo sdíleného `daniel22-dev.github.io` originu;
-2. publisher signature / důvěryhodný podpis ostrého Content Packu;
-3. produkční serverové security headers a governance;
-4. živé IdP/session/CSRF/CORS ověření;
-5. behaviorální AIR a provider retention evidence.
+Browser automaticky neposílá Topic, zadání, Content Pack, Teacher Guidance, Notes, session objekt ani identitu studenta. Request body je pouze `{ query }` a klient akceptuje omezenou strukturovanou odpověď se zdroji.
 
-Stage 13 proto nesmí být použit jako záminka k importu ostrého packu. Ten je v kódu této verze aktivně odmítán.
+Public profil má endpoint prázdný, takže samotný GitHub upload nevystaví placenou AI službu.
+
+### Dočasný serverless auth před školním serverem
+
+Edge Worker podporuje explicitní `FACTCHECK_ACCESS_TOKEN`:
+
+- OpenAI API key je výhradně serverový secret;
+- teacher access token je samostatný secret a není OpenAI key;
+- klient jej drží pouze v `sessionStorage` aktivního panelu;
+- posílá se v `X-Maturita-Desk-Access`, nikdy v URL;
+- Worker vyžaduje přesný allowed Origin a povinný rate limiter;
+- CORS není považován za autentizaci;
+- token je sdílené dočasné oprávnění, nerozlišuje individuální učitele a při úniku musí být rotován.
+
+Budoucí school-server režim používá místo browserového access tokenu server-to-server `FACTCHECK_GATE_TOKEN`. Worker fail-closed odmítne konfiguraci, ve které nejsou nastaveny žádné auth secrets nebo jsou omylem zapnuty oba režimy současně.
+
+Behaviorální AIR proti živému produkčnímu provideru zatím nebyl proveden.
+
+## Co zbývá před ostrým serverless releasem
+
+1. izolovaný produkční origin/subdoména místo sdíleného `daniel22-dev.github.io` originu;
+2. dokončená lidská pedagogická revize reálného Content Packu;
+3. publisher signature / kontrolovaný podpis finálního ostrého packu;
+4. dokončené fyzické device/PWA acceptance testy;
+5. pokud má být online Ověřit / dohledat aktivní: nasazený edge endpoint, secret management, rate limit, rotace přístupu a behaviorální ověření;
+6. produkční response security headers podle zvoleného hostingu.
+
+Školní server/SSO je nadále podporovaná budoucí cesta, ale není podmínkou pro základní serverless Exam/Practice/Notes/Content Pack provoz.
 
 ## Privacy
 
-Pilotní report:
-
-- neobsahuje pole student identity;
-- neobsahuje pole reviewer identity;
-- ukládá se pouze do localStorage tohoto zařízení;
-- neodesílá se automaticky;
-- exportuje se pouze explicitně uživatelem;
-- volné pilotní poznámky mají limit a UI výslovně zakazuje osobní údaje.
+- žádná student identity pole v core session;
+- pilotní report neobsahuje jméno studenta ani testera;
+- report se automaticky neodesílá;
+- do volných pilotních poznámek se nesmí opisovat ostré zadání ani osobní údaje;
+- reálný Content Pack zůstává oddělený od veřejného shellu.
 
 ## Otevřené provozní gate
 
-Fyzický iPad/Safari, telefon, Service Worker update/recovery, offline cold start a plná 15minutová relace jsou `PENDING`. Automatické Node testy je nenahrazují.
+Fyzický notebook/iPad/Safari, telefon, Service Worker update/recovery, offline cold start a plná 15minutová relace jsou `PENDING`, dokud je uživatel reálně neotestuje. Automatické Node testy je nenahrazují.

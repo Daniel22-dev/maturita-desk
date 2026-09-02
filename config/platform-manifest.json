@@ -1,8 +1,8 @@
 {
   "schema": "maturita-desk-platform-manifest-v1",
   "appId": "maturita-desk",
-  "version": "0.10.0",
-  "stage": "stage-13-synthetic-device-pilot",
+  "version": "0.10.1",
+  "stage": "stage-13r-serverless-internal-review",
   "contentPolicy": {
     "publicShellMayContainExamContent": false,
     "demoContent": "synthetic-only",
@@ -100,7 +100,10 @@
     "serviceWorkerCache": false,
     "serverReference": "serverless/fact-check-worker.mjs",
     "upstream": "OpenAI Responses API + web search",
-    "apiKeyInClient": false
+    "apiKeyInClient": false,
+    "displayName": "Ověřit / dohledat",
+    "supportsInformationalLookup": true,
+    "serverlessBrowserAuth": "temporary-shared-teacher-token-in-sessionStorage"
   },
   "serverArchitecture": {
     "activeInPublicBuild": false,
@@ -140,7 +143,7 @@
     "standalonePwaDetected": true
   },
   "securityAudit": {
-    "stage": "stage-13",
+    "stage": "stage-13r",
     "candidate": true,
     "independentStage12AuditReceived": true,
     "runtimeConfigFailClosed": "release-pinned mode/environment/app-origin + baked-only endpoint-origin trust; network config may only narrow",
@@ -149,7 +152,7 @@
     "contentPackAuthenticity": "AES-GCM keyed integrity under shared passphrase; separate publisher signature pending",
     "maxEnvelopeBytes": 33554432,
     "factCheckRateLimiterRequired": true,
-    "factCheckGatewayAuthentication": "server-side gate required; direct anonymous browser-to-worker denied",
+    "factCheckGatewayAuthentication": "serverless: explicit teacher access token OR server-side inner gate; CORS alone is insufficient",
     "serviceWorkerCachePolicy": "explicit-core-allowlist+canonical-root-offline-navigation-only",
     "csp": "meta-static-profile; response-header-required-on-school-server",
     "actualAppStateFactCheckCanary": "PASS_QUERY_ONLY",
@@ -158,10 +161,10 @@
     "offlineLeaseHardwareBinding": false,
     "offlineLeaseClockRollback": "requires managed-device/system-time operational control for full assurance",
     "multiTabLocking": "writer-lease-mitigated-device-test-pending",
-    "overallGate": "AMBER-STAGE13-SYNTHETIC-PILOT"
+    "overallGate": "AMBER-STAGE13R-REVIEW-PHYSICAL-ACCEPTANCE-PENDING"
   },
   "pilot": {
-    "mode": "controlled-synthetic-device-pilot",
+    "mode": "controlled-synthetic-device-pilot-with-local-confidential-review",
     "syntheticOnly": true,
     "confidentialExamPackAccepted": false,
     "reportSchema": "maturita-desk-pilot-run-v1",
@@ -170,6 +173,7 @@
     "studentIdentityFields": false,
     "mandatoryDeviceChecks": 16,
     "stressPackTargetMiB": 30,
-    "physicalDeviceAcceptance": "PENDING"
+    "physicalDeviceAcceptance": "PENDING",
+    "localInternalReviewConfidentialAccepted": true
   }
 }

@@ -2,7 +2,7 @@
   "schema": "ghrab-platform-consumer-v1",
   "appId": "maturita-desk",
   "appName": "Maturita Desk",
-  "appVersion": "0.10.0",
+  "appVersion": "0.10.1",
   "platform": {
     "version": "1.1.0",
     "contract": "ghrab-platform-v1",
@@ -52,7 +52,7 @@
     ]
   },
   "cache": {
-    "name": "ghrab-maturita-desk-v0.10.0",
+    "name": "ghrab-maturita-desk-v0.10.1",
     "updateMessage": "GHRAB_SKIP_WAITING"
   },
   "quality": {
@@ -73,7 +73,7 @@
         320
       ]
     },
-    "stage": "stage-13-synthetic-device-pilot",
+    "stage": "stage-13r-serverless-internal-review",
     "finalRelease": false,
     "cleanInstallRequired": true
   }

@@ -3,14 +3,19 @@ main = "fact-check-worker.mjs"
 compatibility_date = "2026-08-01"
 
 [vars]
-# Exact browser/gateway origins, comma-separated. Origin is supplemental CORS protection,
-# not authentication.
-ALLOWED_ORIGINS = "https://YOUR-TRUSTED-GATEWAY.example"
+# Exact Maturita Desk origin. Origin is supplemental CORS protection, not authentication.
+ALLOWED_ORIGINS = "https://maturita.example.invalid"
 OPENAI_FACTCHECK_MODEL = "gpt-5.6-terra"
 
-# Required secrets. Never place their values in this file or in public PWA configuration:
-# npx wrangler secret put OPENAI_API_KEY
-# npx wrangler secret put FACTCHECK_GATE_TOKEN
+# Choose EXACTLY ONE authorization mode:
 #
-# Required: bind FACTCHECK_RATE_LIMITER. The Worker fails closed when the binding is absent
-# or errors. The Worker also fails closed when FACTCHECK_GATE_TOKEN is absent/too short.
+# A) Temporary serverless/browser mode:
+#    secret FACTCHECK_ACCESS_TOKEN (min. 32 chars)
+#
+# B) Future school/edge inner-gate mode:
+#    secret FACTCHECK_GATE_TOKEN (min. 32 chars)
+#
+# In both modes also configure secret OPENAI_API_KEY.
+# Never place secret values in this file or in public PWA configuration.
+#
+# Required in both modes: bind FACTCHECK_RATE_LIMITER.

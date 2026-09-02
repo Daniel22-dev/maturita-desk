@@ -1,50 +1,49 @@
-# Maturita Desk — Fact Check inner proxy (Stage 13; security baseline Stage 12R)
+# Maturita Desk — Ověřit / dohledat (serverless + school-server)
 
-Tato složka je **serverová reference**, ne kód s API klíčem. Veřejná PWA nikdy nevolá OpenAI přímo.
+Tato složka obsahuje referenční edge Worker pro funkci **Ověřit / dohledat**. Veřejná PWA nikdy neobsahuje OpenAI API klíč a nikdy neposílá automaticky téma, Teacher Guidance, Notes, Content Pack ani identitu studenta. Do backendu jde pouze explicitně napsané pole `query`.
 
-## Důležitá změna Stage 12R
+## Dva podporované autorizační režimy
 
-Worker už **nesmí být anonymní placená brána chráněná pouze CORS/Origin hlavičkou**. Stage 12R proto vyžaduje současně:
+Worker se záměrně spustí pouze v právě jednom z následujících režimů. Pokud není nakonfigurován žádný nebo jsou omylem nakonfigurovány oba, fail-closed vrací `NOT_CONFIGURED`.
 
-- `OPENAI_API_KEY` jako serverový secret;
-- `FACTCHECK_RATE_LIMITER` jako povinnou serverovou vazbu;
-- `FACTCHECK_GATE_TOKEN` jako minimálně 32znakový serverový secret;
-- přesný `ALLOWED_ORIGINS` jako doplňkovou browserovou ochranu.
+### 1. Dočasný serverless režim — učitelský přístupový kód
 
-Bez kteréhokoli z prvních tří prvků endpoint fail-closed vrací `NOT_CONFIGURED`. Bez správného gate tokenu vrací `AUTH_REQUIRED` a OpenAI upstream se nevolá.
+Určeno pro období před školním serverem.
 
-**FACTCHECK_GATE_TOKEN se nesmí vložit do veřejného runtime-config.js, HTML ani JS.** Proto tento Worker není určen k přímému anonymnímu volání z GitHub Pages. Má být vnitřní downstream za autentizovaným edge/school gateway, který gate hlavičku doplní server-side. Dokud taková vrstva neexistuje, Fact Check zůstává v public PWA nenakonfigurován.
+Serverové secrets/bindings:
+- `OPENAI_API_KEY` — OpenAI API secret;
+- `FACTCHECK_ACCESS_TOKEN` — silný náhodný přístupový kód, min. 32 znaků;
+- `FACTCHECK_RATE_LIMITER` — povinný rate limiter;
+- `ALLOWED_ORIGINS` — přesný origin Maturita Desk;
+- `OPENAI_FACTCHECK_MODEL` — volitelně model, výchozí `gpt-5.6-terra`.
 
-## Bezpečnostní hranice
+Učitel vloží `FACTCHECK_ACCESS_TOKEN` do UI **Ověřit / dohledat**. Aplikace jej drží pouze v `sessionStorage` daného panelu a posílá v hlavičce `X-Maturita-Desk-Access`. Token se nesmí vložit do GitHubu, `runtime-config.js`, URL ani do logů. Při podezření na únik se okamžitě rotuje.
 
-- aplikační klient posílá své důvěryhodné gateway vrstvě pouze JSON `{ "query": "..." }`;
-- proxy odmítá jakákoli další pole;
-- `OPENAI_API_KEY` a `FACTCHECK_GATE_TOKEN` jsou pouze serverové secrety;
-- těla requestů i upstream odpovědí mají **streamovaný byte cap** — limit se nevynucuje až po načtení celého chunked body;
-- odpovědi OpenAI používají `store: false`;
-- pro každý dotaz se vyžaduje web search;
-- proxy vrací maximálně šest HTTPS zdrojů;
-- `.mdesk`, Notes ani session storage nejsou tímto endpointem dostupné;
-- `/health` neprozrazuje stav konfigurace a je chráněný gate kontrolou;
-- `Origin` je pouze doplňková CORS hranice, nikoli autentizace.
+Tento režim je dočasná serverless autentizace, nikoli náhrada individuálního školního SSO. Sdílený kód nerozlišuje jednotlivé učitele.
 
-## Bezpečný deployment
+### 2. Budoucí school-server / inner-gate režim
 
-Doporučené varianty jsou dvě:
+Serverové secrets/bindings:
+- `OPENAI_API_KEY`;
+- `FACTCHECK_GATE_TOKEN` — server-to-server secret, min. 32 znaků;
+- `FACTCHECK_RATE_LIMITER`;
+- `ALLOWED_ORIGINS`.
 
-1. **Školní server / School Gateway** — preferovaná cílová architektura. Učitel je ověřen cookie session a školní gateway volá tento downstream server-side.
-2. **Autentizovaný edge gateway** — např. samostatná přístupová vrstva, která ověří školní identitu a teprve potom server-side přidá `X-Maturita-Desk-Gate` při volání tohoto Workeru.
+Browser gate token nikdy nezná. Autentizovaná školní/edge gateway ověří učitele a teprve server-side přidá `X-Maturita-Desk-Gate`.
 
-Nedoporučeno a Stage 12R záměrně nepodporuje: veřejná PWA -> přímo veřejný Worker -> OpenAI pouze s CORS allowlistem.
+## Funkční kontrakt
 
-## Secrets / bindings
+- request body je výhradně `{ "query": "..." }`;
+- maximální délka query: 700 znaků;
+- vždy se vyžaduje web search;
+- odpověď obsahuje krátké české vysvětlení, jistotu a max. 6 HTTPS zdrojů;
+- přímý informační dotaz používá verdict `informational` (UI: **Dohledáno**);
+- tvrzení používá `confirmed`, `inaccurate`, `mixed`, `uncertain` nebo `not_verifiable`;
+- bez dohledatelného webového zdroje nesmí služba vrátit pozitivní faktický verdikt;
+- OpenAI request používá `store: false`;
+- request i response mají byte limity;
+- selhání služby nikdy nesmí zastavit Exam Engine ani časomíru.
 
-- `OPENAI_API_KEY` — secret;
-- `FACTCHECK_GATE_TOKEN` — secret, min. 32 znaků;
-- `FACTCHECK_RATE_LIMITER` — povinná binding/služba;
-- `ALLOWED_ORIGINS` — přesný browser origin gateway/PWA podle deploymentu;
-- `OPENAI_FACTCHECK_MODEL` — volitelný model.
+## Public GitHub profil
 
-## Budoucí školní server
-
-PWA komunikuje přes abstrakci `FactCheckProvider`, takže přechod na školní server nemění Exam Engine ani UI. Ve školním profilu se používá cookie session a same-origin School Gateway; gate token zůstává čistě serverový detail mezi backendovými vrstvami.
+Repozitář se záměrně vydává s prázdným `factCheck.endpoint`. Samotné nahrání ZIPu na GitHub tedy nevytvoří placený veřejný endpoint. Po nasazení Workeru se endpoint a jeho origin doplní do schválené runtime konfigurace podle `runtime-config.serverless-fact-check.example.js`.

@@ -17,11 +17,12 @@ import { loadRuntimeConfig } from './providers/runtime.js';
 import { createProviderRegistry } from './providers/registry.js';
 import { hasCapability } from './providers/auth-provider.js';
 import { installDeviceRuntime } from './device-runtime.js';
-import { PILOT_BUILD, PILOT_CHECKS, PILOT_STORAGE_KEY, PILOT_SYNTHETIC_ONLY, addPilotEvent, capturePilotDevice, createPilotRun, normalizePilotRun, pilotClassificationAllowed, pilotReportText, pilotSummary, recordPilotMetric, serializePilotReport, setPilotCheck } from './pilot.js';
+import { PILOT_BUILD, PILOT_CHECKS, PILOT_STORAGE_KEY, PILOT_SYNTHETIC_ONLY, PILOT_INTERNAL_REVIEW, addPilotEvent, capturePilotDevice, createPilotRun, normalizePilotRun, pilotClassificationAllowed, pilotReportText, pilotSummary, recordPilotMetric, serializePilotReport, setPilotCheck } from './pilot.js';
 import { SESSION_OWNER_HEARTBEAT_MS, claimSessionOwnership, readSessionOwner, refreshSessionOwnership, releaseSessionOwnership } from './session-coordinator.js';
 
 const APP_ID = 'maturita-desk';
-const APP_VERSION = '0.10.0';
+const APP_VERSION = '0.10.1';
+const FACT_ACCESS_KEY = 'ghrab.maturita-desk.fact-access.v1';
 const UI_KEY = 'ghrab.maturita-desk.ui-settings.v1';
 const SESSION_KEY = 'ghrab.maturita-desk.session.v1';
 const INSTANCE_ID = globalThis.crypto?.randomUUID?.() || `tab-${Date.now()}`;
@@ -35,7 +36,7 @@ const CONTENT_STORE_ADAPTER = Object.freeze({
   loadActiveEnvelope,
   removeActivePack
 });
-const PROVIDERS = createProviderRegistry(RUNTIME_CONFIG, { contentStore: CONTENT_STORE_ADAPTER });
+const PROVIDERS = createProviderRegistry(RUNTIME_CONFIG, { contentStore: CONTENT_STORE_ADAPTER, getFactAccessToken: loadFactAccessToken });
 let FACT_CHECK_PROVIDER = PROVIDERS.factCheck;
 let deviceRuntimeController = null;
 let sessionChannel = null;
@@ -136,6 +137,22 @@ function loadPilotRun() {
   } catch {
     return createPilotRun({ appVersion: APP_VERSION, device });
   }
+}
+
+function loadFactAccessToken() {
+  try { return String(sessionStorage.getItem(FACT_ACCESS_KEY) || '').trim().slice(0, 256); }
+  catch { return ''; }
+}
+
+function saveFactAccessToken(value) {
+  const token = String(value || '').trim();
+  if (token.length < 32 || token.length > 256 || !/^[A-Za-z0-9._~+-]+$/.test(token)) return false;
+  try { sessionStorage.setItem(FACT_ACCESS_KEY, token); return true; }
+  catch { return false; }
+}
+
+function clearFactAccessToken() {
+  try { sessionStorage.removeItem(FACT_ACCESS_KEY); } catch {}
 }
 
 function savePilotRun() {
@@ -915,6 +932,23 @@ async function handleClick(event) {
   if (action === 'close-lightbox') { closeLightbox(); return; }
   if (action === 'new-topic') { requestLeaveSession('topic-select'); return; }
   if (action === 'finish-home') { requestLeaveSession('home'); return; }
+  if (action === 'fact-access-save') {
+    const input = document.querySelector('[data-fact-access-token]');
+    const token = String(input?.value || '').trim();
+    if (token.length < 32) { toast('Přístupový kód musí mít alespoň 32 znaků.'); return; }
+    if (!saveFactAccessToken(token)) { toast('Přístupový kód se nepodařilo uložit pro tuto relaci prohlížeče.'); return; }
+    state.runtime.factCheck = currentFactCheckAvailability();
+    toast('Přístup pro Ověřit / dohledat je aktivní pro tuto relaci prohlížeče.');
+    renderDrawer();
+    return;
+  }
+  if (action === 'fact-access-clear') {
+    clearFactAccessToken();
+    state.runtime.factCheck = currentFactCheckAvailability();
+    toast('Přístupový kód pro Ověřit / dohledat byl z této relace odstraněn.');
+    renderDrawer();
+    return;
+  }
   if (action === 'fact-submit') { await submitFactCheck(); return; }
   if (action === 'fact-cancel') { cancelFactCheck(false); return; }
   if (action === 'fact-clear') { resetFactCheck(); renderDrawer(); return; }
@@ -1238,7 +1272,7 @@ function renderHome() {
           <button class="soft-button compact" data-action="open-access">Přístup</button>
           <button class="soft-button compact" data-action="open-content">Content Pack</button>
           <button class="soft-button compact" data-action="open-pilot">Pilot</button>
-          <span class="prototype-pill">Stage 13 · Synthetic device pilot</span>
+          <span class="prototype-pill">${PILOT_INTERNAL_REVIEW ? 'Stage 13R · Interní revize reálného obsahu' : 'Stage 13R · Serverless candidate / synthetic pilot'}</span>
           <button class="icon-button" data-action="cycle-theme" aria-label="Změnit vzhled" title="Vzhled: ${escapeHtml(state.theme)}">${icon('theme')}</button>
         </div>
       </div>
@@ -1246,7 +1280,7 @@ function renderHome() {
         <p class="eyebrow">Examiner workspace</p>
         <h1 class="hero-title">Maturita<br>Desk</h1>
         <p class="hero-subtitle">Ústní zkouška z anglického jazyka. Klidné pracovní prostředí pro zkoušejícího a přísedícího – na iPadu, telefonu i počítači.</p>
-        <div class="pilot-safety"><strong>Stage 13 je pilotní build pouze pro syntetická data.</strong><span>CONFIDENTIAL-EXAM Content Pack je v této verzi záměrně zablokovaný. Pilot měří zařízení, lifecycle, offline režim, PWA update a souběh panelů.</span></div>
+        <div class="pilot-safety"><strong>${PILOT_INTERNAL_REVIEW ? 'Interní lokální revize: CONFIDENTIAL-EXAM je povolen pouze na localhostu.' : 'Veřejný Stage 13R build je pouze pro syntetická data.'}</strong><span>${PILOT_INTERNAL_REVIEW ? 'Reálný maturitní Content Pack zůstává šifrovaný a nesmí být nahrán na GitHub ani sdílen se studenty. Tato lokální varianta slouží k interní obsahové a UX revizi.' : 'CONFIDENTIAL-EXAM Content Pack je v této verzi záměrně zablokovaný. Pilot měří zařízení, lifecycle, offline režim, PWA update a souběh panelů.'}</span></div>
         ${RUNTIME_CONFIG.configurationLoadError ? `<div class="safety-block runtime-fallback-warning"><strong>Runtime konfigurace nebyla načtena ze sítě.</strong><span>Aplikace používá release-pinned baked profil (${escapeHtml(RUNTIME_CONFIG.mode)} / ${escapeHtml(RUNTIME_CONFIG.environmentId)}). Kód chyby: ${escapeHtml(RUNTIME_CONFIG.configurationLoadError)}. Před ostrým použitím na školním serveru ověřte deployment.</span></div>` : ''}
         <div class="secure-content-strip ${protectedActive ? 'unlocked' : state.content.status}">
           <div>
@@ -1674,7 +1708,7 @@ function renderConsole() {
             ${s.timed ? `<div class="exam-clock" data-exam-clock><span>${s.mode === 'exam' ? 'Exam' : 'Nácvik'}</span><strong>${formatTime(getTotalElapsedNow())} / ${formatTime(totalTarget)}</strong></div>` : `<div class="exam-clock"><span>Nácvik</span><strong>bez času</strong></div>`}
             <span class="wake-chip ${state.runtime.wakeLock}" data-wake-status title="${escapeHtml(wakeLockLabel())}"><span class="status-dot ${state.runtime.wakeLock === 'active' ? '' : state.runtime.wakeLock === 'denied' ? 'warn' : 'off'}"></span><span>Displej</span></span>
             <button class="icon-button note-tool ${hasNotes() ? 'has-note' : ''}" data-action="open-notes" aria-label="Poznámky" title="Poznámky" data-notes-global>${icon('notes')}<span class="note-dot" aria-hidden="true"></span></button>
-            <button class="icon-button" data-action="open-fact" aria-label="Fact Check" title="Fact Check">${icon('search')}</button>
+            <button class="icon-button" data-action="open-fact" aria-label="Ověřit / dohledat" title="Ověřit / dohledat">${icon('search')}</button>
             <button class="icon-button" data-action="cycle-theme" aria-label="Změnit vzhled" title="Vzhled">${icon('theme')}</button>
           </div>
         </div>
@@ -1947,7 +1981,7 @@ function renderMobileNav() {
   return `<nav class="mobile-phase-nav ${s.mode === 'practice' ? 'practice' : ''}" aria-label="Mobilní navigace">
     ${phases.map(phase => `<button class="mobile-phase ${s.viewPhase === phase ? 'active' : ''} ${hasNote(s.notes, phase) ? 'has-note' : ''}" data-action="view-phase" data-phase="${phase}" data-note-indicator-phase="${phase}">${PHASE_LABELS[phase]}<span class="note-dot" aria-hidden="true"></span></button>`).join('')}
     <button class="mobile-phase icon ${hasNotes() ? 'has-note' : ''}" data-action="open-notes" aria-label="Poznámky" data-notes-global>${icon('notes')}<span class="note-dot" aria-hidden="true"></span></button>
-    <button class="mobile-phase icon" data-action="open-fact" aria-label="Fact Check">${icon('search')}</button>
+    <button class="mobile-phase icon" data-action="open-fact" aria-label="Ověřit / dohledat">${icon('search')}</button>
   </nav>`;
 }
 
@@ -2154,7 +2188,7 @@ function renderAccessDrawer() {
         <p>${capabilities.length ? capabilities.map(item => `<code>${escapeHtml(item)}</code>`).join(' · ') : 'Žádná aktivní oprávnění.'}</p>
       </div>
       ${school ? `<div class="pack-actions-block"><h3>Školní relace</h3><div class="fact-actions">${auth.authenticated ? `<button class="soft-button" data-action="auth-refresh" ${!state.online ? 'disabled' : ''}>Ověřit znovu</button><button class="text-danger-button" data-action="auth-logout" ${state.session ? 'disabled' : ''}>Odhlásit</button>` : `<button class="primary-button" data-action="auth-login" ${!state.online ? 'disabled' : ''}>Přihlásit přes školu</button><button class="soft-button" data-action="auth-refresh" ${!state.online ? 'disabled' : ''}>Zkontrolovat relaci</button>`}</div></div>` : ''}
-      <div class="privacy-note"><strong>Minimalizace identity.</strong> Maturita Desk nepotřebuje jméno maturanta. Serverová identita učitele slouží pouze k autorizaci funkcí a distribuci chráněného obsahu; aplikace ji nepřidává do pracovních poznámek ani do Fact Check dotazu.</div>
+      <div class="privacy-note"><strong>Minimalizace identity.</strong> Maturita Desk nepotřebuje jméno maturanta. Serverová identita učitele slouží pouze k autorizaci funkcí a distribuci chráněného obsahu; aplikace ji nepřidává do pracovních poznámek ani do dotazu Ověřit / dohledat.</div>
     </div>`;
 }
 
@@ -2169,9 +2203,9 @@ function renderContentDrawer() {
   const remote = PROVIDERS.content.remote;
   const manualImport = PROVIDERS.content.allowManualImport;
   return `
-    <div class="drawer-head"><div><h2>Content Pack</h2><p>Stage 13: pouze šifrované syntetické pilotní balíčky.</p></div><button class="icon-button" data-action="close-drawer" aria-label="Zavřít">${icon('close')}</button></div>
+    <div class="drawer-head"><div><h2>Content Pack</h2><p>${PILOT_INTERNAL_REVIEW ? 'Interní lokální revize: povolen SYNTHETIC-DEMO i CONFIDENTIAL-EXAM.' : 'Veřejný Stage 13R: pouze šifrované syntetické pilotní balíčky.'}</p></div><button class="icon-button" data-action="close-drawer" aria-label="Zavřít">${icon('close')}</button></div>
     <div class="drawer-body content-pack-drawer">
-      <div class="pack-security-banner"><strong>Ostrý obsah je v Stage 13 zablokovaný.</strong><span>${remote ? 'Školní server doručuje pouze šifrovaný .mdesk envelope. Lokální kopie zůstává šifrovaná a serverová session se neposílá do payloadu.' : 'Importovaný balíček je uložen v IndexedDB pouze jako AES-256-GCM šifrovaný payload. Heslo se neukládá.'}</span></div>
+      <div class="pack-security-banner"><strong>${PILOT_INTERNAL_REVIEW ? 'Ostrý obsah je povolen pouze v této lokální interní revizi.' : 'Ostrý obsah je ve veřejném Stage 13R zablokovaný.'}</strong><span>${remote ? 'Školní server doručuje pouze šifrovaný .mdesk envelope. Lokální kopie zůstává šifrovaná a serverová session se neposílá do payloadu.' : 'Importovaný balíček je uložen v IndexedDB pouze jako AES-256-GCM šifrovaný payload. Heslo se neukládá.'}</span></div>
       <div class="pack-status-card ${state.content.status}">
         <span class="secure-kicker">Stav</span>
         <h3>${escapeHtml(statusText)}</h3>
@@ -2196,9 +2230,9 @@ function renderPilotDrawer() {
   const metricImport = state.pilot.metrics?.['content.import'];
   const metricUnlock = state.pilot.metrics?.['content.unlock'];
   return `
-    <div class="drawer-head"><div><h2>Stage 13 Pilot</h2><p>Řízený acceptance test zařízení. Výhradně syntetická data.</p></div><button class="icon-button" data-action="close-drawer" aria-label="Zavřít">${icon('close')}</button></div>
+    <div class="drawer-head"><div><h2>Stage 13R Pilot / Review</h2><p>${PILOT_INTERNAL_REVIEW ? 'Lokální interní obsahová/UX revize; pilotní záznam může obsahovat pouze technické poznámky bez opisování ostrého zadání.' : 'Řízený acceptance test zařízení. Výhradně syntetická data.'}</p></div><button class="icon-button" data-action="close-drawer" aria-label="Zavřít">${icon('close')}</button></div>
     <div class="drawer-body pilot-drawer">
-      <div class="pilot-safety"><strong>Žádná reálná studentská data ani ostrý Content Pack.</strong><span>Report neobsahuje jméno testera ani studenta. Do poznámek checklistu nevkládejte osobní údaje.</span></div>
+      <div class="pilot-safety"><strong>${PILOT_INTERNAL_REVIEW ? 'Žádná reálná studentská data. Reálný Content Pack pouze lokálně.' : 'Žádná reálná studentská data ani ostrý Content Pack.'}</strong><span>Report neobsahuje jméno testera ani studenta. Do poznámek checklistu nevkládejte osobní údaje ani text ostrého zadání.</span></div>
       <div class="pilot-summary"><div><span>PASS</span><strong>${summary.pass}</strong></div><div><span>FAIL</span><strong>${summary.fail}</strong></div><div><span>BLOCKED</span><strong>${summary.blocked}</strong></div><div><span>Povinné zbývá</span><strong>${summary.mandatoryPending}</strong></div></div>
       <div class="pack-status-card ${summary.complete ? 'unlocked' : 'locked'}"><span class="secure-kicker">Pilot gate</span><h3>${summary.complete ? 'PASS – všechny povinné scénáře' : 'OPEN – fyzické testy nejsou dokončené'}</h3><p>${escapeHtml(PILOT_BUILD)} · ${escapeHtml(APP_VERSION)}</p></div>
       <div class="pack-actions-block"><h3>Zařízení</h3><dl class="pack-meta"><div><dt>Viewport</dt><dd>${Number(device.viewport?.width || 0)} × ${Number(device.viewport?.height || 0)}</dd></div><div><dt>Standalone PWA</dt><dd>${device.standalone ? 'ano' : 'ne'}</dd></div><div><dt>Touch points</dt><dd>${Number(device.touchPoints || 0)}</dd></div><div><dt>Service Worker</dt><dd>${device.serviceWorker ? 'ano' : 'ne'}</dd></div><div><dt>Wake Lock</dt><dd>${device.wakeLock ? 'ano' : 'ne'}</dd></div><div><dt>BroadcastChannel</dt><dd>${device.broadcastChannel ? 'ano' : 'ne'}</dd></div></dl></div>
@@ -2207,7 +2241,7 @@ function renderPilotDrawer() {
         const current = state.pilot.checks[item.id] || { status: 'not-run', note: '' };
         return `<section class="pilot-check ${current.status}"><div class="pilot-check-head"><div><span>${escapeHtml(item.area)}${item.mandatory ? ' · POVINNÉ' : ''}</span><strong>${escapeHtml(item.label)}</strong></div><em>${escapeHtml(current.status.toUpperCase())}</em></div><textarea data-pilot-note="${escapeHtml(item.id)}" maxlength="1000" placeholder="Bez osobních údajů: zařízení, krok, co se stalo…">${escapeHtml(current.note || '')}</textarea><div class="pilot-check-actions"><button class="soft-button" data-action="pilot-mark" data-pilot-id="${escapeHtml(item.id)}" data-status="pass">PASS</button><button class="soft-button" data-action="pilot-mark" data-pilot-id="${escapeHtml(item.id)}" data-status="fail">FAIL</button><button class="soft-button" data-action="pilot-mark" data-pilot-id="${escapeHtml(item.id)}" data-status="blocked">BLOCKED</button><button class="text-button" data-action="pilot-mark" data-pilot-id="${escapeHtml(item.id)}" data-status="not-run">Reset</button></div></section>`;
       }).join('')}</div>
-      <div class="pack-actions-block"><h3>Export výsledku</h3><p>Po testu exportujte JSON nebo čitelný TXT a vraťte jej k vyhodnocení Stage 13. Report je lokální a neodesílá se automaticky.</p><div class="fact-actions"><button class="primary-button" data-action="pilot-export-json">Export JSON</button><button class="soft-button" data-action="pilot-export-txt">Export TXT</button><button class="text-danger-button" data-action="pilot-reset">Vymazat pilotní záznam</button></div></div>
+      <div class="pack-actions-block"><h3>Export výsledku</h3><p>Po testu exportujte JSON nebo čitelný TXT a vraťte jej k vyhodnocení Stage 13R. Report je lokální a neodesílá se automaticky.</p><div class="fact-actions"><button class="primary-button" data-action="pilot-export-json">Export JSON</button><button class="soft-button" data-action="pilot-export-txt">Export TXT</button><button class="text-danger-button" data-action="pilot-reset">Vymazat pilotní záznam</button></div></div>
     </div>`;
 }
 
@@ -2215,22 +2249,25 @@ function renderFactDrawer() {
   const availability = currentFactCheckAvailability();
   const result = state.factResult;
   const busy = state.factState === 'loading';
+  const standalone = RUNTIME_CONFIG.factCheck.provider === 'isolated-http';
+  const accessConfigured = Boolean(loadFactAccessToken());
   return `
-    <div class="drawer-head"><div><h2>Fact Check</h2><p>Rychlé online ověření faktického tvrzení se zdroji.</p></div><button class="icon-button" data-action="close-drawer" aria-label="Zavřít">${icon('close')}</button></div>
+    <div class="drawer-head"><div><h2>Ověřit / dohledat</h2><p>Rychlé dohledání aktuální informace nebo ověření tvrzení bez opuštění Maturita Desk.</p></div><button class="icon-button" data-action="close-drawer" aria-label="Zavřít">${icon('close')}</button></div>
     <div class="drawer-body fact-drawer">
-      <div class="fact-security"><strong>Izolováno od zkoušky.</strong> Provider dostane pouze text, který sem výslovně napíšete. Číslo tématu, zadání, Teacher Answers, Content Pack ani pracovní poznámky se k požadavku nepřipojují.<br><strong>Nevkládejte jméno, třídu ani jiný identifikátor maturanta.</strong></div>
-      <div class="fact-provider-status ${availability.code}"><span class="status-dot ${availability.ready ? '' : availability.code === 'offline' ? 'off' : 'warn'}"></span><strong>${escapeHtml(availability.label)}</strong><span>${RUNTIME_CONFIG.factCheck.endpoint ? (RUNTIME_CONFIG.factCheck.provider === 'school-server' ? 'Požadavek jde přes školní session; tělo obsahuje pouze query.' : 'Online služba je oddělená od Exam Engine.') : 'Pro ostré použití je nutné nasadit serverový proxy endpoint.'}</span></div>
+      <div class="fact-security"><strong>Izolováno od zkoušky.</strong> Online služba dostane pouze text, který sem výslovně napíšete. Číslo tématu, zadání, Teacher Answers, Content Pack ani pracovní poznámky se k požadavku nepřipojují.<br><strong>Nevkládejte jméno, třídu ani jiný identifikátor maturanta.</strong></div>
+      <div class="fact-provider-status ${availability.code}"><span class="status-dot ${availability.ready ? '' : availability.code === 'offline' ? 'off' : 'warn'}"></span><strong>${escapeHtml(availability.label)}</strong><span>${RUNTIME_CONFIG.factCheck.endpoint ? (RUNTIME_CONFIG.factCheck.provider === 'school-server' ? 'Požadavek jde přes školní session; tělo obsahuje pouze query.' : 'Serverless služba je oddělená od Exam Engine a vyžaduje samostatný učitelský přístupový kód.') : 'Online služba zatím není připojená. Exam, Practice a Notes fungují bez ní.'}</span></div>
+      ${standalone && RUNTIME_CONFIG.factCheck.endpoint ? `<div class="pack-actions-block"><h3>Serverless přístup</h3><p>Přístupový kód není OpenAI API klíč. Je to dočasné oprávnění k serverless službě a ukládá se pouze do sessionStorage tohoto panelu.</p><label class="fact-query-label"><span>Učitelský přístupový kód</span><input type="password" data-fact-access-token minlength="32" maxlength="256" autocomplete="off" placeholder="Vložte přístupový kód…" value=""></label><div class="fact-actions"><button class="soft-button" data-action="fact-access-save">${accessConfigured ? 'Nahradit přístupový kód' : 'Aktivovat přístup'}</button>${accessConfigured ? '<button class="text-danger-button" data-action="fact-access-clear">Zapomenout kód</button>' : ''}</div></div>` : ''}
       <div class="fact-form">
-        <label class="fact-query-label"><span>Tvrzení nebo otázka k ověření</span><textarea data-fact-query maxlength="${FACT_CHECK_MAX_QUERY}" autocomplete="off" autocapitalize="sentences" spellcheck="true" placeholder="Např. Student tvrdí, že Sydney je hlavní město Austrálie. Je to správně?">${escapeHtml(state.factQuery)}</textarea><small data-fact-counter>${state.factQuery.length} / ${FACT_CHECK_MAX_QUERY}</small></label>
+        <label class="fact-query-label"><span>Co chcete ověřit nebo dohledat?</span><textarea data-fact-query maxlength="${FACT_CHECK_MAX_QUERY}" autocomplete="off" autocapitalize="sentences" spellcheck="true" placeholder="Např. Jaký je aktuální počet obyvatel Austrálie? Nebo: Student tvrdí, že Sydney je hlavní město Austrálie. Je to správně?">${escapeHtml(state.factQuery)}</textarea><small data-fact-counter>${state.factQuery.length} / ${FACT_CHECK_MAX_QUERY}</small></label>
         <div class="fact-actions">
-          <button class="primary-button" data-action="fact-submit" ${!availability.ready || busy ? 'disabled' : ''}>${busy ? 'Ověřuji na webu…' : availability.code === 'offline' ? 'Fact Check je offline' : availability.code === 'unconfigured' ? 'Provider není připojen' : availability.code === 'auth-required' ? 'Vyžaduje školní oprávnění' : availability.code === 'checking' ? 'Kontrola přístupu…' : 'Ověřit na webu'}</button>
+          <button class="primary-button" data-action="fact-submit" ${!availability.ready || busy ? 'disabled' : ''}>${busy ? 'Dohledávám na webu…' : availability.code === 'offline' ? 'Online ověření je offline' : availability.code === 'unconfigured' ? 'Online služba není připojena' : availability.code === 'access-required' ? 'Zadejte přístupový kód' : availability.code === 'auth-required' ? 'Vyžaduje školní oprávnění' : availability.code === 'checking' ? 'Kontrola přístupu…' : 'Ověřit / dohledat'}</button>
           ${busy ? '<button class="soft-button" data-action="fact-cancel">Zrušit</button>' : (state.factQuery || result || state.factError ? '<button class="soft-button" data-action="fact-clear">Vyčistit</button>' : '')}
         </div>
       </div>
-      ${busy ? '<div class="fact-progress" role="status"><span class="fact-spinner" aria-hidden="true"></span><div><strong>Probíhá ověření</strong><p>Provider vyhledává aktuální zdroje. Zkouška i časomíra mezitím pokračují nezávisle.</p></div></div>' : ''}
-      ${state.factState === 'error' && state.factError ? `<div class="fact-error"><strong>Ověření se nepodařilo.</strong><span>${escapeHtml(state.factError)}</span></div>` : ''}
+      ${busy ? '<div class="fact-progress" role="status"><span class="fact-spinner" aria-hidden="true"></span><div><strong>Probíhá dohledání</strong><p>Služba vyhledává aktuální zdroje. Zkouška i časomíra mezitím pokračují nezávisle.</p></div></div>' : ''}
+      ${state.factState === 'error' && state.factError ? `<div class="fact-error"><strong>Ověření / dohledání se nepodařilo.</strong><span>${escapeHtml(state.factError)}</span></div>` : ''}
       ${result ? renderFactResult(result) : ''}
-      <div class="fact-footnote"><strong>Rychlá opora, ne důkazní autorita.</strong> U nejasného nebo sporného výsledku otevřete zdroje. Fact Check není součástí hodnocení studenta a jeho výpadek nesmí přerušit zkoušku.</div>
+      <div class="fact-footnote"><strong>Rychlá opora, ne důkazní autorita.</strong> U nejasného nebo sporného výsledku otevřete zdroje. Ověřit / dohledat není součástí hodnocení studenta a jeho výpadek nesmí přerušit zkoušku.</div>
     </div>`;
 }
 
@@ -2238,7 +2275,7 @@ let factAbortController = null;
 
 async function submitFactCheck() {
   const availability = currentFactCheckAvailability();
-  if (!availability.ready || !FACT_CHECK_PROVIDER) { toast(availability.code === 'offline' ? 'Fact Check není bez internetu dostupný.' : 'Fact Check provider není nakonfigurován.'); return; }
+  if (!availability.ready || !FACT_CHECK_PROVIDER) { toast(availability.code === 'offline' ? 'Ověřit / dohledat není bez internetu dostupné.' : 'Online služba Ověřit / dohledat není nakonfigurována.'); return; }
   let query;
   try { query = sanitizeFactQuery(state.factQuery); }
   catch (error) { toast(error?.message || 'Dotaz nelze odeslat.'); return; }
@@ -2260,7 +2297,7 @@ async function submitFactCheck() {
       state.factError = '';
     } else {
       state.factState = 'error';
-      state.factError = error?.message || 'Fact Check se nepodařilo dokončit.';
+      state.factError = error?.message || 'Ověření / dohledání se nepodařilo dokončit.';
     }
   } finally {
     factAbortController = null;
@@ -2288,18 +2325,20 @@ function currentFactCheckAvailability() {
   if (RUNTIME_CONFIG.factCheck.provider === 'school-server' && !canUse('fact-check')) {
     return { ready: false, code: state.auth.status === 'checking' ? 'checking' : 'auth-required', label: state.auth.status === 'checking' ? 'Kontrola přístupu…' : 'Vyžaduje školní oprávnění' };
   }
-  return factCheckAvailability({ online: state.online, endpoint: RUNTIME_CONFIG.factCheck.endpoint });
+  const base = factCheckAvailability({ online: state.online, endpoint: RUNTIME_CONFIG.factCheck.endpoint });
+  if (base.ready && RUNTIME_CONFIG.factCheck.provider === 'isolated-http' && !loadFactAccessToken()) return { ready: false, code: 'access-required', label: 'Vyžaduje učitelský přístupový kód' };
+  return base;
 }
 
 function factCheckStatusItem() {
   const availability = currentFactCheckAvailability();
   const dot = availability.ready ? '' : availability.code === 'offline' ? 'off' : 'warn';
-  return `<button class="status-item status-button" data-action="open-fact"><span class="status-dot ${dot}"></span>Fact Check · ${escapeHtml(availability.label)}</button>`;
+  return `<button class="status-item status-button" data-action="open-fact"><span class="status-dot ${dot}"></span>Ověřit / dohledat · ${escapeHtml(availability.label)}</button>`;
 }
 
 function factCheckReadinessRow() {
   const availability = currentFactCheckAvailability();
-  return readinessRow('Fact Check', availability.label, availability.ready ? 'ok' : 'warn');
+  return readinessRow('Ověřit / dohledat', availability.label, availability.ready ? 'ok' : 'warn');
 }
 
 function renderFactResult(result) {
@@ -2308,7 +2347,8 @@ function renderFactResult(result) {
     inaccurate: ['Nepřesné', 'inaccurate'],
     mixed: ['Záleží na kontextu', 'mixed'],
     uncertain: ['Nejisté', 'uncertain'],
-    not_verifiable: ['Nelze spolehlivě ověřit', 'uncertain']
+    not_verifiable: ['Nelze spolehlivě ověřit', 'uncertain'],
+    informational: ['Dohledáno', 'confirmed']
   };
   const [label, cls] = verdicts[result.verdict] || verdicts.uncertain;
   const confidence = { high: 'vysoká', medium: 'střední', low: 'nízká' }[result.confidence] || 'nízká';
@@ -2398,7 +2438,7 @@ function brandLockup() {
 }
 
 function footer() {
-  return `<footer class="home-footer"><span>Gymnázium, Ostrava-Hrabůvka · Součást AI Studia GHRAB</span><span>Maturita Desk ${APP_VERSION} · Stage 13 · Synthetic Device Pilot</span></footer>`;
+  return `<footer class="home-footer"><span>Gymnázium, Ostrava-Hrabůvka · Součást AI Studia GHRAB</span><span>Maturita Desk ${APP_VERSION} · ${PILOT_INTERNAL_REVIEW ? 'Stage 13R · Internal Review Local' : 'Stage 13R · Serverless Candidate'}</span></footer>`;
 }
 
 function toast(message) {
@@ -2708,7 +2748,7 @@ function takeOverSession() {
 function renderSessionConflict() {
   const owner = readSessionOwner(localStorage);
   const fresh = owner?.fresh;
-  return `<main class="page-shell"><div class="content-frame"><div class="page-topline">${brandLockup()}<span class="prototype-pill">Stage 13 · Multi-tab guard</span></div><section class="unlock-resume-card session-conflict-card"><p class="eyebrow">Concurrency guard</p><h1>Aktivní relaci zapisuje jiný panel</h1><p>Tento panel je zablokovaný pro zápis, aby nemohl přepsat timer nebo Notes. ${fresh ? 'Jiný panel má čerstvý zápisový lease.' : 'Původní lease už není čerstvý.'}</p><div class="safety-block"><strong>Nejbezpečnější postup</strong><span>Vraťte se do původního panelu. Převzetí použijte pouze tehdy, pokud je původní panel zavřený nebo nereaguje.</span></div><div class="finish-actions"><button class="primary-button" data-action="session-takeover">Převzít zápis této relace</button><button class="soft-button" data-action="go-home">Zpět</button></div></section></div></main>`;
+  return `<main class="page-shell"><div class="content-frame"><div class="page-topline">${brandLockup()}<span class="prototype-pill">Stage 13R · Multi-tab guard</span></div><section class="unlock-resume-card session-conflict-card"><p class="eyebrow">Concurrency guard</p><h1>Aktivní relaci zapisuje jiný panel</h1><p>Tento panel je zablokovaný pro zápis, aby nemohl přepsat timer nebo Notes. ${fresh ? 'Jiný panel má čerstvý zápisový lease.' : 'Původní lease už není čerstvý.'}</p><div class="safety-block"><strong>Nejbezpečnější postup</strong><span>Vraťte se do původního panelu. Převzetí použijte pouze tehdy, pokud je původní panel zavřený nebo nereaguje.</span></div><div class="finish-actions"><button class="primary-button" data-action="session-takeover">Převzít zápis této relace</button><button class="soft-button" data-action="go-home">Zpět</button></div></section></div></main>`;
 }
 
 // Section buttons use event delegation but are intentionally not data-action controls,

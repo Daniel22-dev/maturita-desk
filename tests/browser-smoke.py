@@ -80,7 +80,7 @@ with sync_playwright() as pw:
     expect(page.get_by_text('Body k porovnání', exact=True)).to_be_visible()
 
     # Stage 13 Fact Check: only explicit teacher query is sent; exam timer keeps running.
-    page.get_by_role('button', name='Fact Check').first.click()
+    page.get_by_role('button', name='Ověřit / dohledat').first.click()
     fact_query = 'Student tvrdí, že Sydney je hlavní město Austrálie.'
     page.locator('[data-fact-query]').fill(fact_query)
     page.get_by_role('button', name='Ověřit na webu').click()

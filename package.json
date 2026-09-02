@@ -1,9 +1,9 @@
 {
   "name": "maturita-desk",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "private": true,
   "type": "module",
-  "description": "Stage 13 controlled synthetic device pilot for Maturita Desk: in-app pilot recorder, synthetic-only content gate, multi-tab write guard, lifecycle/PWA instrumentation and device acceptance tooling.",
+  "description": "Stage 13R serverless/internal-review candidate for Maturita Desk: GitHub-safe synthetic public pilot, localhost confidential-content review, hardened Content Pack import, and serverless-ready Verify / Lookup.",
   "scripts": {
     "test": "node scripts/validate.mjs && node scripts/security-scan.mjs && node tests/exam-engine.test.mjs && node tests/notes.test.mjs && node tests/content-validator.test.mjs && node tests/rich-content.test.mjs && node tests/content-pack.test.mjs && node tests/review-model.test.mjs && node tests/review-patch.test.mjs && node tests/fact-check.test.mjs && node tests/response-limits.test.mjs && node tests/fact-check-worker.test.mjs && node tests/runtime-config.test.mjs && node tests/runtime-pair.test.mjs && node tests/auth-provider.test.mjs && node tests/content-provider.test.mjs && node tests/provider-registry.test.mjs && node tests/server-mode-integration.test.mjs && node tests/device-runtime.test.mjs && node tests/device-session-resume.test.mjs && node tests/pwa-hardening.test.mjs && node tests/security-stage12.test.mjs && node tests/claude-stage12-findings.test.mjs && node tests/ai-red-structural.test.mjs && node tests/pilot.test.mjs && node tests/session-coordinator.test.mjs && node tests/content-import-bridge.test.mjs && node tests/main-multitab-smoke.mjs && node tests/main-runtime-smoke.mjs"
   }

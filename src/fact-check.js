@@ -6,7 +6,7 @@ export const FACT_CHECK_MAX_SOURCES = 6;
 export const FACT_CHECK_DEFAULT_TIMEOUT_MS = 18000;
 export const FACT_CHECK_MAX_RESPONSE_BYTES = 128 * 1024;
 
-const VERDICTS = new Set(['confirmed', 'inaccurate', 'mixed', 'uncertain', 'not_verifiable']);
+const VERDICTS = new Set(['confirmed', 'inaccurate', 'mixed', 'uncertain', 'not_verifiable', 'informational']);
 const CONFIDENCE = new Set(['high', 'medium', 'low']);
 
 export class FactCheckError extends Error {
@@ -64,7 +64,7 @@ export function normalizeFactCheckResult(value) {
   };
 }
 
-export function createHttpFactCheckProvider({ endpoint, timeoutMs = FACT_CHECK_DEFAULT_TIMEOUT_MS, fetchImpl = globalThis.fetch, credentials = 'omit', mode = 'cors', getCsrfToken = () => '' } = {}) {
+export function createHttpFactCheckProvider({ endpoint, timeoutMs = FACT_CHECK_DEFAULT_TIMEOUT_MS, fetchImpl = globalThis.fetch, credentials = 'omit', mode = 'cors', getCsrfToken = () => '', getAccessToken = () => '' } = {}) {
   const safeEndpoint = String(endpoint ?? '').trim();
   if (!isAllowedEndpoint(safeEndpoint)) return null;
   if (typeof fetchImpl !== 'function') return null;
@@ -92,7 +92,8 @@ export function createHttpFactCheckProvider({ endpoint, timeoutMs = FACT_CHECK_D
             'Content-Type': 'application/json',
             'Accept': 'application/json',
             'X-Maturita-Desk-Client': 'fact-check-v1',
-            ...(credentials === 'include' && String(getCsrfToken?.() || '').trim() ? { 'X-CSRF-Token': String(getCsrfToken()).trim().slice(0, 512) } : {})
+            ...(credentials === 'include' && String(getCsrfToken?.() || '').trim() ? { 'X-CSRF-Token': String(getCsrfToken()).trim().slice(0, 512) } : {}),
+            ...(credentials !== 'include' && sanitizeAccessToken(getAccessToken?.()) ? { 'X-Maturita-Desk-Access': sanitizeAccessToken(getAccessToken?.()) } : {})
           },
           body: JSON.stringify({ query }),
           signal: controller.signal
@@ -118,6 +119,12 @@ export function createHttpFactCheckProvider({ endpoint, timeoutMs = FACT_CHECK_D
       }
     }
   });
+}
+
+
+function sanitizeAccessToken(value) {
+  const token = String(value || '').trim();
+  return token.length >= 32 && token.length <= 256 && /^[A-Za-z0-9._~+-]+$/.test(token) ? token : '';
 }
 
 function normalizeSources(value) {

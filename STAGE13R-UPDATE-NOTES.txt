@@ -1,0 +1,30 @@
+MATURITA DESK 0.10.1 — STAGE 13R UPDATE NOTES
+=============================================
+
+HLAVNÍ ZMĚNY
+- oprava nefunkčního ručního Content Pack importu z draweru + regresní test;
+- localhost-only interní review režim pro reálný CONFIDENTIAL-EXAM pack;
+- veřejný GitHub Pages režim zůstává synthetic-only;
+- serverless je explicitně podporovaná provozní cesta i bez školního serveru;
+- Fact Check přejmenován na Ověřit / dohledat;
+- přidána podpora přímého informačního dotazu (Dohledáno) vedle ověřování tvrzení;
+- zachováno query-only soukromí: žádný automatický exam/topic/notes/student context;
+- připraven dočasný serverless učitelský access-token režim pro edge Worker;
+- access token je oddělený od OpenAI API klíče a klient jej drží pouze v sessionStorage;
+- worker fail-closed vyžaduje autentizaci, rate limiter a exact Origin policy;
+- budoucí school-server/SSO architektura zůstává kompatibilní.
+
+DŮLEŽITÁ OMEZENÍ
+- reálný Content Pack není součástí GitHub update ZIPu;
+- reálný obsah stále čeká na lidskou pedagogickou revizi;
+- veřejný GitHub Pages origin není schválen pro ostrý Content Pack;
+- Ověřit / dohledat nemá v public configu endpoint ani secret a po samotném GitHub uploadu tedy ještě nebude online;
+- fyzické device acceptance testy zůstávají otevřené.
+
+NÁSLEDUJÍCÍ LOGICKÝ KROK
+1. nahrát tento update na GitHub;
+2. ověřit zelené Actions a veřejný synthetic build;
+3. spustit stejný balík lokálně a provést uživatelskou revizi s reálným encrypted packem;
+4. zapsat nalezené chyby/UX připomínky;
+5. po opravách uzavřít Stage 13R;
+6. Stage 14A vytvořit jako produkční serverless release na izolovaném originu, s finálním revidovaným packem a případně živou chráněnou službou Ověřit / dohledat.

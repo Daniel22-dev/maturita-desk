@@ -59,6 +59,34 @@ assert.equal('topic' in capturedUpstream.body, false);
 assert.equal('notes' in capturedUpstream.body, false);
 assert.equal('session' in capturedUpstream.body, false);
 
+const directAccess = 'synthetic-direct-access-token-00000000000001';
+const directEnv = {
+  OPENAI_API_KEY: 'test-secret-not-real',
+  OPENAI_FACTCHECK_MODEL: 'gpt-5.6-terra',
+  ALLOWED_ORIGINS: origin,
+  FACTCHECK_ACCESS_TOKEN: directAccess,
+  FACTCHECK_RATE_LIMITER: limiter
+};
+const directRequest = new Request('https://worker.example/fact-check', {
+  method: 'POST',
+  headers: { Origin: origin, 'Content-Type': 'application/json', 'X-Maturita-Desk-Access': directAccess },
+  body: JSON.stringify({ query: 'Who is the current synthetic office holder?' })
+});
+const directResponse = await handleFactCheckRequest(directRequest, directEnv, async () => new Response(JSON.stringify({
+  output_text: JSON.stringify({ verdict: 'informational', confidence: 'high', answer: 'Synthetic current information.' }),
+  output: [{ type: 'web_search_call', status: 'completed', action: { sources: [{ title: 'Synthetic official source', url: 'https://example.org/current' }] } }]
+}), { status: 200, headers: { 'Content-Type': 'application/json' } }));
+assert.equal(directResponse.status, 200);
+assert.equal((await directResponse.json()).verdict, 'informational');
+const directMissingToken = await handleFactCheckRequest(new Request('https://worker.example/fact-check', {
+  method: 'POST', headers: { Origin: origin, 'Content-Type': 'application/json' }, body: JSON.stringify({ query: 'A fact' })
+}), directEnv, mockOpenAI);
+assert.equal(directMissingToken.status, 401);
+const ambiguousAuth = await handleFactCheckRequest(new Request('https://worker.example/fact-check', {
+  method: 'POST', headers: { Origin: origin, 'Content-Type': 'application/json', 'X-Maturita-Desk-Access': directAccess }, body: JSON.stringify({ query: 'A fact' })
+}), { ...directEnv, FACTCHECK_GATE_TOKEN: gate }, mockOpenAI);
+assert.equal(ambiguousAuth.status, 503);
+
 const extraField = await handleFactCheckRequest(req('POST', { query: 'A', topic: 'SECRET' }), env, mockOpenAI);
 assert.equal(extraField.status, 400);
 assert.equal((await extraField.json()).code, 'INVALID_QUERY');
@@ -113,6 +141,7 @@ assert.equal(healthNoGate.status, 401);
 const preflight = await handleFactCheckRequest(new Request('https://worker.example/fact-check', { method: 'OPTIONS', headers: { Origin: origin } }), env, mockOpenAI);
 assert.equal(preflight.status, 204);
 assert.equal(preflight.headers.get('Access-Control-Allow-Origin'), origin);
+assert.match(preflight.headers.get('Access-Control-Allow-Headers') || '', /X-Maturita-Desk-Access/);
 assert.match(preflight.headers.get('Access-Control-Allow-Headers') || '', /X-Maturita-Desk-Gate/);
 
 // Chunked upstream responses are capped while streaming; the worker must not read the full body.

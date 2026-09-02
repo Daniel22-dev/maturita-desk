@@ -1,53 +1,63 @@
-# Maturita Desk 0.10.0 — Stage 13 build report
+# Maturita Desk 0.10.1 — Stage 13R build report
 
 ## Cíl
 
-Převést bezpečnostně ověřený 0.9.2 kandidát do řízeného **syntetického device pilotu** bez použití ostrého obsahu a bez předstírání fyzických testů, které zde nelze provést.
+Vytvořit jeden GitHub-safe update kandidát, který:
+
+- zachová veřejný build synthetic-only;
+- umožní na localhostu interně testovat reálný šifrovaný Content Pack;
+- opraví potvrzenou chybu ručního importu Content Packu;
+- zachová Stage 13 device/PWA/multi-tab instrumentaci;
+- připraví pohodlný serverless provoz před existencí školního serveru;
+- rozšíří online pomoc na **Ověřit / dohledat** bez úniku kontextu zkoušky.
 
 ## Hlavní změny
 
-- nový `src/pilot.js`: pilotní model, 18 scénářů, lokální metriky, JSON/TXT report;
-- nový `src/session-coordinator.js`: writer lease proti destruktivnímu multi-tab last-write-wins;
-- `main.js`: Pilot panel, automatic import/unlock timings, lifecycle/SW/concurrency events, explicit takeover;
-- hard gate `SYNTHETIC-DEMO` pro Stage 13; `CONFIDENTIAL-EXAM` je blokovaný;
-- service worker cachuje nové runtime moduly a používá cache v0.10.0;
-- nový syntetický ~30 MiB stress pack je distribuován samostatně mimo public app ZIP;
-- nový BroadcastChannel runtime smoke test skutečně spouští cestu, která byla v Stage 12R mocku vypnutá.
+- `src/content-import-bridge.js` + regresní test opravují browserový import z body-level draweru;
+- localhost-only `PILOT_INTERNAL_REVIEW` dovoluje `CONFIDENTIAL-EXAM` pouze na loopback hostu;
+- veřejný GitHub origin dál odmítá `CONFIDENTIAL-EXAM`;
+- `Ověřit / dohledat` podporuje tvrzení i přímé faktické dotazy;
+- klient posílá pouze `{ query }` a v temporary serverless režimu volitelnou hlavičku `X-Maturita-Desk-Access`;
+- přístupový kód se ukládá jen do `sessionStorage`, nikoli do localStorage, URL nebo public configu;
+- serverless worker má dva vzájemně výlučné auth režimy: dočasný teacher access token nebo budoucí server-to-server inner gate;
+- worker vyžaduje rate limiter, exact Origin allowlist a OpenAI API key jako serverový secret;
+- public `runtime-config.js` a `config/deployment.json` nadále obsahují prázdný Fact Check endpoint a žádný secret;
+- cache/PWA verze zvýšena na 0.10.1.
 
-## Nově nalezená a opravená integrační chyba
+## Co tento ZIP záměrně neobsahuje
 
-Původní inicializace volala multi-tab setup před inicializací proměnné `sessionChannel`. Dokud byl `BroadcastChannel` v testu `undefined`, větev se neprovedla. Stage 13 test se skutečným BroadcastChannel stubem tuto cestu aktivoval a odhalil TDZ/initialization-order problém. Stav koordinátoru je nyní inicializován před bootstrapem aplikace.
+- reálný maturitní `.mdesk`;
+- přístupovou frázi k reálnému packu;
+- OpenAI API key;
+- `FACTCHECK_ACCESS_TOKEN` ani `FACTCHECK_GATE_TOKEN`;
+- skutečná studentská data.
 
-## Co build netvrdí
+## Co tento build netvrdí
 
-- žádný skutečný Safari/iPad test zde nebyl proveden;
-- žádný reálný multi-tab race na Safari zde nebyl proveden;
-- žádný reálný Service Worker update/recovery na Safari zde nebyl proveden;
-- žádný ostrý Content Pack nebyl použit;
-- žádná skutečná studentská data nebyla použita;
-- Fact Check nemá v public profilu živý endpoint.
+- fyzický iPad/telefon acceptance zde nebyl proveden;
+- reálný Safari multi-tab race zde nebyl proveden;
+- produkční izolovaný origin zatím není zřízen;
+- serverless Ověřit / dohledat endpoint není samotným GitHub uploadem nasazen;
+- reálný Content Pack není pedagogicky schválen pro ostrou maturitu;
+- školní server není připojen.
 
-## Release postup
+## Finální ověření
 
-Finální Stage 13 ZIP se vytvoří až po kompletním `npm test`, security scan a syntaktické kontrole. Poté se ZIP pouze read-only rozbalí do čistého adresáře, testy se zopakují a teprve na neměnném ZIPu se vytvoří finální SHA-256.
+Před vydáním ZIPu se spustí kompletní `npm test`, security scan a syntax/regresní sada. Následně se ZIP rozbalí do čisté složky a stejná sada se zopakuje nad přesným obsahem distribuovaného archivu. Výsledný SHA-256 se vypočítá až po tomto read-only ověření.
 
-
-## Automatický test po implementaci
+## Automatický test před balením
 
 Kompletní `npm test`: **PASS**.
 
-- Stage 13 validator: PASS;
+- Stage 13R validator: PASS;
 - artifact security scan: PASS, 0 nálezů;
-- všechny Stage 3–12R regresní testy: PASS;
-- pilot model: PASS;
-- session coordinator: PASS;
-- runtime BroadcastChannel/multi-tab guard smoke: PASS;
-- actual `main.js` Fact Check canary: PASS;
-- main runtime smoke: PASS.
+- Content Pack import bridge regression: PASS;
+- Content Pack crypto/validator tests: PASS;
+- Ověřit / dohledat client tests: PASS;
+- serverless worker anti-abuse/privacy/auth tests: PASS;
+- runtime query-only canary: PASS;
+- Stage 3–12R regresní sada: PASS;
+- PWA/device static hardening: PASS;
+- multi-tab coordinator + actual main.js smoke: PASS.
 
-Samostatný Stage 13 stress pack má 30 969 778 B (~29,54 MiB), klasifikaci `SYNTHETIC-DEMO`, 20 témat a SHA-256 `2432e88d1c2485919c0560661f0a25afda73ed55ad3f64d52dba3faab0a0d4bb`. Kontrolní Node prostředí jej parse/decrypt zvládlo; tento údaj není náhradou za měření Safari na iPadu.
-
-
-## Browser smoke
-
-Stage 13 Playwright scénář byl spuštěn proti `http://127.0.0.1:8765/`, ale Chromium bylo zablokováno politikou prostředí chybou `ERR_BLOCKED_BY_ADMINISTRATOR` před prvním načtením stránky. Browser smoke proto zůstává `BLOCKED/NOT PASS`; důkaz je v `preview/browser-smoke-stage13.log`.
+Fyzické browser/device testy nejsou tímto automatickým PASS nahrazeny.

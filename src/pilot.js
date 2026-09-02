@@ -1,7 +1,9 @@
 export const PILOT_SCHEMA = 'maturita-desk-pilot-run-v1';
 export const PILOT_STORAGE_KEY = 'ghrab.maturita-desk.pilot-run.v1';
-export const PILOT_BUILD = 'stage13-synthetic-pilot-a';
-export const PILOT_SYNTHETIC_ONLY = true;
+const INTERNAL_REVIEW_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]']);
+export const PILOT_INTERNAL_REVIEW = globalThis.MATURITA_DESK_INTERNAL_REVIEW === true && INTERNAL_REVIEW_HOSTS.has(String(globalThis.location?.hostname || ''));
+export const PILOT_BUILD = PILOT_INTERNAL_REVIEW ? 'stage13r-internal-review-local' : 'stage13r-serverless-candidate-public';
+export const PILOT_SYNTHETIC_ONLY = true && !PILOT_INTERNAL_REVIEW;
 export const PILOT_NOTE_MAX = 1000;
 
 export const PILOT_CHECKS = Object.freeze([
@@ -22,7 +24,7 @@ export const PILOT_CHECKS = Object.freeze([
   { id: 'pictures.zoom', area: 'Média', label: 'Picture A/B bez cropu + zoom/pan', mandatory: true },
   { id: 'offline.running', area: 'PWA', label: 'Core zkoušky pokračuje po ztrátě sítě', mandatory: true },
   { id: 'wake-lock', area: 'Zařízení', label: 'Wake Lock nebo zdokumentovaný MDM Auto-Lock fallback', mandatory: false },
-  { id: 'fact-check-isolation', area: 'Fact Check', label: 'Nedostupný Fact Check neovlivní Exam Engine', mandatory: true }
+  { id: 'fact-check-isolation', area: 'Ověřit / dohledat', label: 'Nedostupné Ověřit / dohledat neovlivní Exam Engine', mandatory: true }
 ]);
 
 const VALID_STATUS = new Set(['not-run', 'pass', 'fail', 'blocked']);
@@ -38,7 +40,7 @@ export function createPilotRun({ appVersion, build = PILOT_BUILD, device = {}, n
     build: String(build || PILOT_BUILD),
     createdAt: new Date(now).toISOString(),
     updatedAt: new Date(now).toISOString(),
-    syntheticOnly: true,
+    syntheticOnly: PILOT_SYNTHETIC_ONLY,
     device: sanitizeDevice(device),
     checks: Object.fromEntries(PILOT_CHECKS.map(item => [item.id, { status: 'not-run', note: '', updatedAt: '' }])),
     metrics: {},

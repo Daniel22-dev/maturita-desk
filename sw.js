@@ -1,5 +1,5 @@
 const GHRAB_SW_CONTRACT = 'ghrab-service-worker-v1';
-const CACHE_NAME = 'ghrab-maturita-desk-v0.10.0-hf1';
+const CACHE_NAME = 'ghrab-maturita-desk-v0.10.1';
 const CACHE_PREFIXES = ['ghrab-maturita-desk-v'];
 const CORE_ASSETS = [
   './',
@@ -90,6 +90,8 @@ async function networkFirstCore(request) {
 
 async function navigationNetworkFirst(request, scopePath) {
   try {
+    // Navigation URLs can contain auth/return parameters. Never persist them as cache keys.
+    // Return real HTTP responses (including 404) instead of replacing deep links with the app shell.
     return await fetch(request, { cache: 'no-store' });
   } catch (error) {
     const url = new URL(request.url);
