@@ -18,8 +18,8 @@ assert.match(index, /format-detection/);
 assert.equal(manifest.orientation, 'any');
 assert.equal(manifest.id, './');
 assert.deepEqual(manifest.display_override, ['standalone', 'minimal-ui']);
-assert.equal(manifest.version, '0.10.1');
-assert.match(manifest.ghrab_platform.cache_name, /v0\.10\.1$/);
+assert.equal(manifest.version, '1.0.0');
+assert.match(manifest.ghrab_platform.cache_name, /v1\.0\.0$/);
 
 assert.match(css, /safe-area-inset-top/);
 assert.match(css, /--visual-viewport-height/);
@@ -44,7 +44,7 @@ assert.match(main, /touchClock\(state\.session\)/);
 assert.match(main, /shellRequired = mode === 'exam' && usingProtectedContent\(\)/);
 assert.match(main, /Offline shell ještě není připravený/);
 
-assert.match(sw, /ghrab-maturita-desk-v0\.10\.1/);
+assert.match(sw, /ghrab-maturita-desk-v1\.0\.0/);
 assert.match(sw, /\.\/src\/device-runtime\.js/);
 assert.match(sw, /runtime-config\.js/);
 assert.match(sw, /config\/deployment\.json/);

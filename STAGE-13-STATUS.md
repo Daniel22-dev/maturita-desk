@@ -1,3 +1,5 @@
+> HISTORICAL RECORD — Stage 13R was superseded by Maturita Desk 1.0.0 Serverless Final Baseline. See `RELEASE-1.0.0-STATUS.md`.
+
 # Stage 13R — Serverless / Internal Review Candidate
 
 Verze: **0.10.1**  

@@ -17,11 +17,11 @@ import { loadRuntimeConfig } from './providers/runtime.js';
 import { createProviderRegistry } from './providers/registry.js';
 import { hasCapability } from './providers/auth-provider.js';
 import { installDeviceRuntime } from './device-runtime.js';
-import { PILOT_BUILD, PILOT_CHECKS, PILOT_STORAGE_KEY, PILOT_SYNTHETIC_ONLY, PILOT_INTERNAL_REVIEW, addPilotEvent, capturePilotDevice, createPilotRun, normalizePilotRun, pilotClassificationAllowed, pilotReportText, pilotSummary, recordPilotMetric, serializePilotReport, setPilotCheck } from './pilot.js';
+import { PILOT_BUILD, PILOT_CHECKS, PILOT_STORAGE_KEY, addPilotEvent, capturePilotDevice, createPilotRun, normalizePilotRun, pilotReportText, pilotSummary, recordPilotMetric, serializePilotReport, setPilotCheck } from './pilot.js';
 import { SESSION_OWNER_HEARTBEAT_MS, claimSessionOwnership, readSessionOwner, refreshSessionOwnership, releaseSessionOwnership } from './session-coordinator.js';
 
 const APP_ID = 'maturita-desk';
-const APP_VERSION = '0.10.1';
+const APP_VERSION = '1.0.0';
 const FACT_ACCESS_KEY = 'ghrab.maturita-desk.fact-access.v1';
 const UI_KEY = 'ghrab.maturita-desk.ui-settings.v1';
 const SESSION_KEY = 'ghrab.maturita-desk.session.v1';
@@ -124,7 +124,7 @@ window.addEventListener('online', () => { state.online = true; handleConnectivit
 window.addEventListener('offline', () => { state.online = false; handleConnectivityChange(false); });
 
 document.addEventListener('click', handleClick);
-app.addEventListener('change', handleChange);
+document.addEventListener('change', handleChange);
 document.addEventListener('input', handleInput);
 modalRoot.addEventListener('click', handleModalClick);
 
@@ -327,9 +327,9 @@ async function initializeContentManager() {
     state.content.unlocked = null;
     state.content.status = meta ? 'locked' : 'none';
     state.content.error = '';
-    if (PILOT_SYNTHETIC_ONLY && meta && !pilotClassificationAllowed(meta.classification)) {
+    if (meta?.classification === 'CONFIDENTIAL-EXAM' && !RUNTIME_CONFIG.content.confidentialAllowed) {
       state.content.status = 'error';
-      state.content.error = 'Stage 13 pilot z bezpečnostních důvodů přijímá pouze SYNTHETIC-DEMO Content Pack. Ostrý pack zůstává v úložišti zamčený a nelze jej v této verzi použít.';
+      state.content.error = 'Ostrý CONFIDENTIAL-EXAM Content Pack je na tomto originu z bezpečnostních důvodů zablokovaný. Použijte schválený izolovaný produkční origin.';
     }
     if (state.session?.contentRef?.source === 'pack') {
       if (!meta || meta.packId !== state.session.contentRef.packId || meta.contentVersion !== state.session.contentRef.version) {
@@ -359,7 +359,6 @@ async function importContentPackFile(file) {
     const importStarted = performance.now();
     const text = await file.text();
     const envelope = await parseEnvelopeText(text);
-    if (PILOT_SYNTHETIC_ONLY && !pilotClassificationAllowed(envelope.classification)) throw new Error('Stage 13 pilot přijímá výhradně SYNTHETIC-DEMO Content Pack. Ostrý CONFIDENTIAL-EXAM pack je v pilotním buildu zablokovaný.');
     const meta = await PROVIDERS.content.importText(text);
     pilotMetric('content.import', { bytes: file.size, elapsedMs: Math.round(performance.now() - importStarted), classification: meta.classification });
     pilotEvent('content.imported', { bytes: file.size, classification: meta.classification });
@@ -381,7 +380,6 @@ async function importContentPackFile(file) {
 }
 
 async function syncContentPackFromSchoolServer() {
-  if (PILOT_SYNTHETIC_ONLY) { toast('Stage 13 pilot nepovoluje serverové stažení ostrého Content Packu.'); return; }
   if (!PROVIDERS.content.remote || state.content.busy) return;
   if (!state.online) { toast('Aktualizace Content Packu vyžaduje připojení ke školnímu serveru.'); return; }
   if (!canUse('content:download')) { toast('Školní účet nemá oprávnění stáhnout Content Pack.'); return; }
@@ -418,8 +416,8 @@ async function unlockActiveContentPack() {
     toast('Na zařízení není uložen žádný chráněný Content Pack.');
     return;
   }
-  if (PILOT_SYNTHETIC_ONLY && !pilotClassificationAllowed(state.content.activeMeta.classification)) {
-    toast('Stage 13 pilot může odemknout pouze syntetický Content Pack.');
+  if (state.content.activeMeta.classification === 'CONFIDENTIAL-EXAM' && !RUNTIME_CONFIG.content.confidentialAllowed) {
+    toast('Ostrý Content Pack lze odemknout pouze na schváleném izolovaném produkčním originu.');
     return;
   }
   const passInput = document.querySelector('[data-pack-passphrase]');
@@ -439,7 +437,6 @@ async function unlockActiveContentPack() {
     if (envelope.packId !== state.content.activeMeta.packId) throw new Error('Aktivní Content Pack není konzistentní s uloženými metadaty.');
     const unlockStarted = performance.now();
     const pack = await decryptContentPack(envelope, passphrase);
-    if (PILOT_SYNTHETIC_ONLY && !pilotClassificationAllowed(pack.manifest.classification)) throw new Error('Stage 13 pilot blokuje neveřejný CONFIDENTIAL-EXAM obsah.');
     pilotMetric('content.unlock', { encryptedBytes: state.content.activeMeta.encryptedBytes || 0, elapsedMs: Math.round(performance.now() - unlockStarted), classification: pack.manifest.classification });
     pilotEvent('content.unlocked', { classification: pack.manifest.classification });
     const contentCheck = validateTopicCollection(pack.topics);
@@ -873,8 +870,8 @@ async function handleClick(event) {
   if (action === 'open-access') { state.drawer = 'access'; renderDrawer(); return; }
   if (action === 'open-pilot') { state.drawer = 'pilot'; state.pilot.device = capturePilotDevice(); savePilotRun(); renderDrawer(); return; }
   if (action === 'pilot-mark') { updatePilotCheck(el.dataset.pilotId, el.dataset.status, Array.from(document.querySelectorAll('[data-pilot-note]')).find(node => node.dataset.pilotNote === (el.dataset.pilotId || ''))?.value || ''); renderDrawer(); return; }
-  if (action === 'pilot-export-json') { downloadTextFile(`Maturita-Desk-Stage13-pilot-${new Date().toISOString().slice(0,10)}.json`, serializePilotReport(state.pilot), 'application/json'); return; }
-  if (action === 'pilot-export-txt') { downloadTextFile(`Maturita-Desk-Stage13-pilot-${new Date().toISOString().slice(0,10)}.txt`, pilotReportText(state.pilot)); return; }
+  if (action === 'pilot-export-json') { downloadTextFile(`Maturita-Desk-diagnostics-${new Date().toISOString().slice(0,10)}.json`, serializePilotReport(state.pilot), 'application/json'); return; }
+  if (action === 'pilot-export-txt') { downloadTextFile(`Maturita-Desk-diagnostics-${new Date().toISOString().slice(0,10)}.txt`, pilotReportText(state.pilot)); return; }
   if (action === 'pilot-reset') { state.pilot = createPilotRun({ appVersion: APP_VERSION, device: capturePilotDevice() }); savePilotRun(); renderDrawer(); return; }
   if (action === 'session-takeover') { takeOverSession(); return; }
   if (action === 'auth-refresh') { await refreshAuthState(); return; }
@@ -1271,8 +1268,8 @@ function renderHome() {
         <div style="display:flex;gap:8px;align-items:center">
           <button class="soft-button compact" data-action="open-access">Přístup</button>
           <button class="soft-button compact" data-action="open-content">Content Pack</button>
-          <button class="soft-button compact" data-action="open-pilot">Pilot</button>
-          <span class="prototype-pill">${PILOT_INTERNAL_REVIEW ? 'Stage 13R · Interní revize reálného obsahu' : 'Stage 13R · Serverless candidate / synthetic pilot'}</span>
+          <button class="soft-button compact" data-action="open-pilot">Diagnostika</button>
+          <span class="prototype-pill">1.0.0 · Serverless</span>
           <button class="icon-button" data-action="cycle-theme" aria-label="Změnit vzhled" title="Vzhled: ${escapeHtml(state.theme)}">${icon('theme')}</button>
         </div>
       </div>
@@ -1280,7 +1277,7 @@ function renderHome() {
         <p class="eyebrow">Examiner workspace</p>
         <h1 class="hero-title">Maturita<br>Desk</h1>
         <p class="hero-subtitle">Ústní zkouška z anglického jazyka. Klidné pracovní prostředí pro zkoušejícího a přísedícího – na iPadu, telefonu i počítači.</p>
-        <div class="pilot-safety"><strong>${PILOT_INTERNAL_REVIEW ? 'Interní lokální revize: CONFIDENTIAL-EXAM je povolen pouze na localhostu.' : 'Veřejný Stage 13R build je pouze pro syntetická data.'}</strong><span>${PILOT_INTERNAL_REVIEW ? 'Reálný maturitní Content Pack zůstává šifrovaný a nesmí být nahrán na GitHub ani sdílen se studenty. Tato lokální varianta slouží k interní obsahové a UX revizi.' : 'CONFIDENTIAL-EXAM Content Pack je v této verzi záměrně zablokovaný. Pilot měří zařízení, lifecycle, offline režim, PWA update a souběh panelů.'}</span></div>
+        <div class="pilot-safety"><strong>${RUNTIME_CONFIG.content.confidentialAllowed ? 'Produkční serverless origin: chráněný maturitní obsah je povolen.' : 'Demo origin: ostrý Content Pack je z bezpečnostních důvodů blokován.'}</strong><span>${RUNTIME_CONFIG.content.confidentialAllowed ? 'CONFIDENTIAL-EXAM balíček musí mít platný podpis vydavatele a zůstává v zařízení uložen pouze šifrovaně. Heslo se neukládá.' : 'Aplikaci lze bezpečně prohlížet a testovat se syntetickým obsahem. Pro reálný maturitní pack použijte schválený izolovaný origin.'}</span></div>
         ${RUNTIME_CONFIG.configurationLoadError ? `<div class="safety-block runtime-fallback-warning"><strong>Runtime konfigurace nebyla načtena ze sítě.</strong><span>Aplikace používá release-pinned baked profil (${escapeHtml(RUNTIME_CONFIG.mode)} / ${escapeHtml(RUNTIME_CONFIG.environmentId)}). Kód chyby: ${escapeHtml(RUNTIME_CONFIG.configurationLoadError)}. Před ostrým použitím na školním serveru ověřte deployment.</span></div>` : ''}
         <div class="secure-content-strip ${protectedActive ? 'unlocked' : state.content.status}">
           <div>
@@ -2172,7 +2169,7 @@ function renderAccessDrawer() {
   return `
     <div class="drawer-head"><div><h2>Přístup</h2><p>Provider vrstva Maturita Desk. Identita není součástí Exam Engine ani Notes.</p></div><button class="icon-button" data-action="close-drawer" aria-label="Zavřít">${icon('close')}</button></div>
     <div class="drawer-body access-drawer">
-      <div class="pack-security-banner"><strong>${locked ? 'Konfigurace uzamčena' : school ? 'Školní serverový profil' : 'Lokální serverless profil'}</strong><span>${locked ? 'Bez platné runtime konfigurace nejsou dostupné zkouška, nácvik, chráněný obsah ani Fact Check.' : school ? 'Přístup se ověřuje serverovou relací; klient neukládá heslo ani bearer token do localStorage.' : 'Aplikace běží bez centrální identity. Jde o provozní režim zařízení, nikoli o ověření konkrétního učitele.'}</span></div>
+      <div class="pack-security-banner"><strong>${locked ? 'Konfigurace uzamčena' : school ? 'Školní serverový profil' : 'Serverless profil zařízení'}</strong><span>${locked ? 'Bez platné runtime konfigurace nejsou dostupné zkouška, nácvik, chráněný obsah ani Fact Check.' : school ? 'Přístup se ověřuje serverovou relací; klient neukládá heslo ani bearer token do localStorage.' : 'Aplikace běží bez centrální identity. Jde o provozní režim zařízení, nikoli o ověření konkrétního učitele.'}</span></div>
       ${runtimeError ? `<div class="safety-block"><strong>Runtime konfigurace není úplná.</strong><span>${escapeHtml(runtimeError)}</span></div>` : ''}
       ${runtimeLoadError ? `<div class="safety-block"><strong>Deployment konfigurace není dostupná.</strong><span>Používá se release-pinned baked profil. ${escapeHtml(runtimeLoadError)} · ${escapeHtml(RUNTIME_CONFIG.mode)} · ${escapeHtml(RUNTIME_CONFIG.environmentId)}</span></div>` : ''}
       <div class="pack-status-card ${auth.authenticated ? 'unlocked' : 'locked'}">
@@ -2203,13 +2200,13 @@ function renderContentDrawer() {
   const remote = PROVIDERS.content.remote;
   const manualImport = PROVIDERS.content.allowManualImport;
   return `
-    <div class="drawer-head"><div><h2>Content Pack</h2><p>${PILOT_INTERNAL_REVIEW ? 'Interní lokální revize: povolen SYNTHETIC-DEMO i CONFIDENTIAL-EXAM.' : 'Veřejný Stage 13R: pouze šifrované syntetické pilotní balíčky.'}</p></div><button class="icon-button" data-action="close-drawer" aria-label="Zavřít">${icon('close')}</button></div>
+    <div class="drawer-head"><div><h2>Content Pack</h2><p>${RUNTIME_CONFIG.content.confidentialAllowed ? 'Produkční serverless režim: povolen podepsaný CONFIDENTIAL-EXAM i SYNTHETIC-DEMO.' : 'Demo režim: pouze SYNTHETIC-DEMO. Ostrý obsah vyžaduje izolovaný produkční origin.'}</p></div><button class="icon-button" data-action="close-drawer" aria-label="Zavřít">${icon('close')}</button></div>
     <div class="drawer-body content-pack-drawer">
-      <div class="pack-security-banner"><strong>${PILOT_INTERNAL_REVIEW ? 'Ostrý obsah je povolen pouze v této lokální interní revizi.' : 'Ostrý obsah je ve veřejném Stage 13R zablokovaný.'}</strong><span>${remote ? 'Školní server doručuje pouze šifrovaný .mdesk envelope. Lokální kopie zůstává šifrovaná a serverová session se neposílá do payloadu.' : 'Importovaný balíček je uložen v IndexedDB pouze jako AES-256-GCM šifrovaný payload. Heslo se neukládá.'}</span></div>
+      <div class="pack-security-banner"><strong>${RUNTIME_CONFIG.content.confidentialAllowed ? 'Ostrý obsah: izolovaný origin + podpis vydavatele + lokální heslo.' : 'Ostrý obsah je na tomto originu zablokovaný.'}</strong><span>${remote ? 'Školní server doručuje pouze šifrovaný .mdesk envelope. Lokální kopie zůstává šifrovaná a serverová session se neposílá do payloadu.' : 'Importovaný balíček je uložen v IndexedDB pouze jako AES-256-GCM šifrovaný payload. CONFIDENTIAL-EXAM musí navíc projít ověřením publisher podpisu. Heslo se neukládá.'}</span></div>
       <div class="pack-status-card ${state.content.status}">
         <span class="secure-kicker">Stav</span>
         <h3>${escapeHtml(statusText)}</h3>
-        ${meta ? `<dl class="pack-meta"><div><dt>Verze</dt><dd>${escapeHtml(meta.contentVersion)}</dd></div><div><dt>Témata</dt><dd>${meta.topicCount}</dd></div><div><dt>Klasifikace</dt><dd>${escapeHtml(meta.classification)}</dd></div>${contentMeta.sourceDocumentCount ? `<div><dt>Zdrojové dokumenty</dt><dd>${Number(contentMeta.sourceDocumentCount)}</dd></div>` : ''}${contentMeta.examMinutes ? `<div><dt>Zkouška</dt><dd>${Number(contentMeta.examMinutes)} min</dd></div>` : ''}<div><dt>Šifrování</dt><dd>AES-256-GCM</dd></div><div><dt>KDF</dt><dd>PBKDF2-SHA-256 · ${Number(meta.iterations).toLocaleString('cs-CZ')}×</dd></div><div><dt>Payload</dt><dd>${formatBytes(meta.encryptedBytes)}</dd></div></dl>` : '<p>Na tomto zařízení zatím není uložen žádný chráněný Content Pack. Aplikace používá syntetickou demonstrační sadu.</p>'}
+        ${meta ? `<dl class="pack-meta"><div><dt>Verze</dt><dd>${escapeHtml(meta.contentVersion)}</dd></div><div><dt>Témata</dt><dd>${meta.topicCount}</dd></div><div><dt>Klasifikace</dt><dd>${escapeHtml(meta.classification)}</dd></div>${contentMeta.sourceDocumentCount ? `<div><dt>Zdrojové dokumenty</dt><dd>${Number(contentMeta.sourceDocumentCount)}</dd></div>` : ''}${contentMeta.examMinutes ? `<div><dt>Zkouška</dt><dd>${Number(contentMeta.examMinutes)} min</dd></div>` : ''}<div><dt>Šifrování</dt><dd>AES-256-GCM</dd></div><div><dt>KDF</dt><dd>PBKDF2-SHA-256 · ${Number(meta.iterations).toLocaleString('cs-CZ')}×</dd></div><div><dt>Payload</dt><dd>${formatBytes(meta.encryptedBytes)}</dd></div><div><dt>Podpis vydavatele</dt><dd>${meta.publisherSigned ? `ověřený · ${escapeHtml(meta.publisherKeyId || 'známý klíč')}` : meta.classification === 'CONFIDENTIAL-EXAM' ? 'chybí / neověřený' : 'nevyžaduje se'}</dd></div></dl>` : '<p>Na tomto zařízení zatím není uložen žádný chráněný Content Pack. Aplikace používá syntetickou demonstrační sadu.</p>'}
       </div>
       ${state.content.error ? `<div class="safety-block"><strong>Content Pack vyžaduje pozornost.</strong><span>${escapeHtml(state.content.error)}</span></div>` : ''}
       ${remote ? `<div class="pack-actions-block"><h3>Školní distribuce</h3><p>Stáhne aktuální šifrovaný pack podle oprávnění školní relace. Při chybě se existující lokální kopie nemaže.</p><button class="primary-button" data-action="content-sync-server" ${state.content.busy || !state.online || !canUse('content:download') || state.session ? 'disabled' : ''}>${state.content.busy ? 'Aktualizuji…' : meta ? 'Zkontrolovat a stáhnout aktuální pack' : 'Stáhnout aktuální pack'}</button></div>` : ''}
@@ -2230,18 +2227,18 @@ function renderPilotDrawer() {
   const metricImport = state.pilot.metrics?.['content.import'];
   const metricUnlock = state.pilot.metrics?.['content.unlock'];
   return `
-    <div class="drawer-head"><div><h2>Stage 13R Pilot / Review</h2><p>${PILOT_INTERNAL_REVIEW ? 'Lokální interní obsahová/UX revize; pilotní záznam může obsahovat pouze technické poznámky bez opisování ostrého zadání.' : 'Řízený acceptance test zařízení. Výhradně syntetická data.'}</p></div><button class="icon-button" data-action="close-drawer" aria-label="Zavřít">${icon('close')}</button></div>
+    <div class="drawer-head"><div><h2>Diagnostika zařízení</h2><p>Lokální acceptance a provozní kontrola. Poznámky musí zůstat technické, bez osobních údajů a bez opisování ostrého zadání.</p></div><button class="icon-button" data-action="close-drawer" aria-label="Zavřít">${icon('close')}</button></div>
     <div class="drawer-body pilot-drawer">
-      <div class="pilot-safety"><strong>${PILOT_INTERNAL_REVIEW ? 'Žádná reálná studentská data. Reálný Content Pack pouze lokálně.' : 'Žádná reálná studentská data ani ostrý Content Pack.'}</strong><span>Report neobsahuje jméno testera ani studenta. Do poznámek checklistu nevkládejte osobní údaje ani text ostrého zadání.</span></div>
+      <div class="pilot-safety"><strong>Diagnostika je pouze lokální.</strong><span>Report neobsahuje jméno testera ani studenta. Do poznámek checklistu nevkládejte osobní údaje ani text ostrého zadání.</span></div>
       <div class="pilot-summary"><div><span>PASS</span><strong>${summary.pass}</strong></div><div><span>FAIL</span><strong>${summary.fail}</strong></div><div><span>BLOCKED</span><strong>${summary.blocked}</strong></div><div><span>Povinné zbývá</span><strong>${summary.mandatoryPending}</strong></div></div>
-      <div class="pack-status-card ${summary.complete ? 'unlocked' : 'locked'}"><span class="secure-kicker">Pilot gate</span><h3>${summary.complete ? 'PASS – všechny povinné scénáře' : 'OPEN – fyzické testy nejsou dokončené'}</h3><p>${escapeHtml(PILOT_BUILD)} · ${escapeHtml(APP_VERSION)}</p></div>
+      <div class="pack-status-card ${summary.complete ? 'unlocked' : 'locked'}"><span class="secure-kicker">Device acceptance</span><h3>${summary.complete ? 'PASS – všechny povinné scénáře' : 'OPEN – některé fyzické kontroly nejsou dokončené'}</h3><p>${escapeHtml(PILOT_BUILD)} · ${escapeHtml(APP_VERSION)}</p></div>
       <div class="pack-actions-block"><h3>Zařízení</h3><dl class="pack-meta"><div><dt>Viewport</dt><dd>${Number(device.viewport?.width || 0)} × ${Number(device.viewport?.height || 0)}</dd></div><div><dt>Standalone PWA</dt><dd>${device.standalone ? 'ano' : 'ne'}</dd></div><div><dt>Touch points</dt><dd>${Number(device.touchPoints || 0)}</dd></div><div><dt>Service Worker</dt><dd>${device.serviceWorker ? 'ano' : 'ne'}</dd></div><div><dt>Wake Lock</dt><dd>${device.wakeLock ? 'ano' : 'ne'}</dd></div><div><dt>BroadcastChannel</dt><dd>${device.broadcastChannel ? 'ano' : 'ne'}</dd></div></dl></div>
       ${(metricImport || metricUnlock) ? `<div class="pack-actions-block"><h3>Automaticky naměřeno</h3><p>${metricImport ? `Import: ${formatBytes(metricImport.bytes || 0)} · ${Number(metricImport.elapsedMs || 0)} ms` : 'Import: zatím bez měření'}<br>${metricUnlock ? `Odemčení: ${formatBytes(metricUnlock.encryptedBytes || 0)} · ${Number(metricUnlock.elapsedMs || 0)} ms` : 'Odemčení: zatím bez měření'}</p></div>` : ''}
       <div class="pilot-checklist">${summary.rows.map(item => {
         const current = state.pilot.checks[item.id] || { status: 'not-run', note: '' };
         return `<section class="pilot-check ${current.status}"><div class="pilot-check-head"><div><span>${escapeHtml(item.area)}${item.mandatory ? ' · POVINNÉ' : ''}</span><strong>${escapeHtml(item.label)}</strong></div><em>${escapeHtml(current.status.toUpperCase())}</em></div><textarea data-pilot-note="${escapeHtml(item.id)}" maxlength="1000" placeholder="Bez osobních údajů: zařízení, krok, co se stalo…">${escapeHtml(current.note || '')}</textarea><div class="pilot-check-actions"><button class="soft-button" data-action="pilot-mark" data-pilot-id="${escapeHtml(item.id)}" data-status="pass">PASS</button><button class="soft-button" data-action="pilot-mark" data-pilot-id="${escapeHtml(item.id)}" data-status="fail">FAIL</button><button class="soft-button" data-action="pilot-mark" data-pilot-id="${escapeHtml(item.id)}" data-status="blocked">BLOCKED</button><button class="text-button" data-action="pilot-mark" data-pilot-id="${escapeHtml(item.id)}" data-status="not-run">Reset</button></div></section>`;
       }).join('')}</div>
-      <div class="pack-actions-block"><h3>Export výsledku</h3><p>Po testu exportujte JSON nebo čitelný TXT a vraťte jej k vyhodnocení Stage 13R. Report je lokální a neodesílá se automaticky.</p><div class="fact-actions"><button class="primary-button" data-action="pilot-export-json">Export JSON</button><button class="soft-button" data-action="pilot-export-txt">Export TXT</button><button class="text-danger-button" data-action="pilot-reset">Vymazat pilotní záznam</button></div></div>
+      <div class="pack-actions-block"><h3>Export výsledku</h3><p>Po testu můžete exportovat JSON nebo čitelný TXT pro další aktualizaci aplikace. Report je lokální a neodesílá se automaticky.</p><div class="fact-actions"><button class="primary-button" data-action="pilot-export-json">Export JSON</button><button class="soft-button" data-action="pilot-export-txt">Export TXT</button><button class="text-danger-button" data-action="pilot-reset">Vymazat diagnostický záznam</button></div></div>
     </div>`;
 }
 
@@ -2438,7 +2435,7 @@ function brandLockup() {
 }
 
 function footer() {
-  return `<footer class="home-footer"><span>Gymnázium, Ostrava-Hrabůvka · Součást AI Studia GHRAB</span><span>Maturita Desk ${APP_VERSION} · ${PILOT_INTERNAL_REVIEW ? 'Stage 13R · Internal Review Local' : 'Stage 13R · Serverless Candidate'}</span></footer>`;
+  return `<footer class="home-footer"><span>Gymnázium, Ostrava-Hrabůvka · Součást AI Studia GHRAB</span><span>Maturita Desk ${APP_VERSION} · Serverless</span></footer>`;
 }
 
 function toast(message) {
@@ -2748,7 +2745,7 @@ function takeOverSession() {
 function renderSessionConflict() {
   const owner = readSessionOwner(localStorage);
   const fresh = owner?.fresh;
-  return `<main class="page-shell"><div class="content-frame"><div class="page-topline">${brandLockup()}<span class="prototype-pill">Stage 13R · Multi-tab guard</span></div><section class="unlock-resume-card session-conflict-card"><p class="eyebrow">Concurrency guard</p><h1>Aktivní relaci zapisuje jiný panel</h1><p>Tento panel je zablokovaný pro zápis, aby nemohl přepsat timer nebo Notes. ${fresh ? 'Jiný panel má čerstvý zápisový lease.' : 'Původní lease už není čerstvý.'}</p><div class="safety-block"><strong>Nejbezpečnější postup</strong><span>Vraťte se do původního panelu. Převzetí použijte pouze tehdy, pokud je původní panel zavřený nebo nereaguje.</span></div><div class="finish-actions"><button class="primary-button" data-action="session-takeover">Převzít zápis této relace</button><button class="soft-button" data-action="go-home">Zpět</button></div></section></div></main>`;
+  return `<main class="page-shell"><div class="content-frame"><div class="page-topline">${brandLockup()}<span class="prototype-pill">Serverless · Multi-tab guard</span></div><section class="unlock-resume-card session-conflict-card"><p class="eyebrow">Concurrency guard</p><h1>Aktivní relaci zapisuje jiný panel</h1><p>Tento panel je zablokovaný pro zápis, aby nemohl přepsat timer nebo Notes. ${fresh ? 'Jiný panel má čerstvý zápisový lease.' : 'Původní lease už není čerstvý.'}</p><div class="safety-block"><strong>Nejbezpečnější postup</strong><span>Vraťte se do původního panelu. Převzetí použijte pouze tehdy, pokud je původní panel zavřený nebo nereaguje.</span></div><div class="finish-actions"><button class="primary-button" data-action="session-takeover">Převzít zápis této relace</button><button class="soft-button" data-action="go-home">Zpět</button></div></section></div></main>`;
 }
 
 // Section buttons use event delegation but are intentionally not data-action controls,

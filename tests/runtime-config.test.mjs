@@ -160,4 +160,33 @@ assert.equal(malformedNetwork.auth.provider, 'locked');
 assert.equal(malformedNetwork.content.allowManualImport, false);
 assert.equal(malformedNetwork.configurationError, 'unsupported-runtime-mode');
 
+
+
+// 1.0.0 serverless production trust: the shared GitHub Pages origin remains demo-only,
+// while the isolated custom origin can accept signed confidential content.
+const publisherKey = { kty: 'EC', crv: 'P-256', x: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA', y: 'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB', ext: true, key_ops: ['verify'] };
+const finalRaw = {
+  schema: 'maturita-desk-runtime-v1', version: 1, environmentId: 'serverless-production', mode: 'standalone-local',
+  allowedOrigins: ['self', 'https://maturita-fact.ghrabuvka.cz'],
+  auth: { provider: 'local-device' },
+  content: { provider: 'encrypted-local', requirePublisherSignatureFor: ['CONFIDENTIAL-EXAM'], publisherKeys: { 'publisher-1': publisherKey } },
+  factCheck: { provider: 'isolated-http', endpoint: '' }
+};
+const finalTrust = {
+  expectedMode: 'standalone-local', expectedEnvironmentId: 'serverless-production',
+  allowedOrigins: ['self', 'https://maturita-fact.ghrabuvka.cz'],
+  confidentialContentOrigins: ['https://maturita.ghrabuvka.cz'], allowLocalhostConfidential: true,
+  publisherKeys: { 'publisher-1': publisherKey }, requirePublisherSignatureFor: ['CONFIDENTIAL-EXAM']
+};
+const githubDemo = readRuntimeConfig(finalRaw, { href: 'https://daniel22-dev.github.io/maturita-desk/' }, finalTrust);
+assert.equal(githubDemo.mode, 'standalone-local');
+assert.equal(githubDemo.content.confidentialAllowed, false);
+const production = readRuntimeConfig(finalRaw, { href: 'https://maturita.ghrabuvka.cz/' }, finalTrust);
+assert.equal(production.mode, 'standalone-local');
+assert.equal(production.content.confidentialAllowed, true);
+assert.deepEqual(Object.keys(production.content.publisherKeys), ['publisher-1']);
+const maliciousPublisherNetwork = readRuntimeConfig({ ...finalRaw, content: { ...finalRaw.content, publisherKeys: { 'attacker': publisherKey } } }, { href: 'https://maturita.ghrabuvka.cz/' }, finalTrust);
+assert.equal(maliciousPublisherNetwork.mode, 'locked', 'network config cannot replace the baked publisher key and leave confidential mode active');
+assert.match(maliciousPublisherNetwork.configurationError, /publisherKeys/);
+
 console.log('Runtime/provider config fail-closed tests: PASS');

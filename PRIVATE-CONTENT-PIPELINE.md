@@ -1,83 +1,62 @@
-# Maturita Desk 0.7.0 — private content & review pipeline
+# Maturita Desk 1.0.0 — private content & release pipeline
 
-Tento dokument popisuje neveřejnou cestu od zdrojových DOCX přes interní Content Pack až k lidsky pedagogicky revidovanému kandidátu.
+Tento dokument popisuje neveřejnou cestu pro skutečný maturitní obsah. Public GitHub repozitář smí obsahovat pouze shell, syntetický demo pack, veřejné publisher klíče a validační/signing nástroje. Zdrojové DOCX, clear-content mezivýstupy, `.mdreview`, reálné `.mdesk`, passphrase a publisher private key zůstávají mimo repozitář.
 
-## 1. Zdrojový obsah
+## 1. Obsahová revize
 
-Stage 7 vytvořil encrypted interní pack `2027.0.1-review` z 80 zdrojových DOCX. Otevřený `real-content.json`, source extraction a explicitní mapping/refinement pravidla jsou **CONFIDENTIAL-EXAM** a nepatří do veřejného repozitáře.
+Aktuální reálný pack `2027.0.1-review` je interní kandidát, nikoli pedagogicky schválený ostrý obsah. Revizní rozsah zůstává 592 položek (517 Practice Topic questions + 75 Practice Task steps). Dokud lidská revize není kompletní, verze musí nést review stav a nesmí být označena jako finální obsah pro ostrou maturitu.
 
-## Stage 9 — Fact Check je mimo content pipeline
+## 2. Šifrování
 
-Fact Check nemá přístup k clear-content buildům, `.mdesk` payloadu ani review patchům. Stage 9 pouze přidává query-only online provider. Žádný krok private content pipeline nevolá Fact Check endpoint a žádný Fact Check query/result se nepřidává do Content Packu.
+Content Pack je `maturita-desk-encrypted-pack-v1`, AES-256-GCM, PBKDF2-SHA-256. Passphrase se distribuuje odděleně od `.mdesk` a nevkládá se do GitHubu, aplikace, screenshotů ani logů.
 
+## 3. Publisher signature — povinná pro CONFIDENTIAL-EXAM
 
-## 2. Lidská Stage 8 revize
+Maturita Desk 1.0.0 před importem/odemčením `CONFIDENTIAL-EXAM` ověřuje samostatný publisher podpis:
 
-Po importu a odemčení interního `.mdesk` otevře učitel v Maturita Desk **Pedagogickou revizi**.
+- schema `maturita-desk-publisher-signature-v1`;
+- ECDSA P-256 + SHA-256;
+- veřejný ověřovací klíč je připnut v release buildu;
+- privátní podpisový klíč je samostatný release secret a nikdy nesmí být v public repozitáři.
 
-Revizní rozsah skutečného packu:
+Podepsání existujícího encrypted packu:
 
-- 517 Practice Topic questions;
-- 75 Practice Task steps;
-- 592 items celkem;
-- 135 HIGH, 457 NORMAL.
-
-Doporučený postup: nejprve HIGH, potom NORMAL. Každá položka musí skončit `approved` nebo `edited`. `rejected` je blokující stav.
-
-## 3. Export `.mdreview`
-
-Browser exportuje pouze interní source-bound review patch. Původní exam prompt text ani source-match text se do patche automaticky nekopíruje. Lidsky editovaná guidance a poznámka jsou však volný vstup, proto `.mdreview` zůstává interním artefaktem. Patch lze předat mezi oprávněnými revizory nebo zálohovat odděleně od `.mdesk`.
-
-## 4. Sloučení více review patchů
-
-```bash
-node merge-review-patches.mjs \
-  --inputs revize-a.mdreview,revize-b.mdreview \
-  --output revize-merged.mdreview
+```text
+node tools/sign-content-pack.mjs <input.mdesk> <publisher.private.jwk> <output.mdesk>
 ```
 
-Povinná pravidla:
+Nezávislá kontrola podpisu:
 
-- packId a contentVersion musí být shodné;
-- fingerprinty musí odpovídat stejné zdrojové verzi;
-- konfliktní lidská rozhodnutí se automaticky nepřepisují;
-- při konfliktu pipeline skončí FAIL.
-
-## 5. Aplikace kompletní revize
-
-Passphrase se předávají pouze environment proměnnými:
-
-```bash
-MATURITA_DESK_SOURCE_PASSPHRASE='...' \
-MATURITA_DESK_OUTPUT_PASSPHRASE='...' \
-node apply-review-patch.mjs \
-  --pack Maturita-Desk-AJ-2027-interni-revize-2027.0.1.mdesk \
-  --patch finalni-revize.mdreview \
-  --output Maturita-Desk-AJ-2027-pedagogicky-kandidat.mdesk \
-  --version 2027.0.2-review
+```text
+node tools/verify-content-pack-signature.mjs <output.mdesk> <publisher.public.jwk>
 ```
 
-Bez `--allow-partial true` nástroj odmítne neúplnou nebo odmítnutou revizi. Pro kandidáta určeného k dalším release gate se partial režim nepoužívá.
+Podpis pokrývá immutable metadata a SHA-256 ciphertextu; před ověřením podpisu aplikace sama přepočítá hash přijatého payloadu.
 
-## 6. Po aplikaci
+## 4. Distribuce serverless
 
-Nový encrypted pack dostane novou verzi a metadata o aplikované pedagogické revizi. Původní interní pack zůstává neměnným auditovatelným vstupem.
+1. Public app build je nasazen na izolovaný origin `https://maturita.ghrabuvka.cz`.
+2. Podepsaný reálný `.mdesk` se oprávněným učitelům předá odděleně — není hostován v public GitHub repo.
+3. Učitel jej na zařízení importuje jednou; envelope zůstává šifrovaný v IndexedDB.
+4. Při běžném spuštění se Content Pack odemkne heslem. Heslo ani dešifrovaný payload se trvale neukládají.
+5. Nový import je potřeba až při vydání nové verze Content Packu nebo při záměrném odstranění lokální kopie.
 
-Poté následuje:
+## 5. Ověřit / dohledat je mimo content pipeline
 
-1. strukturální a cryptographic verification nového packu;
-2. private real-content leak scan public shellu;
-3. reálné device testy;
-4. GARP;
-5. teprve potom finální produkční pack s novou provozní passphrase.
+Do online služby jde pouze explicitní `query`. Content Pack, Teacher Guidance, Notes ani identita studenta se nikdy automaticky nepřipojují. OpenAI API key je server-side secret serverless/school gateway a nemá přístup do private content pipeline.
 
-## 7. Úklid
+## 6. Budoucí školní server
 
-- veřejně publikovat pouze public PWA se syntetickými daty;
-- `.mdesk`, `.mdreview`, source DOCX a private tools držet mimo veřejný GitHub;
-- passphrase nikdy nebalit do stejného artefaktu s Content Packem;
-- po dokončení odstranit otevřené dočasné obsahové soubory.
+School-server může po autorizaci doručovat pouze encrypted + validně podepsaný `.mdesk` envelope. Clear content ani passphrase se delivery endpointem nevrací. Serverová distribuce nenahrazuje publisher signature.
 
-## Stage 10 — serverová distribuce
+## 7. Rotace klíče
 
-Stage 10 nemění confidential source pipeline ani stav pedagogické revize. Přidává pouze možnost, aby budoucí školní backend po autorizaci doručil výsledný **encrypted `.mdesk` envelope**. Server delivery endpoint nesmí vracet clear build, source DOCX/PDF ani passphrase. Private pipeline zůstává jediným místem, kde vzniká a schvaluje finální encrypted Content Pack.
+Při úniku publisher private key:
+
+1. okamžitě přestat starým klíčem podepisovat;
+2. vygenerovat nový keyId/pár;
+3. vydat novou verzi aplikace s novým veřejným klíčem a podle potřeby revokovat starý keyId v release policy;
+4. znovu podepsat schválené distribuované packy;
+5. zaznamenat incident a datum rotace.
+
+Ztracený private key nelze obnovit z public key. Proto se bezpečně zálohuje odděleně od aplikace a Content Packů.

@@ -5,6 +5,8 @@ const decoder = new TextDecoder();
 
 export const CONTENT_SCHEMA = 'maturita-desk-content-v1';
 export const ENVELOPE_SCHEMA = 'maturita-desk-encrypted-pack-v1';
+export const PUBLISHER_SIGNATURE_SCHEMA = 'maturita-desk-publisher-signature-v1';
+export const PUBLISHER_SIGNATURE_ALGORITHM = 'ECDSA-P256-SHA256';
 export const APP_ID = 'maturita-desk';
 export const DEFAULT_PBKDF2_ITERATIONS = 310000;
 export const MAX_PBKDF2_ITERATIONS = 1000000;
@@ -89,6 +91,16 @@ export function validateEnvelopeShape(envelope) {
   if (!isBase64Bytes(envelope.cipher?.iv, 12)) errors.push('Neplatný AES-GCM IV.');
   if (!String(envelope.payload || '').trim()) errors.push('Chybí šifrovaný payload.');
   if (!/^[a-f0-9]{64}$/i.test(String(envelope.ciphertextSha256 || ''))) errors.push('Chybí kontrolní SHA-256 šifrovaného payloadu.');
+  if (envelope.publisherSignature !== undefined) {
+    const signature = envelope.publisherSignature;
+    if (!signature || typeof signature !== 'object' || Array.isArray(signature)) errors.push('Neplatný podpis vydavatele.');
+    else {
+      if (signature.schema !== PUBLISHER_SIGNATURE_SCHEMA) errors.push('Nepodporované schéma podpisu vydavatele.');
+      if (signature.algorithm !== PUBLISHER_SIGNATURE_ALGORITHM) errors.push('Nepodporovaný algoritmus podpisu vydavatele.');
+      if (!/^[A-Za-z0-9._:-]{1,120}$/.test(String(signature.keyId || ''))) errors.push('Neplatný keyId podpisu vydavatele.');
+      if (!isBase64Bytes(signature.signature, 64)) errors.push('Neplatná hodnota podpisu vydavatele.');
+    }
+  }
   return { ok: errors.length === 0, errors };
 }
 
@@ -126,6 +138,73 @@ export async function encryptContentPack(pack, passphrase, options = {}) {
   };
   if (estimateEnvelopeBytes(envelope) > MAX_ENVELOPE_BYTES) throw new Error('Content Pack překračuje maximální podporovanou velikost 32 MiB.');
   return envelope;
+}
+
+export async function signContentPackEnvelope(envelope, privateJwk, keyId) {
+  const unsignedEnvelope = { ...envelope };
+  delete unsignedEnvelope.publisherSignature;
+  const shape = validateEnvelopeShape(unsignedEnvelope);
+  if (!shape.ok) throw new Error(shape.errors.join(' '));
+  const id = String(keyId || '').trim();
+  if (!/^[A-Za-z0-9._:-]{1,120}$/.test(id)) throw new Error('Neplatný publisher keyId.');
+  if (!privateJwk || typeof privateJwk !== 'object' || privateJwk.kty !== 'EC' || privateJwk.crv !== 'P-256' || !privateJwk.x || !privateJwk.y || !privateJwk.d) {
+    throw new Error('Soukromý publisher klíč musí být ECDSA P-256 JWK.');
+  }
+  const subtle = requireSubtle();
+  let key;
+  try {
+    key = await subtle.importKey('jwk', privateJwk, { name: 'ECDSA', namedCurve: 'P-256' }, false, ['sign']);
+  } catch {
+    throw new Error('Soukromý publisher klíč nelze načíst.');
+  }
+  const signatureBytes = new Uint8Array(await subtle.sign({ name: 'ECDSA', hash: 'SHA-256' }, key, publisherSignatureBytes(unsignedEnvelope)));
+  if (signatureBytes.byteLength !== 64) throw new Error('Publisher podpis má neočekávaný formát.');
+  return {
+    ...unsignedEnvelope,
+    publisherSignature: {
+      schema: PUBLISHER_SIGNATURE_SCHEMA,
+      algorithm: PUBLISHER_SIGNATURE_ALGORITHM,
+      keyId: id,
+      signature: bytesToBase64(signatureBytes)
+    }
+  };
+}
+
+export async function verifyEnvelopePublisherSignature(envelope, publicKeys = {}, requiredClassifications = ['CONFIDENTIAL-EXAM']) {
+  const shape = validateEnvelopeShape(envelope);
+  if (!shape.ok) throw new Error(shape.errors.join(' '));
+  const required = new Set(Array.isArray(requiredClassifications) ? requiredClassifications : []);
+  const signature = envelope.publisherSignature;
+  if (!signature) {
+    if (required.has(envelope.classification)) throw new Error('Content Pack nemá povinný podpis vydavatele.');
+    return { ok: true, signed: false, keyId: '' };
+  }
+  const jwk = publicKeys && typeof publicKeys === 'object' ? publicKeys[signature.keyId] : null;
+  if (!jwk) throw new Error('Content Pack je podepsán neznámým publisher klíčem.');
+  if (jwk.kty !== 'EC' || jwk.crv !== 'P-256' || !jwk.x || !jwk.y || jwk.d) throw new Error('Publisher veřejný klíč je neplatný.');
+
+  // Before trusting the signed ciphertext hash, ensure that it actually matches the payload received.
+  const encrypted = base64ToBytes(envelope.payload);
+  if (encrypted.byteLength > MAX_ENVELOPE_BYTES) throw new Error('Šifrovaný payload je příliš velký.');
+  const digest = await sha256Hex(encrypted);
+  if (!timingSafeTextEqual(digest, String(envelope.ciphertextSha256 || '').toLowerCase())) throw new Error('Kontrola integrity šifrovaného payloadu selhala.');
+
+  const subtle = requireSubtle();
+  let key;
+  try {
+    key = await subtle.importKey('jwk', jwk, { name: 'ECDSA', namedCurve: 'P-256' }, false, ['verify']);
+  } catch {
+    throw new Error('Publisher veřejný klíč nelze načíst.');
+  }
+  const signatureBytes = base64ToBytes(signature.signature);
+  let verified = false;
+  try {
+    verified = await subtle.verify({ name: 'ECDSA', hash: 'SHA-256' }, key, signatureBytes, publisherSignatureBytes(envelope));
+  } catch {
+    verified = false;
+  }
+  if (!verified) throw new Error('Podpis vydavatele Content Packu není platný.');
+  return { ok: true, signed: true, keyId: signature.keyId };
 }
 
 export async function decryptContentPack(envelope, passphrase) {
@@ -169,7 +248,9 @@ export function safeEnvelopeMeta(envelope) {
     topicCount: envelope.topicCount,
     createdAt: envelope.createdAt,
     iterations: envelope.kdf.iterations,
-    encryptedBytes: Math.ceil((envelope.payload.length * 3) / 4)
+    encryptedBytes: Math.ceil((envelope.payload.length * 3) / 4),
+    publisherSigned: Boolean(envelope.publisherSignature),
+    publisherKeyId: String(envelope.publisherSignature?.keyId || '')
   };
 }
 
@@ -222,6 +303,31 @@ function canonicalAad(source) {
       iv: source.cipher.iv
     }
   });
+}
+
+function publisherSignatureBytes(source) {
+  return encoder.encode(JSON.stringify({
+    schema: source.schema,
+    appId: source.appId,
+    packId: source.packId,
+    contentVersion: source.contentVersion,
+    label: source.label,
+    classification: source.classification,
+    topicCount: source.topicCount,
+    createdAt: source.createdAt,
+    kdf: {
+      name: source.kdf.name,
+      hash: source.kdf.hash,
+      iterations: source.kdf.iterations,
+      salt: source.kdf.salt
+    },
+    cipher: {
+      name: source.cipher.name,
+      tagLength: source.cipher.tagLength,
+      iv: source.cipher.iv
+    },
+    ciphertextSha256: String(source.ciphertextSha256 || '').toLowerCase()
+  }));
 }
 
 export async function sha256Hex(bytes) {

@@ -1,30 +1,21 @@
-/*
- * EXAMPLE ONLY — do not load this file directly.
- * Replace the example origins/endpoint with the approved deployment values,
- * then apply equivalent values to runtime-config.js and config/deployment.json.
- * No secret belongs in either public config file.
- */
+/* EXAMPLE ONLY — no secret belongs here. This mirrors the 1.0.0 production trust profile after Fact Check is live. */
 globalThis.MATURITA_DESK_RUNTIME = Object.freeze({
-  schema: 'maturita-desk-runtime-v1',
-  version: 1,
-  environmentId: 'standalone-local',
-  mode: 'standalone-local',
-  serverBaseUrl: '',
-  allowedOrigins: Object.freeze(['self', 'https://fact-check.example.invalid']),
+  schema: 'maturita-desk-runtime-v1', version: 1,
+  environmentId: 'serverless-production', mode: 'standalone-local', serverBaseUrl: '',
+  allowedOrigins: Object.freeze(['self', 'https://maturita-fact.ghrabuvka.cz']),
   trust: Object.freeze({
-    expectedMode: 'standalone-local',
-    expectedEnvironmentId: 'standalone-local',
-    appOrigins: Object.freeze(['https://maturita.example.invalid'])
+    expectedMode: 'standalone-local', expectedEnvironmentId: 'serverless-production',
+    appOrigins: Object.freeze(['https://daniel22-dev.github.io', 'https://maturita.ghrabuvka.cz']),
+    confidentialContentOrigins: Object.freeze(['https://maturita.ghrabuvka.cz']),
+    allowLocalhostConfidential: true
   }),
-  auth: Object.freeze({
-    provider: 'local-device',
-    sessionEndpoint: '', loginUrl: '', logoutEndpoint: '',
-    offlineLease: Object.freeze({ enabled: false, publicKeys: Object.freeze({}) })
+  auth: Object.freeze({ provider: 'local-device', sessionEndpoint: '', loginUrl: '', logoutEndpoint: '', offlineLease: Object.freeze({ enabled: false, publicKeys: Object.freeze({}) }) }),
+  content: Object.freeze({
+    provider: 'encrypted-local', activePackEndpoint: '', allowManualImport: true,
+    requirePublisherSignatureFor: Object.freeze(['CONFIDENTIAL-EXAM']),
+    publisherKeys: Object.freeze({
+      'ghrab-maturita-content-2026-01': Object.freeze({ kty:'EC', crv:'P-256', x:'0bufZcuDqZL1hDWvpfe8RPPah7rPHCVj4GhZ0lnOqek', y:'xxGraQfMwKSHq4C0ExltO6syXWvl-zdGiQ25bMXcqeU', ext:true, key_ops:Object.freeze(['verify']) })
+    })
   }),
-  content: Object.freeze({ provider: 'encrypted-local', activePackEndpoint: '', allowManualImport: true }),
-  factCheck: Object.freeze({
-    provider: 'isolated-http',
-    endpoint: 'https://fact-check.example.invalid/fact-check',
-    timeoutMs: 18000
-  })
+  factCheck: Object.freeze({ provider: 'isolated-http', endpoint: 'https://maturita-fact.ghrabuvka.cz/fact-check', timeoutMs: 18000 })
 });

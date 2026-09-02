@@ -17,3 +17,7 @@ source-qa.json
 # Local screenshots and test artefacts
 playwright-report/
 test-results/
+
+# Publisher private signing keys are release secrets
+*.private.jwk
+publisher-private/

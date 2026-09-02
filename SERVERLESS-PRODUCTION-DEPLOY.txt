@@ -1,0 +1,42 @@
+MATURITA DESK 1.0.0 — SERVERLESS PRODUKČNÍ NASAZENÍ
+====================================================
+
+CÍL
+---
+Běžný učitel nesmí spouštět .cmd ani lokální server. Produkční serverless Maturita Desk je běžná HTTPS PWA.
+
+DOPORUČENÝ PRODUKČNÍ ORIGIN
+----------------------------
+https://maturita.ghrabuvka.cz
+
+Tento origin je v 1.0.0 release trust profilu připnut jako jediný veřejný origin, na kterém je dovoleno pracovat s CONFIDENTIAL-EXAM.
+
+VEŘEJNÝ GITHUB PAGES ORIGIN
+----------------------------
+https://daniel22-dev.github.io/maturita-desk/
+
+Je nadále povolen pro shell a syntetickou demonstraci, ale aplikace na něm odmítne CONFIDENTIAL-EXAM. Tím se reálný maturitní obsah neumisťuje do sdíleného browser originu dalších Pages aplikací.
+
+JEDNORÁZOVÉ NASAZENÍ
+--------------------
+1. Zdroj aplikace zůstává v repozitáři maturita-desk.
+2. Na statickém hostingu nastavte custom HTTPS origin maturita.ghrabuvka.cz tak, aby servíroval přesně tento build.
+3. Ověřte platný HTTPS certifikát a přesný origin v adresním řádku.
+4. Teprve na tomto originu importujte podepsaný CONFIDENTIAL-EXAM .mdesk.
+5. Při běžném používání pak učitel pouze otevře PWA, odemkne Content Pack heslem a pracuje.
+
+CONTENT PACK
+------------
+- reálný .mdesk NIKDY nepatří do public GitHub repozitáře;
+- CONFIDENTIAL-EXAM musí mít validní publisher signature;
+- private publisher key NIKDY nepatří do repozitáře ani aplikace;
+- veřejný publisher key je v buildu záměrně, protože slouží pouze k ověřování podpisu;
+- heslo k Content Packu se distribuuje odděleně a aplikace jej trvale neukládá.
+
+OVĚŘIT / DOHLEDAT
+-----------------
+Core aplikace funguje i bez něj. Pro aktivaci serverless AI funkce postupujte podle serverless/SERVERLESS-FACT-CHECK-SETUP.txt. OpenAI API klíč je vždy pouze serverový secret.
+
+PO AKTUALIZACI APLIKACE
+-----------------------
+Budoucí 1.0.x/1.x release se nahraje stejným workflow. Content Pack není nutné znovu importovat, pokud se nemění jeho verze nebo storage schema. Service Worker má vlastní verzovaný cache namespace.

@@ -1,0 +1,25 @@
+MATURITA DESK 1.0.0 — CO PATŘÍ NA GITHUB
+========================================
+
+NA GITHUB
+---------
+Nahrajte obsah veřejného ZIPu Maturita-Desk-1.0.0-SERVERLESS-FINAL-GITHUB-UPDATE.zip do repozitáře maturita-desk. Zachovejte lokální `.git` metadata repozitáře. Po pushi musí GitHub Actions workflow projít zeleně.
+
+NIKDY NA GITHUB
+---------------
+- jakýkoli reálný CONFIDENTIAL-EXAM `.mdesk`;
+- `Maturita-Desk-PUBLISHER-PRIVATE-*.private.jwk`;
+- Content Pack passphrase;
+- OpenAI API key;
+- pedagogické `.mdreview` s interními poznámkami;
+- zdrojové maturitní DOCX / clear-content mezivýstupy.
+
+PO NASAZENÍ
+-----------
+1. Stávající `daniel22-dev.github.io/maturita-desk/` funguje jako bezpečný demo origin.
+2. Pro normální serverless práci s reálným podepsaným packem se jednorázově zřídí izolovaný HTTPS origin `maturita.ghrabuvka.cz` podle `SERVERLESS-PRODUCTION-DEPLOY.txt`.
+3. Potom učitel nepoužívá příkazový řádek: otevře PWA, importuje/odemkne pack a pracuje.
+
+DALŠÍ AKTUALIZACE
+-----------------
+Od této baseline se další opravy vydávají jako 1.0.1, 1.0.2 atd. Není nutné vracet se k localhost Stage workflow.

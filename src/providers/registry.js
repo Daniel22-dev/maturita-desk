@@ -22,7 +22,7 @@ export function createProviderRegistry(runtime, {
   const content = runtime.mode === 'school-server'
     ? createSchoolServerContentProvider(runtime.content, contentStore, { fetchImpl, authSnapshot: () => authState })
     : runtime.mode === 'standalone-local'
-      ? createLocalEncryptedContentProvider(contentStore)
+      ? createLocalEncryptedContentProvider(contentStore, runtime.content)
       : createLockedContentProvider(runtime.configurationError || 'Runtime konfigurace je uzamčená.');
   if (!content) throw new Error('Content Provider nelze vytvořit z runtime konfigurace.');
 

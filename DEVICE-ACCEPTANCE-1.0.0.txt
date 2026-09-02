@@ -1,0 +1,40 @@
+MATURITA DESK 1.0.0 — DEVICE ACCEPTANCE
+========================================
+
+ÚČEL
+----
+Toto není další vývojová Stage. Je to fyzické ověření hotové serverless baseline na cílových zařízeních. Nález znamená bugfix/aktualizaci 1.0.x.
+
+POVINNÉ SCÉNÁŘE
+---------------
+[ ] Notebook — základní Exam + Practice workflow s reálným podepsaným review packem na produkčním izolovaném originu.
+[ ] Celá 15min relace 2 + 4 + 9 bez resetu timeru.
+[ ] Výběr tématu sám nespustí timer; timer startuje až explicitním Start Exam.
+[ ] Pictures A/B bez cropu, zoom/pan použitelný.
+[ ] Task Box a Topic přechody fungují a pouhé přepnutí záložky nemění aktivní fázi.
+[ ] Notes se ukládají lokálně a nepřepisují se při běžné navigaci.
+[ ] Background / návrat zachová timer a Notes.
+[ ] Zamknutí displeje / návrat zachová timer.
+[ ] Back / Restore zachová relaci.
+[ ] Úplné zavření / reopen obnoví session; protected content vyžádá znovu odemčení.
+[ ] Druhý panel nepřepíše aktivní relaci ani Notes; konflikt je viditelný a takeover je explicitní.
+[ ] Service Worker update se neaktivuje uprostřed běžící zkoušky a lze bezpečně dokončit po relaci.
+[ ] Offline běžící zkouška pokračuje.
+[ ] Offline cold start po předchozím načtení shellu je funkční z hlavní adresy.
+[ ] iPad landscape — hlavní workflow.
+[ ] Telefon portrait — hlavní workflow.
+[ ] Telefon + soft keyboard — Notes nejsou překryté a input se nezoomuje.
+
+DOPORUČENÉ
+----------
+[ ] iPad portrait.
+[ ] Wake Lock nebo provozně zdokumentovaný Auto-Lock fallback.
+[ ] Velký syntetický pack — import/decrypt bez pádu a s přijatelnou odezvou.
+[ ] Ověřit / dohledat — po nasazení live endpointu selhání služby neovlivní Exam Engine.
+
+PRAVIDLA TESTU
+--------------
+- Nepoužívat skutečná studentská osobní data.
+- Do diagnostických poznámek nekopírovat celé ostré zadání.
+- Reálný review pack lze použít pouze interně na schváleném izolovaném originu.
+- FAIL/BLOCKED se nepřepisuje na PASS bez nového reprodukovaného testu po opravě.

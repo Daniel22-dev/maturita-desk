@@ -1,4 +1,4 @@
-# Maturita Desk 0.10.0 — School Server Contract v1 / Stage 13 (Stage 12R hardened baseline)
+# Maturita Desk 1.0.0 — School Server Contract v1
 
 Tento kontrakt je **server-ready reference**, nikoli hotový školní backend. Neobsahuje tajné klíče, skutečný Content Pack ani osobní údaje.
 
@@ -72,7 +72,7 @@ Odpověď:
 
 Server **nesmí** vracet cleartext zkouškové JSONy, DOCX ani dešifrovací heslo. Klient uloží doručený envelope do IndexedDB stále šifrovaný. Při neúspěšném syncu se stávající lokální pack nemaže. Klient odmítá envelope větší než **32 MiB** a neomezené PBKDF2 work factors. 32 MiB je bezpečnostní strop, nikoli náhrada fyzického iPad performance testu.
 
-Stage 12R nadále používá lokální passphrase unlock. AES-GCM zajišťuje integritu pod sdílenou passphrase, ale samostatná publisher signature zatím není součástí schématu. Produkční distribuční pipeline má používat kontrolovaný release hash/podpis; budoucí publisher-signature verze se má zavést novým kompatibilním kontraktem.
+Verze 1.0.0 nadále používá lokální passphrase unlock a současně vyžaduje pro `CONFIDENTIAL-EXAM` samostatný publisher podpis `maturita-desk-publisher-signature-v1` (ECDSA P-256 + SHA-256). Server smí distribuovat pouze envelope podepsaný klíčem, jehož veřejná část je připnuta v baked release profilu. Síťová konfigurace smí seznam publisher klíčů pouze zúžit, nikoli přidat či nahradit klíč mimo release trust anchor.
 
 ## 6. Fact Check
 

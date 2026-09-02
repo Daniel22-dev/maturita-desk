@@ -21,7 +21,22 @@
   "content": {
     "provider": "school-server-encrypted-pack",
     "activePackEndpoint": "content/active",
-    "allowManualImport": false
+    "allowManualImport": false,
+    "requirePublisherSignatureFor": [
+      "CONFIDENTIAL-EXAM"
+    ],
+    "publisherKeys": {
+      "ghrab-maturita-content-2026-01": {
+        "key_ops": [
+          "verify"
+        ],
+        "ext": true,
+        "kty": "EC",
+        "x": "0bufZcuDqZL1hDWvpfe8RPPah7rPHCVj4GhZ0lnOqek",
+        "y": "xxGraQfMwKSHq4C0ExltO6syXWvl-zdGiQ25bMXcqeU",
+        "crv": "P-256"
+      }
+    }
   },
   "factCheck": {
     "provider": "school-server",
@@ -33,6 +48,10 @@
     "expectedEnvironmentId": "school-production",
     "appOrigins": [
       "https://school.example"
-    ]
+    ],
+    "confidentialContentOrigins": [
+      "https://school.example"
+    ],
+    "allowLocalhostConfidential": false
   }
 }

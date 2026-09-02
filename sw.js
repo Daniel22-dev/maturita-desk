@@ -1,5 +1,5 @@
 const GHRAB_SW_CONTRACT = 'ghrab-service-worker-v1';
-const CACHE_NAME = 'ghrab-maturita-desk-v0.10.1';
+const CACHE_NAME = 'ghrab-maturita-desk-v1.0.0';
 const CACHE_PREFIXES = ['ghrab-maturita-desk-v'];
 const CORE_ASSETS = [
   './',
@@ -9,7 +9,6 @@ const CORE_ASSETS = [
   './config/brand-manifest.json',
   './config/platform-manifest.json',
   './src/main.js',
-  './src/content-import-bridge.js',
   './src/demo-content.js',
   './src/exam-engine.js',
   './src/notes.js',

@@ -1,21 +1,22 @@
 /*
- * Maturita Desk Stage 13R serverless/internal-review runtime profile (provider contract unchanged from Stage 10).
- * PUBLIC/standalone profile: no user identity is asserted and no API secret exists here.
- * A school-server deployment replaces this non-secret config with the approved server profile;
- * application source code remains unchanged.
+ * Maturita Desk 1.0.0 — final serverless baseline.
+ * The public shell contains no exam content, passphrase, OpenAI API key or private publisher key.
+ * CONFIDENTIAL-EXAM content is accepted only on a pinned isolated production origin and only with a valid publisher signature.
  */
-// Internal review capability is honored by the app only on localhost/loopback.
-// It does not weaken the public GitHub Pages deployment.
-globalThis.MATURITA_DESK_INTERNAL_REVIEW = true;
-
 globalThis.MATURITA_DESK_RUNTIME = Object.freeze({
   schema: 'maturita-desk-runtime-v1',
   version: 1,
-  environmentId: 'standalone-local',
+  environmentId: 'serverless-production',
   mode: 'standalone-local',
   serverBaseUrl: '',
-  allowedOrigins: ['self'],
-  trust: Object.freeze({ expectedMode: 'standalone-local', expectedEnvironmentId: 'standalone-local', appOrigins: Object.freeze(['https://daniel22-dev.github.io']) }),
+  allowedOrigins: Object.freeze(['self', 'https://maturita-fact.ghrabuvka.cz']),
+  trust: Object.freeze({
+    expectedMode: 'standalone-local',
+    expectedEnvironmentId: 'serverless-production',
+    appOrigins: Object.freeze(['https://daniel22-dev.github.io', 'https://maturita.ghrabuvka.cz']),
+    confidentialContentOrigins: Object.freeze(['https://maturita.ghrabuvka.cz']),
+    allowLocalhostConfidential: true
+  }),
   auth: Object.freeze({
     provider: 'local-device',
     sessionEndpoint: '',
@@ -26,7 +27,11 @@ globalThis.MATURITA_DESK_RUNTIME = Object.freeze({
   content: Object.freeze({
     provider: 'encrypted-local',
     activePackEndpoint: '',
-    allowManualImport: true
+    allowManualImport: true,
+    requirePublisherSignatureFor: Object.freeze(['CONFIDENTIAL-EXAM']),
+    publisherKeys: Object.freeze({
+      'ghrab-maturita-content-2026-01': Object.freeze({"key_ops": ["verify"], "ext": true, "kty": "EC", "x": "0bufZcuDqZL1hDWvpfe8RPPah7rPHCVj4GhZ0lnOqek", "y": "xxGraQfMwKSHq4C0ExltO6syXWvl-zdGiQ25bMXcqeU", "crv": "P-256"})
+    })
   }),
   factCheck: Object.freeze({
     provider: 'isolated-http',

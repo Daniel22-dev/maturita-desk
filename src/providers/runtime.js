@@ -69,7 +69,10 @@ export function localRuntimeDefaults() {
     content: {
       provider: 'encrypted-local',
       activePackEndpoint: '',
-      allowManualImport: true
+      allowManualImport: true,
+      confidentialAllowed: false,
+      requirePublisherSignatureFor: ['CONFIDENTIAL-EXAM'],
+      publisherKeys: {}
     },
     factCheck: {
       provider: 'isolated-http',
@@ -98,7 +101,10 @@ export function lockedRuntimeDefaults(reason = 'runtime-configuration-invalid') 
     content: {
       provider: 'locked',
       activePackEndpoint: '',
-      allowManualImport: false
+      allowManualImport: false,
+      confidentialAllowed: false,
+      requirePublisherSignatureFor: ['CONFIDENTIAL-EXAM'],
+      publisherKeys: {}
     },
     factCheck: {
       provider: 'locked',
@@ -128,7 +134,6 @@ export function readRuntimeConfig(runtime = globalThis.MATURITA_DESK_RUNTIME, lo
 
   const raw = runtime;
   const mode = raw.mode;
-  const fallback = localRuntimeDefaults();
   const environmentId = safeToken(raw.environmentId, mode === 'school-server' ? 'school-server' : 'standalone-local');
   const trustedAllowedOrigins = normalizeAllowedOrigins(trustPolicy?.allowedOrigins || ['self'], locationLike);
   const allowedOrigins = narrowAllowedOrigins(raw.allowedOrigins, trustedAllowedOrigins, locationLike);
@@ -146,23 +151,27 @@ export function readRuntimeConfig(runtime = globalThis.MATURITA_DESK_RUNTIME, lo
 
   const auth = {
     provider: authProvider,
-    sessionEndpoint: safeEndpoint(raw.auth?.sessionEndpoint, serverBaseUrl, locationLike, allowedOrigins, mode),
-    loginUrl: safeNavigationUrl(raw.auth?.loginUrl, serverBaseUrl, locationLike, allowedOrigins, mode),
-    logoutEndpoint: safeEndpoint(raw.auth?.logoutEndpoint, serverBaseUrl, locationLike, allowedOrigins, mode),
+    sessionEndpoint: safeEndpoint(raw.auth?.sessionEndpoint, serverBaseUrl, locationLike, allowedOrigins),
+    loginUrl: safeNavigationUrl(raw.auth?.loginUrl, serverBaseUrl, locationLike, allowedOrigins),
+    logoutEndpoint: safeEndpoint(raw.auth?.logoutEndpoint, serverBaseUrl, locationLike, allowedOrigins),
     offlineLease: {
       enabled: mode === 'school-server' && raw.auth?.offlineLease?.enabled === true,
       publicKeys: normalizePublicKeys(raw.auth?.offlineLease?.publicKeys),
       maxHours: clampInt(raw.auth?.offlineLease?.maxHours, 1, MAX_OFFLINE_LEASE_HOURS, MAX_OFFLINE_LEASE_HOURS)
     }
   };
+  const trustedPublisherKeys = trustPolicy?.publisherKeys || {};
   const content = {
     provider: contentProvider,
-    activePackEndpoint: safeEndpoint(raw.content?.activePackEndpoint, serverBaseUrl, locationLike, allowedOrigins, mode),
-    allowManualImport: mode === 'standalone-local' ? true : raw.content?.allowManualImport === true
+    activePackEndpoint: safeEndpoint(raw.content?.activePackEndpoint, serverBaseUrl, locationLike, allowedOrigins),
+    allowManualImport: mode === 'standalone-local' ? true : raw.content?.allowManualImport === true,
+    confidentialAllowed: confidentialOriginAllowed(locationLike, trustPolicy?.confidentialContentOrigins, trustPolicy?.allowLocalhostConfidential === true),
+    requirePublisherSignatureFor: Object.freeze([...(trustPolicy?.requirePublisherSignatureFor || ['CONFIDENTIAL-EXAM'])]),
+    publisherKeys: narrowPublicKeys(raw.content?.publisherKeys, trustedPublisherKeys)
   };
   const factCheck = {
     provider: factProvider,
-    endpoint: safeEndpoint(raw.factCheck?.endpoint, serverBaseUrl, locationLike, allowedOrigins, factProvider === 'school-server' ? 'school-server' : 'standalone-local'),
+    endpoint: safeEndpoint(raw.factCheck?.endpoint, serverBaseUrl, locationLike, allowedOrigins),
     timeoutMs: clampInt(raw.factCheck?.timeoutMs, 3000, 60000, 18000)
   };
 
@@ -178,6 +187,7 @@ export function readRuntimeConfig(runtime = globalThis.MATURITA_DESK_RUNTIME, lo
     if (factCheck.provider !== 'school-server' || !factCheck.endpoint) configurationErrors.push('factCheck');
     if (auth.offlineLease.enabled && !Object.keys(auth.offlineLease.publicKeys).length) configurationErrors.push('offlineLease.publicKeys');
   }
+  if (content.confidentialAllowed && content.requirePublisherSignatureFor.includes('CONFIDENTIAL-EXAM') && !Object.keys(content.publisherKeys).length) configurationErrors.push('content.publisherKeys');
 
   if (configurationErrors.length) {
     return freezeRuntime({
@@ -215,17 +225,31 @@ export function endpointOriginAllowed(endpoint, allowedOrigins = ['self'], locat
   } catch { return false; }
 }
 
+export function confidentialOriginAllowed(locationLike = globalThis.location, pinnedOrigins = [], allowLocalhost = false) {
+  try {
+    const url = new URL(locationHref(locationLike));
+    if (allowLocalhost && LOCALHOSTS.has(url.hostname)) return true;
+    if (url.protocol !== 'https:') return false;
+    return Array.isArray(pinnedOrigins) && pinnedOrigins.includes(url.origin);
+  } catch { return false; }
+}
+
 function trustPolicyFromBaked(baked, locationLike) {
   const raw = baked && typeof baked === 'object' && !Array.isArray(baked) ? baked : {};
   const expectedMode = ['standalone-local', 'school-server'].includes(raw?.trust?.expectedMode)
     ? raw.trust.expectedMode
     : (['standalone-local', 'school-server'].includes(raw.mode) ? raw.mode : '');
   const expectedEnvironmentId = safeToken(raw?.trust?.expectedEnvironmentId, safeToken(raw.environmentId, ''));
+  const requirePublisherSignatureFor = normalizeClassificationList(raw?.content?.requirePublisherSignatureFor, ['CONFIDENTIAL-EXAM']);
   return Object.freeze({
     expectedMode,
     expectedEnvironmentId,
     allowedOrigins: Object.freeze(normalizeAllowedOrigins(raw.allowedOrigins || ['self'], locationLike)),
-    appOrigins: Object.freeze(normalizePinnedAppOrigins(raw?.trust?.appOrigins))
+    appOrigins: Object.freeze(normalizePinnedAppOrigins(raw?.trust?.appOrigins)),
+    confidentialContentOrigins: Object.freeze(normalizePinnedAppOrigins(raw?.trust?.confidentialContentOrigins)),
+    allowLocalhostConfidential: raw?.trust?.allowLocalhostConfidential === true,
+    publisherKeys: Object.freeze(normalizePublicKeys(raw?.content?.publisherKeys)),
+    requirePublisherSignatureFor: Object.freeze(requirePublisherSignatureFor)
   });
 }
 
@@ -296,7 +320,7 @@ function normalizeBaseUrl(value, locationLike, allowedOrigins, mode) {
   } catch { return ''; }
 }
 
-function safeEndpoint(value, baseUrl, locationLike, allowedOrigins, mode) {
+function safeEndpoint(value, baseUrl, locationLike, allowedOrigins) {
   const text = String(value || '').trim();
   if (!text) return '';
   try {
@@ -309,8 +333,8 @@ function safeEndpoint(value, baseUrl, locationLike, allowedOrigins, mode) {
   } catch { return ''; }
 }
 
-function safeNavigationUrl(value, baseUrl, locationLike, allowedOrigins, mode) {
-  return safeEndpoint(value, baseUrl, locationLike, allowedOrigins, mode);
+function safeNavigationUrl(value, baseUrl, locationLike, allowedOrigins) {
+  return safeEndpoint(value, baseUrl, locationLike, allowedOrigins);
 }
 
 function normalizePublicKeys(value) {
@@ -322,6 +346,31 @@ function normalizePublicKeys(value) {
     output[keyId] = { kty: 'EC', crv: 'P-256', x: String(jwk.x), y: String(jwk.y), ext: true, key_ops: ['verify'] };
   }
   return output;
+}
+
+function narrowPublicKeys(requested, trusted) {
+  const trustedKeys = normalizePublicKeys(trusted);
+  const requestedKeys = normalizePublicKeys(requested);
+  const output = {};
+  for (const [keyId, jwk] of Object.entries(requestedKeys)) {
+    const pinned = trustedKeys[keyId];
+    if (!pinned) continue;
+    if (pinned.x !== jwk.x || pinned.y !== jwk.y || pinned.crv !== jwk.crv || pinned.kty !== jwk.kty) continue;
+    output[keyId] = pinned;
+  }
+  // A network configuration may omit keys (fail closed), but it can never add or replace a baked publisher key.
+  return output;
+}
+
+function normalizeClassificationList(value, fallback = []) {
+  if (!Array.isArray(value)) return [...fallback];
+  const allowed = new Set(['CONFIDENTIAL-EXAM', 'SYNTHETIC-DEMO']);
+  const output = [];
+  for (const item of value) {
+    const text = String(item || '').trim();
+    if (allowed.has(text) && !output.includes(text)) output.push(text);
+  }
+  return output.length ? output : [...fallback];
 }
 
 function safeToken(value, fallback) {
@@ -350,7 +399,11 @@ function freezeRuntime(value) {
   const factCheck = value.factCheck || locked.factCheck;
   value.allowedOrigins = Object.freeze([...(value.allowedOrigins || ['self'])]);
   value.auth = Object.freeze({ ...auth, offlineLease: Object.freeze({ ...(auth.offlineLease || locked.auth.offlineLease), publicKeys: Object.freeze({ ...(auth.offlineLease?.publicKeys || {}) }) }) });
-  value.content = Object.freeze({ ...content });
+  value.content = Object.freeze({
+    ...content,
+    requirePublisherSignatureFor: Object.freeze([...(content.requirePublisherSignatureFor || ['CONFIDENTIAL-EXAM'])]),
+    publisherKeys: Object.freeze({ ...(content.publisherKeys || {}) })
+  });
   value.factCheck = Object.freeze({ ...factCheck });
   return Object.freeze(value);
 }

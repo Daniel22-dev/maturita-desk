@@ -15,17 +15,22 @@ function memoryStore() {
 }
 
 const localStore = memoryStore();
-const local = createLocalEncryptedContentProvider(localStore);
+const local = createLocalEncryptedContentProvider(localStore, { confidentialAllowed: false, requirePublisherSignatureFor: ['CONFIDENTIAL-EXAM'], publisherKeys: {} });
 assert.equal(local.kind, 'encrypted-local');
 assert.equal(local.allowManualImport, true);
 const imported = await local.importText(JSON.stringify(envelope));
 assert.equal(imported.packId, envelope.packId);
 assert.equal(localStore.active.schema, 'maturita-desk-encrypted-pack-v1');
 
+const fakeConfidential = { ...structuredClone(envelope), classification: 'CONFIDENTIAL-EXAM' };
+await assert.rejects(() => local.importText(JSON.stringify(fakeConfidential)), /izolovaném produkčním originu/i, 'shared/demo origin policy must block confidential packs');
+const localConfidentialOrigin = createLocalEncryptedContentProvider(memoryStore(), { confidentialAllowed: true, requirePublisherSignatureFor: ['CONFIDENTIAL-EXAM'], publisherKeys: {} });
+await assert.rejects(() => localConfidentialOrigin.importText(JSON.stringify(fakeConfidential)), /povinný podpis/i, 'production origin still requires publisher signature');
+
 let captured = null;
 const serverStore = memoryStore();
 let auth = { authenticated: true, capabilities: ['content:download'] };
-const remote = createSchoolServerContentProvider({ activePackEndpoint: 'https://school.example/api/content/active', allowManualImport: false }, serverStore, {
+const remote = createSchoolServerContentProvider({ activePackEndpoint: 'https://school.example/api/content/active', allowManualImport: false, confidentialAllowed: false }, serverStore, {
   authSnapshot: () => auth,
   fetchImpl: async (url, options) => {
     captured = { url, options };

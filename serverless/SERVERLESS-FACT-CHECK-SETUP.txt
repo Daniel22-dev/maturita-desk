@@ -1,32 +1,40 @@
-MATURITA DESK 0.10.1 — SERVERLESS „OVĚŘIT / DOHLEDAT“
-=====================================================
+MATURITA DESK 1.0.0 — SERVERLESS „OVĚŘIT / DOHLEDAT“
+====================================================
 
 ÚČEL
 ----
-Tento postup je pro dobu, kdy ještě neexistuje školní server. Maturita Desk může zůstat statická PWA; pouze online dohledávání používá malou edge/serverless službu.
+Maturita Desk může dlouhodobě běžet jako statická PWA bez školního serveru. Pouze online dohledávání používá malou oddělenou edge/serverless službu.
+
+PLÁNOVANÉ ORIGINY
+-----------------
+PWA:    https://maturita.ghrabuvka.cz
+Worker: https://maturita-fact.ghrabuvka.cz
+
+Release trust allowlist už obsahuje přesný plánovaný Worker origin, ale endpoint je v public buildu záměrně prázdný, dokud služba skutečně neexistuje.
 
 BEZPEČNOSTNÍ PRINCIP
 --------------------
 - OpenAI API klíč nikdy není v browseru ani na GitHubu.
-- Browser posílá jen ručně napsaný dotaz.
-- Pro dočasný serverless provoz se používá samostatný silný učitelský přístupový kód.
-- Přístupový kód není OpenAI API klíč.
-- Kód se v aplikaci ukládá pouze do sessionStorage aktivního panelu.
-- CORS/Origin sám o sobě není autentizace; proto je přístupový kód + rate limit povinný.
+- Browser posílá jen ručně napsaný dotaz `query`.
+- Pro dobu bez školního SSO se používá samostatný silný učitelský přístupový kód.
+- Přístupový kód není OpenAI API klíč a ukládá se jen do sessionStorage aktivního panelu.
+- CORS/Origin není autentizace; přístupový kód a rate limiter jsou povinné.
+- Selhání služby nesmí zastavit Exam Engine ani timer.
 
 CO JE TŘEBA NASADIT
 -------------------
-1. serverless/fact-check-worker.mjs na podporovanou edge/serverless platformu;
-2. serverové secret OPENAI_API_KEY;
-3. serverové secret FACTCHECK_ACCESS_TOKEN (náhodný, alespoň 32 znaků);
-4. rate limiter binding FACTCHECK_RATE_LIMITER;
-5. přesný ALLOWED_ORIGINS;
-6. do runtime-config.js a config/deployment.json doplnit HTTPS endpoint a jeho origin.
+1. `serverless/fact-check-worker.mjs` na schválenou edge/serverless platformu.
+2. Serverový secret `OPENAI_API_KEY`.
+3. Serverový secret `FACTCHECK_ACCESS_TOKEN` — silný náhodný kód, min. 32 znaků.
+4. Binding `FACTCHECK_RATE_LIMITER`.
+5. `ALLOWED_ORIGINS=https://maturita.ghrabuvka.cz`.
+6. HTTPS endpoint služby na připnutém originu `https://maturita-fact.ghrabuvka.cz`.
+7. Po úspěšném live testu doplnit endpoint do `config/deployment.json`. Network config smí použít jen origin, který už je v baked trust allowlistu.
 
-DŮLEŽITÉ
---------
-Dokud body 1–6 nejsou udělané, aplikace správně hlásí, že online služba není připojena. Exam, Practice, Content Pack a Notes na ní nejsou závislé.
+DO TÉ DOBY
+----------
+Aplikace správně hlásí, že Ověřit / dohledat není připojeno. Exam, Practice, Content Pack, Notes a offline workflow jsou plně nezávislé.
 
-PRODUKČNÍ PŘECHOD
------------------
-Až vznikne školní server/SSO, dočasný FACTCHECK_ACCESS_TOKEN se odstraní. Worker nebo jeho ekvivalent se přepne na inner-gate režim a browser používá školní session.
+BUDOUCÍ SCHOOL-SERVER
+---------------------
+Po zavedení SSO se `FACTCHECK_ACCESS_TOKEN` odstraní a používá se inner-gate režim: browser zná jen školní session, server-to-server gateway přidává `X-Maturita-Desk-Gate`.

@@ -1,12 +1,18 @@
-/* NON-SECRET EXAMPLE. Replace paths/key material during approved server deployment. */
+/* NON-SECRET EXAMPLE. Replace paths/auth key material during approved server deployment. */
 globalThis.MATURITA_DESK_RUNTIME = Object.freeze({
   schema: 'maturita-desk-runtime-v1',
   version: 1,
   environmentId: 'school-production',
   mode: 'school-server',
   serverBaseUrl: '/api/v1/maturita-desk/',
-  allowedOrigins: ['self'],
-  trust: Object.freeze({ expectedMode: 'school-server', expectedEnvironmentId: 'school-production', appOrigins: Object.freeze(['https://school.example']) }),
+  allowedOrigins: Object.freeze(['self']),
+  trust: Object.freeze({
+    expectedMode: 'school-server',
+    expectedEnvironmentId: 'school-production',
+    appOrigins: Object.freeze(['https://school.example']),
+    confidentialContentOrigins: Object.freeze(['https://school.example']),
+    allowLocalhostConfidential: false
+  }),
   auth: Object.freeze({
     provider: 'school-server-session',
     sessionEndpoint: 'session',
@@ -23,11 +29,14 @@ globalThis.MATURITA_DESK_RUNTIME = Object.freeze({
   content: Object.freeze({
     provider: 'school-server-encrypted-pack',
     activePackEndpoint: 'content/active',
-    allowManualImport: false
+    allowManualImport: false,
+    requirePublisherSignatureFor: Object.freeze(['CONFIDENTIAL-EXAM']),
+    publisherKeys: Object.freeze({
+      'ghrab-maturita-content-2026-01': Object.freeze({
+        kty: 'EC', crv: 'P-256', x: '0bufZcuDqZL1hDWvpfe8RPPah7rPHCVj4GhZ0lnOqek',
+        y: 'xxGraQfMwKSHq4C0ExltO6syXWvl-zdGiQ25bMXcqeU', ext: true, key_ops: Object.freeze(['verify'])
+      })
+    })
   }),
-  factCheck: Object.freeze({
-    provider: 'school-server',
-    endpoint: 'fact-check',
-    timeoutMs: 18000
-  })
+  factCheck: Object.freeze({ provider: 'school-server', endpoint: 'fact-check', timeoutMs: 18000 })
 });

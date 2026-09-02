@@ -2,7 +2,7 @@
   "schema": "maturita-desk-stage9-fact-check-qa-v1",
   "appVersion": "0.7.0",
   "classification": "PUBLIC-SANITIZED-QA",
-  "status": "AUTOMATED-MOCK-READY_AUTHENTICATED-GATEWAY-REQUIRED_LIVE-INTEGRATION-OPEN",
+  "status": "AUTOMATED-MOCK-READY_SERVERLESS-TEACHER-TOKEN_OR_INNER-GATE_LIVE-INTEGRATION-OPEN",
   "privacyBoundary": {
     "clientRequestFields": [
       "query"
@@ -20,8 +20,13 @@
     "defaultModel": "gpt-5.6-terra",
     "originAllowlist": true,
     "rateLimiterRequired": true,
-    "serverSideGateTokenRequired": true,
-    "directAnonymousBrowserDeployment": false
+    "serverSideGateTokenRequired": false,
+    "directAnonymousBrowserDeployment": false,
+    "authorizationModes": [
+      "serverless-teacher-access-token",
+      "school-server-inner-gate"
+    ],
+    "exactlyOneAuthorizationMode": true
   },
   "automatedChecks": {
     "clientQuerySanitization": "PASS",
@@ -38,9 +43,11 @@
     "workerRawUpstreamErrorHidden": "PASS",
     "publicShellSecretScan": "PASS",
     "workerRequiresRateLimiter": "PASS",
-    "workerRequiresServerSideGate": "PASS",
+    "workerRequiresServerSideGate": "PASS_FOR_INNER_GATE_MODE",
     "workerHealthDoesNotExposeConfiguredState": "PASS",
-    "workerChunkedResponseCap": "PASS"
+    "workerChunkedResponseCap": "PASS",
+    "workerSupportsServerlessTeacherToken": "PASS",
+    "workerRejectsAmbiguousAuthConfiguration": "PASS"
   },
   "liveIntegration": {
     "proxyDeployed": false,

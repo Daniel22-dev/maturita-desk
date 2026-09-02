@@ -1,4 +1,4 @@
-# School-server reference — Stage 13 / 0.10.0 (Stage 12R hardened baseline)
+# School-server reference — 1.0.0 compatible reference (Stage 12R hardened baseline)
 
 Obsah této složky je bezpečná integrační reference pro budoucí školní backend. Nejde o produkční server a nejsou zde žádné secrets.
 

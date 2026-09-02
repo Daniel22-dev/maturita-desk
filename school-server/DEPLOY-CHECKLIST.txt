@@ -1,4 +1,4 @@
-MATURITA DESK 0.10.0 / STAGE 13 (server contract inherited from Stage 12R) — SCHOOL SERVER SECURITY CHECKLIST
+MATURITA DESK 1.0.0 (server contract inherited from Stage 12R) — SCHOOL SERVER SECURITY CHECKLIST
 
 [ ] HTTPS a školní doména/subdoména
 [ ] reálný Identity Provider (Google Workspace / Microsoft 365 / jiný školní SSO)

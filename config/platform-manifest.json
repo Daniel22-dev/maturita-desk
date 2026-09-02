@@ -1,14 +1,20 @@
 {
   "schema": "maturita-desk-platform-manifest-v1",
   "appId": "maturita-desk",
-  "version": "0.10.1",
-  "stage": "stage-13r-serverless-internal-review",
+  "version": "1.0.0",
+  "stage": "serverless-1.0.0",
   "contentPolicy": {
     "publicShellMayContainExamContent": false,
     "demoContent": "synthetic-only",
     "protectedContentProvider": "encrypted-local-content-pack-v1",
     "decryptedPersistence": false,
-    "passphrasePersistence": false
+    "passphrasePersistence": false,
+    "confidentialExamUse": "pinned-isolated-origin-only",
+    "productionOrigin": "https://maturita.ghrabuvka.cz",
+    "sharedGithubOriginRole": "demo-only",
+    "publisherSignatureRequiredFor": [
+      "CONFIDENTIAL-EXAM"
+    ]
   },
   "providers": {
     "runtime": "maturita-desk-runtime-v1",
@@ -34,7 +40,12 @@
     "store": "ghrab.maturita-desk.protected-content.v1",
     "maxEnvelopeBytes": 33554432,
     "serviceWorkerCache": false,
-    "maxPbkdf2Iterations": 1000000
+    "maxPbkdf2Iterations": 1000000,
+    "publisherSignature": {
+      "schema": "maturita-desk-publisher-signature-v1",
+      "algorithm": "ECDSA-P256-SHA256",
+      "activeKeyId": "ghrab-maturita-content-2026-01"
+    }
   },
   "examEngine": {
     "sessionSchema": "maturita-desk-session-v3",
@@ -103,7 +114,10 @@
     "apiKeyInClient": false,
     "displayName": "Ověřit / dohledat",
     "supportsInformationalLookup": true,
-    "serverlessBrowserAuth": "temporary-shared-teacher-token-in-sessionStorage"
+    "serverlessBrowserAuth": "temporary-shared-teacher-token-in-sessionStorage",
+    "serverlessTargetOrigin": "https://maturita-fact.ghrabuvka.cz",
+    "liveEndpointConfigured": false,
+    "liveServiceRequiredForCoreExam": false
   },
   "serverArchitecture": {
     "activeInPublicBuild": false,
@@ -143,37 +157,37 @@
     "standalonePwaDetected": true
   },
   "securityAudit": {
-    "stage": "stage-13r",
-    "candidate": true,
+    "stage": "serverless-1.0.0",
+    "candidate": false,
     "independentStage12AuditReceived": true,
     "runtimeConfigFailClosed": "release-pinned mode/environment/app-origin + baked-only endpoint-origin trust; network config may only narrow",
     "streamedResponseCaps": true,
     "schoolLogoutEndpointRequired": true,
-    "contentPackAuthenticity": "AES-GCM keyed integrity under shared passphrase; separate publisher signature pending",
+    "contentPackAuthenticity": "AES-GCM payload integrity + mandatory ECDSA P-256 publisher signature for CONFIDENTIAL-EXAM",
     "maxEnvelopeBytes": 33554432,
     "factCheckRateLimiterRequired": true,
     "factCheckGatewayAuthentication": "serverless: explicit teacher access token OR server-side inner gate; CORS alone is insufficient",
     "serviceWorkerCachePolicy": "explicit-core-allowlist+canonical-root-offline-navigation-only",
     "csp": "meta-static-profile; response-header-required-on-school-server",
     "actualAppStateFactCheckCanary": "PASS_QUERY_ONLY",
-    "liveModelBehavioralAudit": "NOT_TESTED",
-    "realDeviceLifecycle": "PILOT_INSTRUMENTED_NOT_YET_EXECUTED",
+    "liveModelBehavioralAudit": "PENDING_LIVE_ENDPOINT",
+    "realDeviceLifecycle": "DIAGNOSTICS_AVAILABLE_PHYSICAL_ACCEPTANCE_PENDING",
     "offlineLeaseHardwareBinding": false,
     "offlineLeaseClockRollback": "requires managed-device/system-time operational control for full assurance",
     "multiTabLocking": "writer-lease-mitigated-device-test-pending",
-    "overallGate": "AMBER-STAGE13R-REVIEW-PHYSICAL-ACCEPTANCE-PENDING"
+    "overallGate": "AMBER-FINAL-SOFTWARE-BASELINE-EXTERNAL-ACCEPTANCE-PENDING",
+    "softwareBaselineFinal": true
   },
   "pilot": {
-    "mode": "controlled-synthetic-device-pilot-with-local-confidential-review",
-    "syntheticOnly": true,
-    "confidentialExamPackAccepted": false,
+    "mode": "device-diagnostics",
+    "syntheticOnly": false,
+    "confidentialExamPackAccepted": "ONLY_ON_PINNED_PRODUCTION_ORIGIN_WITH_VALID_PUBLISHER_SIGNATURE",
     "reportSchema": "maturita-desk-pilot-run-v1",
     "reportStorage": "ghrab.maturita-desk.pilot-run.v1",
     "automaticUpload": false,
     "studentIdentityFields": false,
     "mandatoryDeviceChecks": 16,
     "stressPackTargetMiB": 30,
-    "physicalDeviceAcceptance": "PENDING",
-    "localInternalReviewConfidentialAccepted": true
+    "physicalDeviceAcceptance": "PENDING"
   }
 }

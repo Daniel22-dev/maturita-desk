@@ -1,63 +1,52 @@
-# Maturita Desk 0.10.1 — Stage 13R build report
+# Maturita Desk 1.0.0 — Serverless Final Build Report
 
-## Cíl
+Software baseline: **FEATURE-COMPLETE SERVERLESS 1.0.0**  
+Automated regression/security suite: **PASS**  
+Physical / pedagogical / live-service acceptance: **PENDING**
 
-Vytvořit jeden GitHub-safe update kandidát, který:
+## Release changes against 0.10.1
 
-- zachová veřejný build synthetic-only;
-- umožní na localhostu interně testovat reálný šifrovaný Content Pack;
-- opraví potvrzenou chybu ručního importu Content Packu;
-- zachová Stage 13 device/PWA/multi-tab instrumentaci;
-- připraví pohodlný serverless provoz před existencí školního serveru;
-- rozšíří online pomoc na **Ověřit / dohledat** bez úniku kontextu zkoušky.
+- application, manifest and PWA cache version raised to 1.0.0;
+- normal serverless use no longer depends on the temporary localhost/`.cmd` review workflow; the launcher and browser import bridge hotfix were removed from the final public package;
+- Content Pack file change handling is now directly delegated at `document` level;
+- introduced pinned isolated confidential-content origin `https://maturita.ghrabuvka.cz`;
+- shared `https://daniel22-dev.github.io` origin remains shell/demo-only for confidential content;
+- added `maturita-desk-publisher-signature-v1`, ECDSA P-256 + SHA-256;
+- `CONFIDENTIAL-EXAM` requires a valid publisher signature under a baked public trust key;
+- Content Provider checks origin policy and publisher signature before encrypted storage/use;
+- network runtime configuration may narrow publisher trust but cannot add/replace baked publisher keys;
+- private publisher key patterns are forbidden by validation/security scan and `.gitignore`;
+- added public key generation/sign/verify tooling; private key is never generated into or bundled with the public repository by default;
+- retained encrypted-local IndexedDB, password re-unlock, Exam/Practice, Notes, offline shell, lifecycle recovery and multi-tab writer guard;
+- `Ověřit / dohledat` remains query-only and supports protected serverless teacher-token mode or future school-server inner gate;
+- future school-server reference now preserves publisher signature policy.
 
-## Hlavní změny
+## Automated verification executed
 
-- `src/content-import-bridge.js` + regresní test opravují browserový import z body-level draweru;
-- localhost-only `PILOT_INTERNAL_REVIEW` dovoluje `CONFIDENTIAL-EXAM` pouze na loopback hostu;
-- veřejný GitHub origin dál odmítá `CONFIDENTIAL-EXAM`;
-- `Ověřit / dohledat` podporuje tvrzení i přímé faktické dotazy;
-- klient posílá pouze `{ query }` a v temporary serverless režimu volitelnou hlavičku `X-Maturita-Desk-Access`;
-- přístupový kód se ukládá jen do `sessionStorage`, nikoli do localStorage, URL nebo public configu;
-- serverless worker má dva vzájemně výlučné auth režimy: dočasný teacher access token nebo budoucí server-to-server inner gate;
-- worker vyžaduje rate limiter, exact Origin allowlist a OpenAI API key jako serverový secret;
-- public `runtime-config.js` a `config/deployment.json` nadále obsahují prázdný Fact Check endpoint a žádný secret;
-- cache/PWA verze zvýšena na 0.10.1.
+Full `npm test` on the 1.0.0 working tree: **PASS**.
 
-## Co tento ZIP záměrně neobsahuje
+Covered gates include:
 
-- reálný maturitní `.mdesk`;
-- přístupovou frázi k reálnému packu;
-- OpenAI API key;
-- `FACTCHECK_ACCESS_TOKEN` ani `FACTCHECK_GATE_TOKEN`;
-- skutečná studentská data.
+- final 1.0.0 artifact validation;
+- public artifact secret/private-key scan + negative controls;
+- Exam Engine / Notes / rich content;
+- Content Pack encryption/decryption, malicious KDF control, publisher signing/verification/tamper controls;
+- pedagogical review model/patch;
+- Ověřit / dohledat client, response byte caps, worker auth/privacy/rate-limit controls;
+- runtime fail-closed, baked/network parity and final origin/publisher trust profile;
+- auth/offline lease, content providers and school-server integration;
+- device runtime, sleep/resume and PWA hardening;
+- Stage 12/12R security regressions and structural AI-RED harness;
+- local device diagnostics model;
+- session coordinator / real main multi-tab smoke;
+- real main runtime smoke including query-only egress canaries.
 
-## Co tento build netvrdí
+## Explicitly not claimed by this build report
 
-- fyzický iPad/telefon acceptance zde nebyl proveden;
-- reálný Safari multi-tab race zde nebyl proveden;
-- produkční izolovaný origin zatím není zřízen;
-- serverless Ověřit / dohledat endpoint není samotným GitHub uploadem nasazen;
-- reálný Content Pack není pedagogicky schválen pro ostrou maturitu;
-- školní server není připojen.
+- no physical iPad/phone acceptance was executed in this build environment;
+- no live production custom domain was configured from this build environment;
+- no live OpenAI/serverless edge request was executed; the public endpoint ships intentionally empty;
+- no pedagogical approval of the real 2027 review pack is implied;
+- no claim is made that the school-server/SSO backend exists.
 
-## Finální ověření
-
-Před vydáním ZIPu se spustí kompletní `npm test`, security scan a syntax/regresní sada. Následně se ZIP rozbalí do čisté složky a stejná sada se zopakuje nad přesným obsahem distribuovaného archivu. Výsledný SHA-256 se vypočítá až po tomto read-only ověření.
-
-## Automatický test před balením
-
-Kompletní `npm test`: **PASS**.
-
-- Stage 13R validator: PASS;
-- artifact security scan: PASS, 0 nálezů;
-- Content Pack import bridge regression: PASS;
-- Content Pack crypto/validator tests: PASS;
-- Ověřit / dohledat client tests: PASS;
-- serverless worker anti-abuse/privacy/auth tests: PASS;
-- runtime query-only canary: PASS;
-- Stage 3–12R regresní sada: PASS;
-- PWA/device static hardening: PASS;
-- multi-tab coordinator + actual main.js smoke: PASS.
-
-Fyzické browser/device testy nejsou tímto automatickým PASS nahrazeny.
+These are external acceptance/configuration gates, not planned missing core features in the 1.0.0 application baseline.

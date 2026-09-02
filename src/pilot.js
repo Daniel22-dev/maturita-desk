@@ -1,9 +1,9 @@
 export const PILOT_SCHEMA = 'maturita-desk-pilot-run-v1';
 export const PILOT_STORAGE_KEY = 'ghrab.maturita-desk.pilot-run.v1';
-const INTERNAL_REVIEW_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]']);
-export const PILOT_INTERNAL_REVIEW = globalThis.MATURITA_DESK_INTERNAL_REVIEW === true && INTERNAL_REVIEW_HOSTS.has(String(globalThis.location?.hostname || ''));
-export const PILOT_BUILD = PILOT_INTERNAL_REVIEW ? 'stage13r-internal-review-local' : 'stage13r-serverless-candidate-public';
-export const PILOT_SYNTHETIC_ONLY = true && !PILOT_INTERNAL_REVIEW;
+// Legacy Stage 13 recorder retained as local device diagnostics for the 1.0 serverless baseline.
+export const PILOT_INTERNAL_REVIEW = false;
+export const PILOT_BUILD = 'serverless-1.0.0';
+export const PILOT_SYNTHETIC_ONLY = false;
 export const PILOT_NOTE_MAX = 1000;
 
 export const PILOT_CHECKS = Object.freeze([
@@ -30,7 +30,7 @@ export const PILOT_CHECKS = Object.freeze([
 const VALID_STATUS = new Set(['not-run', 'pass', 'fail', 'blocked']);
 
 export function pilotClassificationAllowed(classification) {
-  return !PILOT_SYNTHETIC_ONLY || String(classification || '') === 'SYNTHETIC-DEMO';
+  return ['SYNTHETIC-DEMO', 'CONFIDENTIAL-EXAM'].includes(String(classification || ''));
 }
 
 export function createPilotRun({ appVersion, build = PILOT_BUILD, device = {}, now = Date.now() } = {}) {
@@ -142,7 +142,7 @@ export function serializePilotReport(run) {
 export function pilotReportText(run) {
   const summary = pilotSummary(run);
   const lines = [
-    'MATURITA DESK — STAGE 13 PILOT REPORT',
+    'MATURITA DESK — SERVERLESS DEVICE DIAGNOSTICS',
     `App: ${run?.appVersion || '-'}`,
     `Build: ${run?.build || '-'}`,
     `Synthetic only: ${run?.syntheticOnly === true ? 'ANO' : 'NE'}`,
@@ -151,7 +151,7 @@ export function pilotReportText(run) {
     '',
     `PASS ${summary.pass} | FAIL ${summary.fail} | BLOCKED ${summary.blocked} | NOT RUN ${summary.notRun}`,
     `Mandatory pending: ${summary.mandatoryPending}`,
-    `Pilot gate: ${summary.complete ? 'PASS' : 'OPEN'}`,
+    `Diagnostics gate: ${summary.complete ? 'PASS' : 'OPEN'}`,
     '',
     'CHECKS'
   ];
