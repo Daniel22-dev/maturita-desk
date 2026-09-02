@@ -2,7 +2,7 @@ export const PILOT_SCHEMA = 'maturita-desk-pilot-run-v1';
 export const PILOT_STORAGE_KEY = 'ghrab.maturita-desk.pilot-run.v1';
 // Legacy Stage 13 recorder retained as local device diagnostics for the 1.0 serverless baseline.
 export const PILOT_INTERNAL_REVIEW = false;
-export const PILOT_BUILD = 'serverless-1.0.0';
+export const PILOT_BUILD = 'serverless-1.0.1';
 export const PILOT_SYNTHETIC_ONLY = false;
 export const PILOT_NOTE_MAX = 1000;
 

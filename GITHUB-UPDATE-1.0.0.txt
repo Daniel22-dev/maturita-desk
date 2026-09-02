@@ -1,3 +1,5 @@
+HISTORICAL - SUPERSEDED BY GITHUB-UPDATE-1.0.1.txt
+
 MATURITA DESK 1.0.0 — CO PATŘÍ NA GITHUB
 ========================================
 
@@ -17,7 +19,7 @@ NIKDY NA GITHUB
 PO NASAZENÍ
 -----------
 1. Stávající `daniel22-dev.github.io/maturita-desk/` funguje jako bezpečný demo origin.
-2. Pro normální serverless práci s reálným podepsaným packem se jednorázově zřídí izolovaný HTTPS origin `maturita.ghrabuvka.cz` podle `SERVERLESS-PRODUCTION-DEPLOY.txt`.
+2. Pro normální serverless práci s reálným podepsaným packem se jednorázově zřídí izolovaný HTTPS origin `ISOLATED-MATURITA-ORIGIN.example` podle `SERVERLESS-PRODUCTION-DEPLOY.txt`.
 3. Potom učitel nepoužívá příkazový řádek: otevře PWA, importuje/odemkne pack a pracuje.
 
 DALŠÍ AKTUALIZACE

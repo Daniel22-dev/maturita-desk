@@ -1,0 +1,14 @@
+MATURITA DESK 1.0.1 - ORIGIN AUTHORIZATION
+
+This public file is intentionally an invalid placeholder.
+The source repository therefore does not authorize any unknown production host.
+
+When a neutral isolated HTTPS host is selected, create a signed
+config/origin-authorization.json bound to that exact origin. The signature is
+public and may be committed to GitHub; the signing private key must never be
+committed. A valid signed grant allows the same application source to run on
+that isolated origin and, when explicitly granted, to accept signed
+CONFIDENTIAL-EXAM packs.
+
+The shared https://daniel22-dev.github.io origin remains a public/demo shell and
+is never granted CONFIDENTIAL-EXAM access by default.

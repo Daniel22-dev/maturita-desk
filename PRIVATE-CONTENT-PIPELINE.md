@@ -1,4 +1,4 @@
-# Maturita Desk 1.0.0 — private content & release pipeline
+# Maturita Desk 1.0.1 — private content & release pipeline
 
 Tento dokument popisuje neveřejnou cestu pro skutečný maturitní obsah. Public GitHub repozitář smí obsahovat pouze shell, syntetický demo pack, veřejné publisher klíče a validační/signing nástroje. Zdrojové DOCX, clear-content mezivýstupy, `.mdreview`, reálné `.mdesk`, passphrase a publisher private key zůstávají mimo repozitář.
 
@@ -12,7 +12,7 @@ Content Pack je `maturita-desk-encrypted-pack-v1`, AES-256-GCM, PBKDF2-SHA-256. 
 
 ## 3. Publisher signature — povinná pro CONFIDENTIAL-EXAM
 
-Maturita Desk 1.0.0 před importem/odemčením `CONFIDENTIAL-EXAM` ověřuje samostatný publisher podpis:
+Maturita Desk 1.0.1 před importem/odemčením `CONFIDENTIAL-EXAM` ověřuje samostatný publisher podpis:
 
 - schema `maturita-desk-publisher-signature-v1`;
 - ECDSA P-256 + SHA-256;
@@ -35,7 +35,7 @@ Podpis pokrývá immutable metadata a SHA-256 ciphertextu; před ověřením pod
 
 ## 4. Distribuce serverless
 
-1. Public app build je nasazen na izolovaný origin `https://maturita.ghrabuvka.cz`.
+1. Public app build je nasazen na izolovany HTTPS origin, ktery ma platny podepsany `config/origin-authorization.json`.
 2. Podepsaný reálný `.mdesk` se oprávněným učitelům předá odděleně — není hostován v public GitHub repo.
 3. Učitel jej na zařízení importuje jednou; envelope zůstává šifrovaný v IndexedDB.
 4. Při běžném spuštění se Content Pack odemkne heslem. Heslo ani dešifrovaný payload se trvale neukládají.

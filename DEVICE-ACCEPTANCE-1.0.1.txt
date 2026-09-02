@@ -1,0 +1,15 @@
+MATURITA DESK 1.0.1 - DEVICE ACCEPTANCE
+======================================
+
+This file records physical acceptance tasks. Automated tests do not close them.
+
+Required on target devices:
+- notebook browser normal workflow with signed real review pack;
+- iPad import/unlock and full 15-minute exam lifecycle;
+- phone responsive navigation and recovery;
+- background/sleep/return and reload/re-unlock;
+- multi-tab writer guard;
+- offline cold start after the PWA shell has been installed;
+- service worker update/recovery.
+
+Use only approved internal review content. Do not use student personal data.

@@ -1,42 +1,51 @@
-MATURITA DESK 1.0.0 — SERVERLESS PRODUKČNÍ NASAZENÍ
-====================================================
+MATURITA DESK 1.0.1 - ORIGIN-NEUTRAL SERVERLESS DEPLOYMENT
+==========================================================
 
-CÍL
----
-Běžný učitel nesmí spouštět .cmd ani lokální server. Produkční serverless Maturita Desk je běžná HTTPS PWA.
+GOAL
+----
+Maturita Desk remains in the GitHub repository Daniel22-dev/maturita-desk and
+can be used both as a standalone PWA and as an application launched from AI
+Studio. No school domain is required.
 
-DOPORUČENÝ PRODUKČNÍ ORIGIN
-----------------------------
-https://maturita.ghrabuvka.cz
-
-Tento origin je v 1.0.0 release trust profilu připnut jako jediný veřejný origin, na kterém je dovoleno pracovat s CONFIDENTIAL-EXAM.
-
-VEŘEJNÝ GITHUB PAGES ORIGIN
-----------------------------
+PUBLIC GITHUB PAGES ROLE
+------------------------
 https://daniel22-dev.github.io/maturita-desk/
 
-Je nadále povolen pro shell a syntetickou demonstraci, ale aplikace na něm odmítne CONFIDENTIAL-EXAM. Tím se reálný maturitní obsah neumisťuje do sdíleného browser originu dalších Pages aplikací.
+This shared origin is a public/demo shell. It deliberately does not accept
+CONFIDENTIAL-EXAM content.
 
-JEDNORÁZOVÉ NASAZENÍ
+ISOLATED PRODUCTION ROLE
+------------------------
+The final serverless app may be deployed to any chosen isolated HTTPS origin.
+The source code does not hard-code that address. Instead, the exact origin is
+authorized by a signed public file:
+
+  config/origin-authorization.json
+
+The signed file is bound to the exact HTTPS origin and the environment id. It
+may be public and may be committed to GitHub. The signing private key must stay
+off GitHub.
+
+This means the production address can be selected later without another source
+code release. Only the signed origin-authorization file has to be generated for
+that address.
+
+CONFIDENTIAL CONTENT
 --------------------
-1. Zdroj aplikace zůstává v repozitáři maturita-desk.
-2. Na statickém hostingu nastavte custom HTTPS origin maturita.ghrabuvka.cz tak, aby servíroval přesně tento build.
-3. Ověřte platný HTTPS certifikát a přesný origin v adresním řádku.
-4. Teprve na tomto originu importujte podepsaný CONFIDENTIAL-EXAM .mdesk.
-5. Při běžném používání pak učitel pouze otevře PWA, odemkne Content Pack heslem a pracuje.
+A CONFIDENTIAL-EXAM pack is accepted only when all of the following are true:
+1. the current host is localhost for controlled development, OR it has a valid
+   signed origin authorization grant;
+2. the grant explicitly allows confidential content;
+3. the .mdesk has a valid publisher signature;
+4. the user enters the correct pack passphrase.
 
-CONTENT PACK
-------------
-- reálný .mdesk NIKDY nepatří do public GitHub repozitáře;
-- CONFIDENTIAL-EXAM musí mít validní publisher signature;
-- private publisher key NIKDY nepatří do repozitáře ani aplikace;
-- veřejný publisher key je v buildu záměrně, protože slouží pouze k ověřování podpisu;
-- heslo k Content Packu se distribuuje odděleně a aplikace jej trvale neukládá.
-
-OVĚŘIT / DOHLEDAT
------------------
-Core aplikace funguje i bez něj. Pro aktivaci serverless AI funkce postupujte podle serverless/SERVERLESS-FACT-CHECK-SETUP.txt. OpenAI API klíč je vždy pouze serverový secret.
-
-PO AKTUALIZACI APLIKACE
+NORMAL TEACHER WORKFLOW
 -----------------------
-Budoucí 1.0.x/1.x release se nahraje stejným workflow. Content Pack není nutné znovu importovat, pokud se nemění jeho verze nebo storage schema. Service Worker má vlastní verzovaný cache namespace.
+Open the HTTPS PWA -> unlock/import the approved signed .mdesk -> work.
+No .cmd file, local terminal or school server is required.
+
+FACT CHECK / VERIFY-LOOKUP
+--------------------------
+The core application works without the online service. When enabled, a
+same-origin endpoint such as /api/fact-check is preferred because it keeps the
+PWA CSP narrow. OpenAI credentials remain server-side only.

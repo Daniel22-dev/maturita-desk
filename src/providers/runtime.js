@@ -1,3 +1,5 @@
+import { ORIGIN_AUTH_MAX_BYTES, verifyOriginAuthorization } from '../origin-authorization.js';
+import { readTextLimited } from '../net/read-limited.js';
 export const RUNTIME_SCHEMA = 'maturita-desk-runtime-v1';
 export const RUNTIME_VERSION = 1;
 export const MAX_OFFLINE_LEASE_HOURS = 24;
@@ -12,13 +14,17 @@ export async function loadRuntimeConfig({
   locationLike = globalThis.location,
   timeoutMs = 2500
 } = {}) {
-  const trust = trustPolicyFromBaked(baked, locationLike);
+  let trust = trustPolicyFromBaked(baked, locationLike);
   if (locationLike?.href && !deploymentOriginAllowed(locationLike, trust.appOrigins)) {
-    return freezeRuntime({
-      ...lockedRuntimeDefaults('deployment-origin-mismatch'),
-      configurationSource: 'origin-lock',
-      configurationLoadError: 'deployment-origin-not-pinned'
-    });
+    const grant = await loadOriginAuthorization({ baked, trust, fetchImpl, locationLike, timeoutMs });
+    if (!grant?.authorized) {
+      return freezeRuntime({
+        ...lockedRuntimeDefaults('deployment-origin-mismatch'),
+        configurationSource: 'origin-lock',
+        configurationLoadError: grant?.error || 'deployment-origin-not-authorized'
+      });
+    }
+    trust = trustPolicyWithOriginGrant(trust, grant);
   }
   if (!locationLike?.href || typeof fetchImpl !== 'function') {
     return freezeRuntime({ ...readRuntimeConfig(baked, locationLike, trust), configurationSource: 'baked-only' });
@@ -248,9 +254,78 @@ function trustPolicyFromBaked(baked, locationLike) {
     appOrigins: Object.freeze(normalizePinnedAppOrigins(raw?.trust?.appOrigins)),
     confidentialContentOrigins: Object.freeze(normalizePinnedAppOrigins(raw?.trust?.confidentialContentOrigins)),
     allowLocalhostConfidential: raw?.trust?.allowLocalhostConfidential === true,
+    originAuthorizationEnabled: raw?.trust?.originAuthorization?.enabled === true,
+    originAuthorizationKeyIds: Object.freeze(normalizeKeyIdList(raw?.trust?.originAuthorization?.keyIds)),
     publisherKeys: Object.freeze(normalizePublicKeys(raw?.content?.publisherKeys)),
     requirePublisherSignatureFor: Object.freeze(requirePublisherSignatureFor)
   });
+}
+
+async function loadOriginAuthorization({ baked, trust, fetchImpl, locationLike, timeoutMs }) {
+  if (!trust?.originAuthorizationEnabled || typeof fetchImpl !== 'function' || !locationLike?.href) {
+    return Object.freeze({ authorized: false, error: 'deployment-origin-not-authorized' });
+  }
+  const allowedKeys = {};
+  for (const keyId of trust.originAuthorizationKeyIds || []) {
+    if (trust.publisherKeys?.[keyId]) allowedKeys[keyId] = trust.publisherKeys[keyId];
+  }
+  if (!Object.keys(allowedKeys).length) return Object.freeze({ authorized: false, error: 'origin-authorization-key-missing' });
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), Math.max(250, Math.min(10000, Number(timeoutMs) || 2500)));
+  try {
+    const base = ['http:', 'https:'].includes(MODULE_ROOT_URL.protocol) ? MODULE_ROOT_URL : new URL('./', locationLike.href);
+    const url = new URL('./config/origin-authorization.json', base);
+    const response = await fetchImpl(url.href, {
+      method: 'GET',
+      credentials: 'same-origin',
+      cache: 'no-cache',
+      redirect: 'error',
+      headers: { 'Accept': 'application/json', 'X-Maturita-Desk-Client': 'origin-auth-v1' },
+      signal: controller.signal
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const text = await readTextLimited(response, ORIGIN_AUTH_MAX_BYTES, { message: 'Origin authorization response too large.' });
+    const value = JSON.parse(text);
+    return await verifyOriginAuthorization(value, {
+      publicKeys: allowedKeys,
+      allowedKeyIds: trust.originAuthorizationKeyIds,
+      expectedEnvironmentId: trust.expectedEnvironmentId,
+      locationLike
+    });
+  } catch (error) {
+    return Object.freeze({ authorized: false, error: publicOriginAuthorizationError(error) });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function trustPolicyWithOriginGrant(trust, grant) {
+  const appOrigins = [...(trust.appOrigins || [])];
+  if (!appOrigins.includes(grant.origin)) appOrigins.push(grant.origin);
+  const confidentialContentOrigins = [...(trust.confidentialContentOrigins || [])];
+  if (grant.confidentialContent && !confidentialContentOrigins.includes(grant.origin)) confidentialContentOrigins.push(grant.origin);
+  return Object.freeze({
+    ...trust,
+    appOrigins: Object.freeze(appOrigins),
+    confidentialContentOrigins: Object.freeze(confidentialContentOrigins)
+  });
+}
+
+function publicOriginAuthorizationError(error) {
+  const message = String(error?.message || '');
+  if (message.startsWith('origin-authorization-')) return message.slice(0, 160);
+  if (error?.name === 'AbortError') return 'origin-authorization-timeout';
+  return 'origin-authorization-unavailable';
+}
+
+function normalizeKeyIdList(value) {
+  if (!Array.isArray(value)) return [];
+  const output = [];
+  for (const entry of value) {
+    const token = safeToken(entry, '');
+    if (token && !output.includes(token)) output.push(token);
+  }
+  return output;
 }
 
 function normalizePinnedAppOrigins(value) {

@@ -46,4 +46,4 @@ Browser gate token nikdy nezná. Autentizovaná školní/edge gateway ověří u
 
 ## Public GitHub profil
 
-Repozitář se záměrně vydává s prázdným `factCheck.endpoint`. Samotné nahrání ZIPu na GitHub tedy nevytvoří placený veřejný endpoint. Po nasazení Workeru se endpoint a jeho origin doplní do schválené runtime konfigurace podle `runtime-config.serverless-fact-check.example.js`.
+Repozitář se záměrně vydává s prázdným `factCheck.endpoint`. Samotné nahrání ZIPu na GitHub tedy nevytvoří placený veřejný endpoint. Po nasazeni serverless funkce se preferuje same-origin endpoint (napr. `/api/fact-check`) podle `runtime-config.serverless-fact-check.example.js`. Public build zustava bez endpointu, dokud sluzba neni ziva.

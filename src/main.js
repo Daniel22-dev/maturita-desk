@@ -21,7 +21,7 @@ import { PILOT_BUILD, PILOT_CHECKS, PILOT_STORAGE_KEY, addPilotEvent, capturePil
 import { SESSION_OWNER_HEARTBEAT_MS, claimSessionOwnership, readSessionOwner, refreshSessionOwnership, releaseSessionOwnership } from './session-coordinator.js';
 
 const APP_ID = 'maturita-desk';
-const APP_VERSION = '1.0.0';
+const APP_VERSION = '1.0.1';
 const FACT_ACCESS_KEY = 'ghrab.maturita-desk.fact-access.v1';
 const UI_KEY = 'ghrab.maturita-desk.ui-settings.v1';
 const SESSION_KEY = 'ghrab.maturita-desk.session.v1';
@@ -1269,7 +1269,7 @@ function renderHome() {
           <button class="soft-button compact" data-action="open-access">Přístup</button>
           <button class="soft-button compact" data-action="open-content">Content Pack</button>
           <button class="soft-button compact" data-action="open-pilot">Diagnostika</button>
-          <span class="prototype-pill">1.0.0 · Serverless</span>
+          <span class="prototype-pill">1.0.1 · Serverless</span>
           <button class="icon-button" data-action="cycle-theme" aria-label="Změnit vzhled" title="Vzhled: ${escapeHtml(state.theme)}">${icon('theme')}</button>
         </div>
       </div>

@@ -61,7 +61,8 @@ const sw = read('sw.js');
 assert.match(sw, /if \(!isCoreAsset\(url, scopePath\)\) return;/);
 const navBody = sw.slice(sw.indexOf('async function navigationNetworkFirst'), sw.indexOf('function relativeAssetPath'));
 assert.doesNotMatch(navBody, /cache\.put\(request/);
-assert.match(sw, /relative === 'runtime-config\.js'/);
+assert.match(sw, /'\.\/runtime-config\.js'/);
+assert.match(sw, /'\.\/config\/origin-authorization\.json'/);
 assert.match(sw, /relative === 'config\/deployment\.json'/);
 
 // Fact Check results reject plaintext HTTP source links.

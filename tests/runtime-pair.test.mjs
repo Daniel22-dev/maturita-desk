@@ -13,7 +13,8 @@ assert.deepEqual({
   expectedEnvironmentId: baked.trust.expectedEnvironmentId,
   appOrigins: [...baked.trust.appOrigins],
   confidentialContentOrigins: [...baked.trust.confidentialContentOrigins],
-  allowLocalhostConfidential: baked.trust.allowLocalhostConfidential
+  allowLocalhostConfidential: baked.trust.allowLocalhostConfidential,
+  originAuthorization: { enabled: baked.trust.originAuthorization.enabled, keyIds: [...baked.trust.originAuthorization.keyIds] }
 }, config.trust);
 assert.equal(baked.auth.provider, config.auth.provider);
 assert.equal(baked.content.provider, config.content.provider);

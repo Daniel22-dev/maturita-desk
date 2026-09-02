@@ -1,11 +1,13 @@
 const GHRAB_SW_CONTRACT = 'ghrab-service-worker-v1';
-const CACHE_NAME = 'ghrab-maturita-desk-v1.0.0';
+const CACHE_NAME = 'ghrab-maturita-desk-v1.0.1';
 const CACHE_PREFIXES = ['ghrab-maturita-desk-v'];
 const CORE_ASSETS = [
   './',
   './index.html',
   './manifest.webmanifest',
   './ghrab-platform.consumer.json',
+  './runtime-config.js',
+  './config/origin-authorization.json',
   './config/brand-manifest.json',
   './config/platform-manifest.json',
   './src/main.js',
@@ -23,6 +25,7 @@ const CORE_ASSETS = [
   './src/device-runtime.js',
   './src/pilot.js',
   './src/session-coordinator.js',
+  './src/origin-authorization.js',
   './src/providers/runtime.js',
   './src/providers/auth-lease.js',
   './src/providers/auth-provider.js',
@@ -129,7 +132,7 @@ function isProtectedOrRuntime(url, scopePath) {
   const relative = url.pathname.slice(scopePath.length);
   return /^(?:api|auth|session|health|content-pack|protected-content)(?:\/|$)/.test(relative) ||
     relative.endsWith('.mdesk') || relative.endsWith('.mdreview') ||
-    relative === 'runtime-config.js' || relative === 'config/deployment.json';
+    relative === 'config/deployment.json';
 }
 
 self.addEventListener('fetch', event => {
@@ -145,7 +148,10 @@ self.addEventListener('fetch', event => {
     return;
   }
   if (!isCoreAsset(url, scopePath)) return;
-  if (url.pathname.endsWith('/manifest.webmanifest') || url.pathname.endsWith('/ghrab-platform.consumer.json')) {
+  if (url.pathname.endsWith('/manifest.webmanifest') ||
+      url.pathname.endsWith('/ghrab-platform.consumer.json') ||
+      url.pathname.endsWith('/runtime-config.js') ||
+      url.pathname.endsWith('/config/origin-authorization.json')) {
     event.respondWith(networkFirstCore(request));
     return;
   }

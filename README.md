@@ -1,6 +1,6 @@
-# Maturita Desk 1.0.0 — Serverless Final Baseline
+# Maturita Desk 1.0.1 — Serverless Final Baseline
 
-Maturita Desk je učitelská PWA pro přípravu a průběh ústní maturitní zkoušky z anglického jazyka. Verze **1.0.0** je první **feature-complete serverless software baseline**. Od této verze se další běžné změny vedou jako aktualizace 1.0.x/1.x, ne jako další vývojové Stage.
+Maturita Desk je učitelská PWA pro přípravu a průběh ústní maturitní zkoušky z anglického jazyka. Verze **1.0.1** je aktualizovana **feature-complete serverless software baseline**. Od této verze se další běžné změny vedou jako aktualizace 1.0.x/1.x, ne jako další vývojové Stage.
 
 ## Běžný serverless provoz
 
@@ -16,17 +16,13 @@ Normální používání **nevyžaduje příkazový řádek, localhost ani škol
 
 Tento sdílený GitHub Pages origin je podporován pro shell a syntetické testování, ale **CONFIDENTIAL-EXAM je na něm záměrně blokován**.
 
-### Produkční serverless adresa
+### Produkcni serverless adresa
 
-`https://maturita.ghrabuvka.cz`
+Konkretni produkcni adresa neni v aplikaci napevno. Muze byt zvolena pozdeji jako samostatny izolovany HTTPS origin mimo sdileny `daniel22-dev.github.io`.
 
-Stejný statický build zde může přijmout `CONFIDENTIAL-EXAM`, pokud současně:
+Stejny zdrojovy build prijme `CONFIDENTIAL-EXAM` pouze tehdy, kdyz ma dany presny origin platne kryptograficky podepsane opravneni v `config/origin-authorization.json`. Toto verejne opravneni lze vytvorit az po volbe hostingu, bez dalsi zmeny zdrojoveho kodu aplikace.
 
-1. běží na přesně připnutém izolovaném originu;
-2. Content Pack má platný ECDSA P-256 publisher podpis známým veřejným klíčem;
-3. uživatel zadá správné heslo k šifrovanému packu.
-
-Tím se ostrý obsah nemusí ukládat do GitHub repozitáře ani na veřejný web. Na GitHub jde jen aplikace a **veřejný** ověřovací klíč vydavatele.
+Soucasne musi mit Content Pack platny ECDSA P-256 publisher podpis a uzivatel musi zadat spravne heslo. Realny `.mdesk` se nikdy neuklada do verejneho GitHub repozitare.
 
 ## Content Pack release
 
@@ -48,7 +44,7 @@ Podrobnosti: `serverless/SERVERLESS-FACT-CHECK-SETUP.txt`.
 
 ## Budoucí školní server
 
-Architektura `school-server` zůstává připravena pro SSO, centrální autorizaci, automatickou distribuci šifrovaného Content Packu a serverovou Fact Check gateway. Není podmínkou serverless provozu 1.0.0.
+Architektura `school-server` zůstává připravena pro SSO, centrální autorizaci, automatickou distribuci šifrovaného Content Packu a serverovou Fact Check gateway. Není podmínkou serverless provozu 1.0.1.
 
 ## Co znamená „final baseline“
 
@@ -58,4 +54,4 @@ Architektura `school-server` zůstává připravena pro SSO, centrální autoriz
 
 Automatický PASS proto neznamená, že konkrétní obsah nebo konkrétní školní nasazení bylo lidsky schváleno.
 
-Viz `RELEASE-1.0.0-STATUS.md`, `SERVERLESS-PRODUCTION-DEPLOY.txt` a `DEVICE-ACCEPTANCE-1.0.0.txt`.
+Viz `RELEASE-1.0.1-STATUS.md`, `SERVERLESS-PRODUCTION-DEPLOY.txt` a `DEVICE-ACCEPTANCE-1.0.1.txt`.

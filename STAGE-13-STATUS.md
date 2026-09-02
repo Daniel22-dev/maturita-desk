@@ -1,4 +1,4 @@
-> HISTORICAL RECORD — Stage 13R was superseded by Maturita Desk 1.0.0 Serverless Final Baseline. See `RELEASE-1.0.0-STATUS.md`.
+> HISTORICAL RECORD — Stage 13R was superseded by Maturita Desk 1.0.1 Serverless Final Baseline. See `RELEASE-1.0.1-STATUS.md`.
 
 # Stage 13R — Serverless / Internal Review Candidate
 
@@ -47,7 +47,7 @@ Při spuštění přes `START-MATURITA-DESK-INTERNAL.cmd` na `127.0.0.1` / `loca
 - publisher signature pro finální ostrý pack;
 - izolovaný produkční origin pro ostrý serverless release;
 - živé nasazení serverless `Ověřit / dohledat` endpointu;
-- školní server/SSO (není podmínkou pro budoucí serverless 1.0.0, ale zůstává připravenou variantou).
+- školní server/SSO (není podmínkou pro budoucí serverless 1.0.1, ale zůstává připravenou variantou).
 
 ## Gate
 
@@ -63,4 +63,4 @@ Při spuštění přes `START-MATURITA-DESK-INTERNAL.cmd` na `127.0.0.1` / `loca
 | Pedagogický gate reálného obsahu | **PENDING** |
 | Produkční serverless release | **NO-GO do uzavření výše uvedených gate** |
 
-Stage 13R není souhlas s uložením reálného Content Packu na sdílený GitHub Pages origin a není produkční 1.0.0.
+Stage 13R není souhlas s uložením reálného Content Packu na sdílený GitHub Pages origin a není produkční 1.0.1.

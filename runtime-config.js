@@ -1,7 +1,8 @@
 /*
- * Maturita Desk 1.0.0 — final serverless baseline.
- * The public shell contains no exam content, passphrase, OpenAI API key or private publisher key.
- * CONFIDENTIAL-EXAM content is accepted only on a pinned isolated production origin and only with a valid publisher signature.
+ * Maturita Desk 1.0.1 - origin-neutral serverless baseline.
+ * The GitHub Pages shell is public/demo-safe. A neutral isolated HTTPS host can
+ * be authorized later by a signed config/origin-authorization.json without
+ * changing application source code or moving the GitHub repository.
  */
 globalThis.MATURITA_DESK_RUNTIME = Object.freeze({
   schema: 'maturita-desk-runtime-v1',
@@ -9,13 +10,17 @@ globalThis.MATURITA_DESK_RUNTIME = Object.freeze({
   environmentId: 'serverless-production',
   mode: 'standalone-local',
   serverBaseUrl: '',
-  allowedOrigins: Object.freeze(['self', 'https://maturita-fact.ghrabuvka.cz']),
+  allowedOrigins: Object.freeze(['self']),
   trust: Object.freeze({
     expectedMode: 'standalone-local',
     expectedEnvironmentId: 'serverless-production',
-    appOrigins: Object.freeze(['https://daniel22-dev.github.io', 'https://maturita.ghrabuvka.cz']),
-    confidentialContentOrigins: Object.freeze(['https://maturita.ghrabuvka.cz']),
-    allowLocalhostConfidential: true
+    appOrigins: Object.freeze(['https://daniel22-dev.github.io']),
+    confidentialContentOrigins: Object.freeze([]),
+    allowLocalhostConfidential: true,
+    originAuthorization: Object.freeze({
+      enabled: true,
+      keyIds: Object.freeze(['ghrab-maturita-content-2026-01'])
+    })
   }),
   auth: Object.freeze({
     provider: 'local-device',

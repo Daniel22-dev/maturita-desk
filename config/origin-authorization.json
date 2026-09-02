@@ -1,0 +1,13 @@
+{
+  "schema": "maturita-desk-origin-authorization-v1",
+  "version": 1,
+  "environmentId": "serverless-production",
+  "origin": "https://example.invalid",
+  "permissions": {
+    "app": false,
+    "confidentialContent": false
+  },
+  "keyId": "ghrab-maturita-content-2026-01",
+  "algorithm": "ECDSA-P256-SHA256",
+  "signature": "UNSIGNED_PLACEHOLDER"
+}

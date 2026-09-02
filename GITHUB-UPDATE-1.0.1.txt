@@ -1,0 +1,15 @@
+MATURITA DESK 1.0.1 - GITHUB UPDATE
+==================================
+
+Upload the CONTENTS of the public 1.0.1 update ZIP into the existing local
+repository Daniel22-dev/maturita-desk and push normally.
+
+Do NOT upload:
+- any real CONFIDENTIAL-EXAM .mdesk;
+- any passphrase file;
+- any private publisher/signing key;
+- OpenAI API secrets.
+
+The committed config/origin-authorization.json is intentionally an invalid
+placeholder until an isolated production host is selected. The GitHub Pages
+shell therefore remains demo-only after this update.

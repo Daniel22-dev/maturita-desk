@@ -1,20 +1,21 @@
 {
   "schema": "maturita-desk-platform-manifest-v1",
   "appId": "maturita-desk",
-  "version": "1.0.0",
-  "stage": "serverless-1.0.0",
+  "version": "1.0.1",
+  "stage": "serverless-1.0.1",
   "contentPolicy": {
     "publicShellMayContainExamContent": false,
     "demoContent": "synthetic-only",
     "protectedContentProvider": "encrypted-local-content-pack-v1",
     "decryptedPersistence": false,
     "passphrasePersistence": false,
-    "confidentialExamUse": "pinned-isolated-origin-only",
-    "productionOrigin": "https://maturita.ghrabuvka.cz",
+    "confidentialExamUse": "signed-isolated-origin-authorization-only",
+    "productionOrigin": "deployment-specific-signed-origin-authorization",
     "sharedGithubOriginRole": "demo-only",
     "publisherSignatureRequiredFor": [
       "CONFIDENTIAL-EXAM"
-    ]
+    ],
+    "originAuthorization": "maturita-desk-origin-authorization-v1"
   },
   "providers": {
     "runtime": "maturita-desk-runtime-v1",
@@ -115,7 +116,7 @@
     "displayName": "Ověřit / dohledat",
     "supportsInformationalLookup": true,
     "serverlessBrowserAuth": "temporary-shared-teacher-token-in-sessionStorage",
-    "serverlessTargetOrigin": "https://maturita-fact.ghrabuvka.cz",
+    "serverlessTargetOrigin": "same-origin-preferred-or-deployment-specific",
     "liveEndpointConfigured": false,
     "liveServiceRequiredForCoreExam": false
   },
@@ -157,10 +158,10 @@
     "standalonePwaDetected": true
   },
   "securityAudit": {
-    "stage": "serverless-1.0.0",
+    "stage": "serverless-1.0.1",
     "candidate": false,
     "independentStage12AuditReceived": true,
-    "runtimeConfigFailClosed": "release-pinned mode/environment/app-origin + baked-only endpoint-origin trust; network config may only narrow",
+    "runtimeConfigFailClosed": "release-pinned mode/environment + signed origin authorization for neutral isolated deployments; network config may only narrow",
     "streamedResponseCaps": true,
     "schoolLogoutEndpointRequired": true,
     "contentPackAuthenticity": "AES-GCM payload integrity + mandatory ECDSA P-256 publisher signature for CONFIDENTIAL-EXAM",
@@ -181,7 +182,7 @@
   "pilot": {
     "mode": "device-diagnostics",
     "syntheticOnly": false,
-    "confidentialExamPackAccepted": "ONLY_ON_PINNED_PRODUCTION_ORIGIN_WITH_VALID_PUBLISHER_SIGNATURE",
+    "confidentialExamPackAccepted": "ONLY_ON_LOCALHOST_OR_VALID_SIGNED_ISOLATED_ORIGIN_WITH_VALID_PUBLISHER_SIGNATURE",
     "reportSchema": "maturita-desk-pilot-run-v1",
     "reportStorage": "ghrab.maturita-desk.pilot-run.v1",
     "automaticUpload": false,

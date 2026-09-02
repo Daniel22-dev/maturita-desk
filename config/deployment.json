@@ -5,8 +5,7 @@
   "mode": "standalone-local",
   "serverBaseUrl": "",
   "allowedOrigins": [
-    "self",
-    "https://maturita-fact.ghrabuvka.cz"
+    "self"
   ],
   "auth": {
     "provider": "local-device",
@@ -47,12 +46,15 @@
     "expectedMode": "standalone-local",
     "expectedEnvironmentId": "serverless-production",
     "appOrigins": [
-      "https://daniel22-dev.github.io",
-      "https://maturita.ghrabuvka.cz"
+      "https://daniel22-dev.github.io"
     ],
-    "confidentialContentOrigins": [
-      "https://maturita.ghrabuvka.cz"
-    ],
-    "allowLocalhostConfidential": true
+    "confidentialContentOrigins": [],
+    "allowLocalhostConfidential": true,
+    "originAuthorization": {
+      "enabled": true,
+      "keyIds": [
+        "ghrab-maturita-content-2026-01"
+      ]
+    }
   }
 }

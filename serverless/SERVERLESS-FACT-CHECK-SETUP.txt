@@ -1,40 +1,33 @@
-MATURITA DESK 1.0.0 — SERVERLESS „OVĚŘIT / DOHLEDAT“
-====================================================
+MATURITA DESK 1.0.1 - SERVERLESS VERIFY / LOOKUP
+================================================
 
-ÚČEL
-----
-Maturita Desk může dlouhodobě běžet jako statická PWA bez školního serveru. Pouze online dohledávání používá malou oddělenou edge/serverless službu.
+The PWA can run without a school server. Only online Verify / Lookup needs a
+small protected serverless endpoint.
 
-PLÁNOVANÉ ORIGINY
------------------
-PWA:    https://maturita.ghrabuvka.cz
-Worker: https://maturita-fact.ghrabuvka.cz
-
-Release trust allowlist už obsahuje přesný plánovaný Worker origin, ale endpoint je v public buildu záměrně prázdný, dokud služba skutečně neexistuje.
-
-BEZPEČNOSTNÍ PRINCIP
+PREFERRED DEPLOYMENT
 --------------------
-- OpenAI API klíč nikdy není v browseru ani na GitHubu.
-- Browser posílá jen ručně napsaný dotaz `query`.
-- Pro dobu bez školního SSO se používá samostatný silný učitelský přístupový kód.
-- Přístupový kód není OpenAI API klíč a ukládá se jen do sessionStorage aktivního panelu.
-- CORS/Origin není autentizace; přístupový kód a rate limiter jsou povinné.
-- Selhání služby nesmí zastavit Exam Engine ani timer.
+Use a SAME-ORIGIN endpoint on the isolated Maturita Desk host, for example:
 
-CO JE TŘEBA NASADIT
--------------------
-1. `serverless/fact-check-worker.mjs` na schválenou edge/serverless platformu.
-2. Serverový secret `OPENAI_API_KEY`.
-3. Serverový secret `FACTCHECK_ACCESS_TOKEN` — silný náhodný kód, min. 32 znaků.
-4. Binding `FACTCHECK_RATE_LIMITER`.
-5. `ALLOWED_ORIGINS=https://maturita.ghrabuvka.cz`.
-6. HTTPS endpoint služby na připnutém originu `https://maturita-fact.ghrabuvka.cz`.
-7. Po úspěšném live testu doplnit endpoint do `config/deployment.json`. Network config smí použít jen origin, který už je v baked trust allowlistu.
+  /api/fact-check
 
-DO TÉ DOBY
-----------
-Aplikace správně hlásí, že Ověřit / dohledat není připojeno. Exam, Practice, Content Pack, Notes a offline workflow jsou plně nezávislé.
+This keeps the browser CSP at connect-src 'self' and avoids introducing another
+trusted browser origin.
 
-BUDOUCÍ SCHOOL-SERVER
----------------------
-Po zavedení SSO se `FACTCHECK_ACCESS_TOKEN` odstraní a používá se inner-gate režim: browser zná jen školní session, server-to-server gateway přidává `X-Maturita-Desk-Gate`.
+SERVER-SIDE REQUIREMENTS
+------------------------
+- OPENAI_API_KEY secret;
+- FACTCHECK_ACCESS_TOKEN for the temporary pre-SSO teacher mode, OR a future
+  FACTCHECK_GATE_TOKEN for the school-server inner-gate mode;
+- FACTCHECK_RATE_LIMITER;
+- ALLOWED_ORIGINS set to the exact isolated Maturita Desk origin;
+- optional OPENAI_FACTCHECK_MODEL.
+
+PRIVACY BOUNDARY
+----------------
+The browser sends only the explicitly typed query. Exam topic, Teacher
+Guidance, Notes, Content Pack and student identity are not attached.
+
+UNTIL DEPLOYED
+--------------
+The public release intentionally keeps factCheck.endpoint empty. Exam, Practice,
+Notes, Content Pack and offline use remain fully functional.

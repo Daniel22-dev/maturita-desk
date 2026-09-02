@@ -57,11 +57,11 @@ if (safePayload.includes(canary)) throw new Error('Canary self-test invalid: cle
 if (!unsafePayload.includes(canary)) throw new Error('Canary negative control failed to detect unsafe payload.');
 
 if (findings.length) {
-  console.error('Maturita Desk 1.0.0 public artifact security scan: FAIL');
+  console.error('Maturita Desk 1.0.1 public artifact security scan: FAIL');
   for (const finding of findings) console.error(`- ${finding}`);
   process.exit(1);
 }
-console.log('Maturita Desk 1.0.0 public artifact security scan: PASS');
+console.log('Maturita Desk 1.0.1 public artifact security scan: PASS');
 console.log(`Files inventoried: ${files.length}; secret/path/private-key/forbidden-artifact findings: 0`);
 console.log('Negative controls: secret-shaped fixtures, private JWK fixture and canary unsafe payload detected.');
 

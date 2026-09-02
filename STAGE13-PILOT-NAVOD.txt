@@ -1,4 +1,4 @@
-HISTORICAL — Stage 13 pilot instructions. Current release: 1.0.0; use in-app Diagnostika.
+HISTORICAL — Stage 13 pilot instructions. Current release: 1.0.1; use in-app Diagnostika.
 
 MATURITA DESK 0.10.0 — STAGE 13 / ŘÍZENÝ PILOT
 ================================================

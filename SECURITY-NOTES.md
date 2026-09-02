@@ -1,10 +1,10 @@
-# SECURITY NOTES — Maturita Desk 1.0.0 Serverless
+# SECURITY NOTES — Maturita Desk 1.0.1 Serverless
 
 ## Trust model
 
-Veřejný shell neobsahuje reálné maturitní zadání, heslo, OpenAI API klíč ani privátní publisher klíč. `CONFIDENTIAL-EXAM` je přijímán pouze na připnutém izolovaném originu a pouze s platným ECDSA P-256 publisher podpisem.
+Veřejný shell neobsahuje reálné maturitní zadání, heslo, OpenAI API klíč ani privátní publisher klíč. `CONFIDENTIAL-EXAM` je přijímán pouze na localhostu pro řízený vývoj nebo na izolovaném HTTPS originu s platným podepsaným origin authorization grantem a platným ECDSA P-256 publisher podpisem.
 
-GitHub Pages origin `https://daniel22-dev.github.io` zůstává demo/synthetic-safe; produkční confidential origin je připnut na `https://maturita.ghrabuvka.cz`. Localhost je povolen pouze jako vývojový fallback.
+GitHub Pages origin `https://daniel22-dev.github.io` zůstává demo/synthetic-safe. Produkční adresa není hard-coded; její přesný origin musí být autorizován podepsaným `config/origin-authorization.json`. Localhost je povolen pouze jako vývojový fallback.
 
 ## Content Pack
 
