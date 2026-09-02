@@ -1,0 +1,37 @@
+{
+  "schema": "maturita-desk-runtime-v1",
+  "version": 1,
+  "environmentId": "standalone-local",
+  "mode": "standalone-local",
+  "serverBaseUrl": "",
+  "allowedOrigins": [
+    "self"
+  ],
+  "auth": {
+    "provider": "local-device",
+    "sessionEndpoint": "",
+    "loginUrl": "",
+    "logoutEndpoint": "",
+    "offlineLease": {
+      "enabled": false,
+      "publicKeys": {}
+    }
+  },
+  "content": {
+    "provider": "encrypted-local",
+    "activePackEndpoint": "",
+    "allowManualImport": true
+  },
+  "factCheck": {
+    "provider": "isolated-http",
+    "endpoint": "",
+    "timeoutMs": 18000
+  },
+  "trust": {
+    "expectedMode": "standalone-local",
+    "expectedEnvironmentId": "standalone-local",
+    "appOrigins": [
+      "https://daniel22-dev.github.io"
+    ]
+  }
+}

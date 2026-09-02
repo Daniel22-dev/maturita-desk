@@ -1,0 +1,69 @@
+MATURITA DESK 0.8.0 — ETAPA 10 / SERVER-READY NÁVOD
+=====================================================
+
+CO JE DNES AKTIVNÍ
+------------------
+Public build používá profil standalone-local. To znamená:
+- žádná skutečná centrální identita učitele;
+- lokální encrypted Content Pack;
+- stávající Exam Engine funguje offline;
+- serverové providery jsou připravené, ale nejsou aktivované.
+
+CO SE ZMĚNÍ PO VZNIKU ŠKOLNÍHO SERVERU
+---------------------------------------
+Zdrojový kód Maturita Desk se nemá přepisovat. IT připraví schválený school-server deployment profil a při serverovém buildu nahradí:
+1. config/deployment.json
+2. runtime-config.js (baked offline fallback téhož profilu)
+
+Oba profily MUSÍ odpovídat. Test runtime-pair.test.mjs tuto shodu kontroluje.
+
+SERVER MUSÍ NABÍDNOUT
+---------------------
+1. GET session
+   - ověří školního učitele;
+   - vrátí capabilities;
+   - volitelně vrátí podepsaný offline lease.
+
+2. POST session/logout
+   - ukončí session;
+   - používá CSRF/Origin ochranu.
+
+3. GET content/active
+   - po autorizaci vrátí POUZE encrypted .mdesk envelope;
+   - nikdy ne cleartext zadání ani passphrase.
+
+4. POST fact-check
+   - přijme pouze {"query":"..."};
+   - OpenAI klíč zůstává server-side.
+
+DOPORUČENÝ LOGIN
+----------------
+Google Workspace nebo Microsoft 365 podle toho, co škola reálně používá/podporuje. Maturita Desk sama neimplementuje hesla.
+
+OFFLINE PRO MATURITY
+--------------------
+Pro ostrý provoz je vhodné zapnout signed offline lease:
+- ECDSA P-256 / SHA-256;
+- privátní klíč jen na serveru;
+- veřejný JWK v deployment profilu;
+- maximálně krátká platnost, doporučeně jeden maturitní den (<= 24 h);
+- vazba na installationId a konkrétní capabilities.
+
+Díky tomu:
+- internet může během zkoušky spadnout a Exam Engine pokračuje;
+- po reloadu lze offline znovu ověřit oprávnění;
+- Content Pack ale stále vyžaduje svou passphrase;
+- po expiraci lease se nový protected unlock fail-closed zablokuje.
+
+CO NENÍ V 0.8.0 HOTOVÉ
+-----------------------
+- živý školní backend;
+- Identity Provider;
+- produkční signing key;
+- produkční content endpoint;
+- školní Fact Check gateway;
+- live device test proti serveru.
+
+PŘED OSTRÝM NASAZENÍM
+---------------------
+Projít school-server/DEPLOY-CHECKLIST.txt a CONTRACT.md, spustit npm test, otestovat iPad/telefon/desktop online i offline a provést bezpečnostní/release audit.

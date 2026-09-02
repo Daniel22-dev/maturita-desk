@@ -1,0 +1,175 @@
+{
+  "schema": "maturita-desk-platform-manifest-v1",
+  "appId": "maturita-desk",
+  "version": "0.10.0",
+  "stage": "stage-13-synthetic-device-pilot",
+  "contentPolicy": {
+    "publicShellMayContainExamContent": false,
+    "demoContent": "synthetic-only",
+    "protectedContentProvider": "encrypted-local-content-pack-v1",
+    "decryptedPersistence": false,
+    "passphrasePersistence": false
+  },
+  "providers": {
+    "runtime": "maturita-desk-runtime-v1",
+    "auth": [
+      "local-device",
+      "school-server-session+signed-offline-lease"
+    ],
+    "content": [
+      "encrypted-local",
+      "school-server-encrypted-pack"
+    ],
+    "factCheck": [
+      "isolated-http-provider-v1",
+      "school-server-session-http-v1"
+    ]
+  },
+  "protectedContent": {
+    "envelopeSchema": "maturita-desk-encrypted-pack-v1",
+    "contentSchema": "maturita-desk-content-v1",
+    "cipher": "AES-256-GCM",
+    "kdf": "PBKDF2-SHA-256",
+    "defaultIterations": 310000,
+    "store": "ghrab.maturita-desk.protected-content.v1",
+    "maxEnvelopeBytes": 33554432,
+    "serviceWorkerCache": false,
+    "maxPbkdf2Iterations": 1000000
+  },
+  "examEngine": {
+    "sessionSchema": "maturita-desk-session-v3",
+    "contentBinding": true,
+    "targetsSeconds": {
+      "pictures": 120,
+      "task": 240,
+      "topic": 540,
+      "exam": 900,
+      "practiceTimed": 780
+    },
+    "activePhaseSeparatedFromView": true,
+    "timestampBasedResume": true,
+    "transitionConfirmation": true,
+    "finishConfirmation": true,
+    "sessionRecovery": "localStorage",
+    "protectedReload": "reunlock-required",
+    "crossTabWarning": "BroadcastChannel+localStorage-writer-lease",
+    "notesMaxCharsPerPhase": 5000,
+    "notesAutoSave": "local-only",
+    "heartbeatPersistenceSeconds": 10,
+    "wakeLock": "best-effort-screen-wake-lock",
+    "studentIdentityFields": false,
+    "multiTabWriteGuard": true
+  },
+  "contentPipeline": {
+    "sourceFormat": "school-docx-set",
+    "expectedTopics": 20,
+    "expectedSourceFiles": 80,
+    "runtimeSources": [
+      "teacher-exam",
+      "picture-comparison",
+      "practice-student"
+    ],
+    "excludedRuntimeSources": [
+      "full-exam-student-sheet"
+    ],
+    "clearBuildOutput": "private-and-ephemeral",
+    "releaseArtifact": "encrypted-mdesk-only",
+    "retainedFromExamStudentSheet": "end-of-sheet-reference-images-only-encrypted",
+    "guidanceStatus": "AI_ASSISTED_DRAFT_REQUIRES_TEACHER_REVIEW"
+  },
+  "pedagogicalReview": {
+    "reviewStore": "ghrab.maturita-desk.pedagogical-review.v1",
+    "reviewPatchSchema": "maturita-desk-review-patch-v1",
+    "reviewScope": "practice-topic-guidance+practice-task-guidance",
+    "reviewerIdentityStored": false,
+    "studentIdentityFields": false,
+    "packMutationInBrowser": false,
+    "finalPackRequiresPrivatePipeline": true
+  },
+  "factCheck": {
+    "clientProvider": "maturita-desk-fact-check-v1",
+    "runtimeConfig": "runtime-config.js",
+    "defaultEndpoint": "unconfigured",
+    "requestFields": [
+      "query"
+    ],
+    "maxQueryChars": 700,
+    "automaticExamContext": false,
+    "automaticNotesContext": false,
+    "persistentQueryHistory": false,
+    "serviceWorkerCache": false,
+    "serverReference": "serverless/fact-check-worker.mjs",
+    "upstream": "OpenAI Responses API + web search",
+    "apiKeyInClient": false
+  },
+  "serverArchitecture": {
+    "activeInPublicBuild": false,
+    "schoolSession": "cookie-based; credentials=include; no bearer token persistence",
+    "offlineAuthorization": "optional signed ECDSA P-256 lease bound to logical browser installationId and expiry; not hardware attestation",
+    "contentDelivery": "server-authorized encrypted .mdesk envelope; plaintext never returned by delivery endpoint",
+    "factCheckRequestFields": [
+      "query"
+    ],
+    "runtimeSwitch": "configuration-only; source code unchanged",
+    "serviceWorkerApiCache": false,
+    "offlineAuthorizationMaxHours": 24
+  },
+  "deviceRuntime": {
+    "supportedFormFactors": [
+      "phone",
+      "tablet",
+      "desktop"
+    ],
+    "primaryTabletOrientation": "landscape-preferred-not-required",
+    "phonePrimaryOrientation": "portrait",
+    "visualViewportKeyboardHandling": true,
+    "safeAreaInsets": true,
+    "coarsePointerMinTargetPx": 44,
+    "iosInputAutoZoomMitigation": "16px mobile form controls",
+    "comparisonImageCropping": false,
+    "pageLifecyclePersistence": [
+      "visibilitychange",
+      "pagehide",
+      "pageshow",
+      "freeze",
+      "resume",
+      "focus",
+      "beforeunload"
+    ],
+    "serviceWorkerUpdateDuringRunningSession": "blocked-deferred",
+    "standalonePwaDetected": true
+  },
+  "securityAudit": {
+    "stage": "stage-13",
+    "candidate": true,
+    "independentStage12AuditReceived": true,
+    "runtimeConfigFailClosed": "release-pinned mode/environment/app-origin + baked-only endpoint-origin trust; network config may only narrow",
+    "streamedResponseCaps": true,
+    "schoolLogoutEndpointRequired": true,
+    "contentPackAuthenticity": "AES-GCM keyed integrity under shared passphrase; separate publisher signature pending",
+    "maxEnvelopeBytes": 33554432,
+    "factCheckRateLimiterRequired": true,
+    "factCheckGatewayAuthentication": "server-side gate required; direct anonymous browser-to-worker denied",
+    "serviceWorkerCachePolicy": "explicit-core-allowlist+canonical-root-offline-navigation-only",
+    "csp": "meta-static-profile; response-header-required-on-school-server",
+    "actualAppStateFactCheckCanary": "PASS_QUERY_ONLY",
+    "liveModelBehavioralAudit": "NOT_TESTED",
+    "realDeviceLifecycle": "PILOT_INSTRUMENTED_NOT_YET_EXECUTED",
+    "offlineLeaseHardwareBinding": false,
+    "offlineLeaseClockRollback": "requires managed-device/system-time operational control for full assurance",
+    "multiTabLocking": "writer-lease-mitigated-device-test-pending",
+    "overallGate": "AMBER-STAGE13-SYNTHETIC-PILOT"
+  },
+  "pilot": {
+    "mode": "controlled-synthetic-device-pilot",
+    "syntheticOnly": true,
+    "confidentialExamPackAccepted": false,
+    "reportSchema": "maturita-desk-pilot-run-v1",
+    "reportStorage": "ghrab.maturita-desk.pilot-run.v1",
+    "automaticUpload": false,
+    "studentIdentityFields": false,
+    "mandatoryDeviceChecks": 16,
+    "stressPackTargetMiB": 30,
+    "physicalDeviceAcceptance": "PENDING"
+  }
+}

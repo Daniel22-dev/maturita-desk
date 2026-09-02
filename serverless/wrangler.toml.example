@@ -1,0 +1,16 @@
+name = "maturita-desk-fact-check"
+main = "fact-check-worker.mjs"
+compatibility_date = "2026-08-01"
+
+[vars]
+# Exact browser/gateway origins, comma-separated. Origin is supplemental CORS protection,
+# not authentication.
+ALLOWED_ORIGINS = "https://YOUR-TRUSTED-GATEWAY.example"
+OPENAI_FACTCHECK_MODEL = "gpt-5.6-terra"
+
+# Required secrets. Never place their values in this file or in public PWA configuration:
+# npx wrangler secret put OPENAI_API_KEY
+# npx wrangler secret put FACTCHECK_GATE_TOKEN
+#
+# Required: bind FACTCHECK_RATE_LIMITER. The Worker fails closed when the binding is absent
+# or errors. The Worker also fails closed when FACTCHECK_GATE_TOKEN is absent/too short.

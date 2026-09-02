@@ -1,0 +1,52 @@
+{
+  "schema": "maturita-desk-pwa-hardening-qa-v1",
+  "appVersion": "0.9.0",
+  "classification": "SYNTHETIC-ONLY",
+  "automatedQa": {
+    "npmTest": "PASS",
+    "mjsTestSuites": 18,
+    "mainRuntimeSmoke": "PASS",
+    "deviceRuntime": "PASS",
+    "deviceSleepResumeTiming": "PASS",
+    "pwaTouchStaticContract": "PASS",
+    "stage3To10Regression": "PASS",
+    "publicShellLeakGate": "PASS"
+  },
+  "deviceTargets": {
+    "phone": "FULLY_SUPPORTED",
+    "tablet": "FULLY_SUPPORTED_LANDSCAPE_PREFERRED",
+    "desktop": "SUPPORTED"
+  },
+  "hardening": {
+    "safeAreaInsets": true,
+    "visualViewportKeyboardHandling": true,
+    "mobileInputMinFontPx": 16,
+    "coarsePointerMinTargetPx": 44,
+    "comparisonImagesMayCrop": false,
+    "pinchZoomInLightbox": true,
+    "pageZoomDisabled": false,
+    "lifecyclePersistence": true,
+    "wakeLockReacquire": true,
+    "protectedExamRequiresOfflineShell": true,
+    "serviceWorkerUpdateDeferredDuringRunningSession": true
+  },
+  "browserAutomation": {
+    "attempted": true,
+    "result": "BLOCKED_BY_ENVIRONMENT",
+    "error": "ERR_BLOCKED_BY_ADMINISTRATOR on http://127.0.0.1:8765/",
+    "applicationFailureObserved": false
+  },
+  "realDeviceAcceptance": {
+    "required": true,
+    "status": "PENDING",
+    "checklist": "DEVICE-PILOT-CHECKLIST.txt"
+  },
+  "releasePackageVerification": {
+    "cleanUnpack": "PASS",
+    "npmTestFromCleanUnpack": "PASS",
+    "packagedMdeskFiles": [
+      "samples/synthetic-demo-2027.mdesk"
+    ],
+    "sharpContentIncluded": false
+  }
+}

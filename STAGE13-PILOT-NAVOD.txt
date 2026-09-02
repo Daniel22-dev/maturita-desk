@@ -1,0 +1,99 @@
+MATURITA DESK 0.10.0 — STAGE 13 / ŘÍZENÝ PILOT
+================================================
+
+DŮLEŽITÉ
+--------
+Tento build je pouze pro SYNTHETICKÁ DATA.
+Nepoužívejte skutečná jména studentů, třídy ani jiné osobní údaje.
+CONFIDENTIAL-EXAM Content Pack je v aplikaci záměrně zablokovaný.
+
+CO BUDETE POTŘEBOVAT
+--------------------
+1. Maturita-Desk-0.10.0-stage13-public.zip nasazený na testovací URL.
+2. Běžný syntetický pack samples/synthetic-demo-2027.mdesk
+   Heslo: DEMO-ONLY-2027
+3. Samostatný stress pack Maturita-Desk-Stage13-synthetic-stress-30MiB.mdesk
+   Heslo: STAGE13-SYNTHETIC-STRESS-2027
+4. Pro SW drill také druhý balíček Stage13-updateB.
+
+DOPORUČENÉ POŘADÍ
+-----------------
+A. Nejdřív jeden spravovaný iPad v Safari a jako PWA z plochy.
+B. Potom jeden telefon v portrait.
+C. Nakonec notebook/desktop.
+D. Až po základním PASS zapojit 2–4 kolegy a nechat je workflow používat bez navádění.
+
+PILOT PANEL
+-----------
+Na úvodu otevřete tlačítko „Pilot“.
+Panel ukáže zařízení a 18 testovacích scénářů.
+Každý scénář označte PASS / FAIL / BLOCKED a případně připište technickou poznámku.
+Do poznámek NEPIŠTE jméno testera ani studenta.
+
+Aplikace automaticky zaznamená zejména:
+- velikost a čas importu syntetického Content Packu,
+- čas jeho odemčení,
+- lifecycle události,
+- stav offline shellu,
+- připravenou SW aktualizaci,
+- poslední ukončenou session,
+- detekované multi-tab konflikty.
+
+POVINNÝ STRESS TEST CONTENT PACKU
+---------------------------------
+1. Otevřete Content Pack.
+2. Importujte 30MiB syntetický stress pack.
+3. Sledujte, zda UI nezamrzne na nepřijatelně dlouho nebo Safari/PWA nespadne.
+4. Odemkněte heslem STAGE13-SYNTHETIC-STRESS-2027.
+5. V Pilot panelu zkontrolujte automaticky naměřené časy Import a Odemčení.
+6. Zapište subjektivní stall/pád a označte příslušné scénáře.
+
+15MIN RELACE
+------------
+Spusťte syntetickou Ostrou zkoušku a skutečně ji nechte běžet 15 minut.
+Během ní proveďte:
+- Picture -> Task -> Topic pouze explicitními přechody,
+- Notes,
+- cca 30–60 s background,
+- zamknutí displeje,
+- návrat do aplikace,
+- přepnutí orientace,
+- ztrátu a návrat sítě.
+Čas nesmí začít znovu a Notes nesmí zmizet.
+
+MULTI-TAB
+---------
+1. Nechte běžet relaci v panelu A.
+2. Otevřete tutéž aplikaci v panelu/okně B.
+3. B nesmí tiše přepsat relaci A.
+4. Pokud B relaci načte, musí být chráněna writer-leasem nebo přejít do konflikt obrazovky.
+5. Zkuste v B změnit Notes — uložená session A se nesmí přepsat.
+6. Explicitní „Převzít zápis této relace“ testujte až poté.
+
+SERVICE WORKER UPDATE DRILL
+---------------------------
+1. Nasaďte Pilot A a otevřete PWA online.
+2. Spusťte relaci.
+3. Na STEJNOU testovací URL nasaďte Stage13-updateB.
+4. Vyvolejte kontrolu aktualizace / znovu navštivte aplikaci tak, aby nový worker došel do waiting.
+5. Během běžící relace se aplikace NESMÍ sama reloadovat ani aktivovat čekající worker z UI.
+6. Po ukončení relace aktualizaci aplikujte.
+7. Po controllerchange se smí aplikace znovu načíst.
+8. Ověřte, že Pilot panel hlásí build B.
+
+OFFLINE COLD START
+------------------
+1. Otevřete aplikaci online a počkejte na připravený Offline shell.
+2. Zavřete PWA úplně z multitaskingu.
+3. Zapněte režim Letadlo.
+4. Spusťte PWA z ikony na ploše.
+5. Úvod a core workflow se musí načíst bez sítě.
+
+EXPORT
+------
+Po dokončení otevřete Pilot panel a exportujte:
+- JSON (preferovaný pro automatické vyhodnocení),
+- TXT (čitelný souhrn).
+
+Tyto soubory nahrajte zpět do stejného vlákna ChatGPT.
+Stage 13 bude uzavřena až po vyhodnocení skutečných reportů; samotný automatický build PASS nestačí.

@@ -1,0 +1,19 @@
+node_modules/
+.DS_Store
+*.log
+
+# Private source and intermediate content outputs
+private-build/
+private-stage7/
+content-clear.json
+source-qa.json
+*.passphrase.txt
+*.password.txt
+
+# Real Content Packs must never be committed to the public shell
+*.mdesk
+!samples/synthetic-demo-2027.mdesk
+
+# Local screenshots and test artefacts
+playwright-report/
+test-results/

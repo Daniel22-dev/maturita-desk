@@ -1,0 +1,37 @@
+{
+  "schema": "maturita-desk-auth-session-v1",
+  "authenticated": true,
+  "user": {
+    "displayName": "Učitel"
+  },
+  "capabilities": [
+    "exam",
+    "practice",
+    "review",
+    "content:download",
+    "fact-check"
+  ],
+  "expiresAt": "2027-05-31T18:00:00.000Z",
+  "csrfToken": "SERVER_GENERATED_OPAQUE_VALUE",
+  "offlineLease": {
+    "schema": "maturita-desk-signed-auth-lease-v1",
+    "algorithm": "ECDSA-P256-SHA256",
+    "keyId": "school-auth-2027-01",
+    "payload": {
+      "schema": "maturita-desk-offline-auth-lease-v1",
+      "appId": "maturita-desk",
+      "installationId": "SERVER_MUST_COPY_CLIENT_INSTALLATION_ID",
+      "subject": "OPAQUE_TEACHER_SUBJECT",
+      "issuedAt": "2027-05-31T06:00:00.000Z",
+      "expiresAt": "2027-05-31T18:00:00.000Z",
+      "capabilities": [
+        "exam",
+        "practice",
+        "review",
+        "content:download",
+        "fact-check"
+      ]
+    },
+    "signature": "BASE64URL_ECDSA_P256_SIGNATURE"
+  }
+}

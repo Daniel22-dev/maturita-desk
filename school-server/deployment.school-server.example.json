@@ -1,0 +1,38 @@
+{
+  "schema": "maturita-desk-runtime-v1",
+  "version": 1,
+  "environmentId": "school-production",
+  "mode": "school-server",
+  "serverBaseUrl": "/api/v1/maturita-desk/",
+  "allowedOrigins": [
+    "self"
+  ],
+  "auth": {
+    "provider": "school-server-session",
+    "sessionEndpoint": "session",
+    "loginUrl": "/auth/login/maturita-desk",
+    "logoutEndpoint": "session/logout",
+    "offlineLease": {
+      "enabled": true,
+      "maxHours": 24,
+      "publicKeys": {}
+    }
+  },
+  "content": {
+    "provider": "school-server-encrypted-pack",
+    "activePackEndpoint": "content/active",
+    "allowManualImport": false
+  },
+  "factCheck": {
+    "provider": "school-server",
+    "endpoint": "fact-check",
+    "timeoutMs": 18000
+  },
+  "trust": {
+    "expectedMode": "school-server",
+    "expectedEnvironmentId": "school-production",
+    "appOrigins": [
+      "https://school.example"
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Maturita Desk">
+  <rect width="512" height="512" rx="116" fill="#4b263d"/>
+  <path d="M108 142c47-18 94-14 148 17v222c-54-31-101-35-148-17V142Z" fill="#fff7ef" opacity=".96"/>
+  <path d="M404 142c-47-18-94-14-148 17v222c54-31 101-35 148-17V142Z" fill="#efe1d7"/>
+  <path d="M256 159v222" stroke="#4b263d" stroke-width="12" stroke-linecap="round" opacity=".42"/>
+  <path d="M150 206v112M150 206l41 64 41-64v112" fill="none" stroke="#4b263d" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M299 206h34c45 0 64 24 64 56s-19 56-64 56h-34V206Zm19 18v76h16c29 0 43-12 43-38s-14-38-43-38h-16Z" fill="#4b263d"/>
+</svg>

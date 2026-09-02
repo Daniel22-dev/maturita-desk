@@ -1,0 +1,17 @@
+{
+  "schema": "ghrab-brand-release-v1",
+  "brandVersion": "1.0.0",
+  "owner": "Gymnázium, Ostrava-Hrabůvka",
+  "author": "Daniel Baláž",
+  "appIdentity": {
+    "name": "Maturita Desk",
+    "mark": "../assets/icons/app-mark.svg",
+    "visualSystem": "examiner-desk-v1"
+  },
+  "footer": {
+    "contract": "ghrab-footer-v1",
+    "ownerLine": "Autor a vývojový garant: Daniel Baláž",
+    "schoolLine": "Gymnázium, Ostrava-Hrabůvka · Součást AI Studia GHRAB"
+  },
+  "note": "Kanonické školní logo bude připojeno při integrační etapě; Stage 6 používá pouze vlastní značku aplikace; kanonické školní logo se připojí v integrační etapě."
+}

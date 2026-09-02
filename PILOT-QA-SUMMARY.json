@@ -1,0 +1,59 @@
+{
+  "schema": "maturita-desk-pilot-qa-v1",
+  "stage": "stage-13",
+  "version": "0.10.0",
+  "syntheticOnly": true,
+  "confidentialExamPackAccepted": false,
+  "pilotModel": {
+    "checkCount": 18,
+    "mandatoryCheckCount": 16,
+    "localReport": true,
+    "automaticUpload": false,
+    "studentIdentityFields": false
+  },
+  "instrumentation": {
+    "contentImportTiming": true,
+    "contentUnlockTiming": true,
+    "lifecycleEvents": true,
+    "serviceWorkerUpdateEvents": true,
+    "sessionCompletionMetric": true,
+    "multiTabConflictEvents": true
+  },
+  "concurrency": {
+    "writerLease": true,
+    "broadcastChannel": true,
+    "explicitTakeover": true,
+    "physicalRaceTest": "PENDING"
+  },
+  "stressPack": {
+    "classification": "SYNTHETIC-DEMO",
+    "targetMiB": 30,
+    "shippedInsidePublicAppZip": false,
+    "physicalIpadTiming": "PENDING",
+    "bytes": 30969778,
+    "mib": 29.54,
+    "sha256": "2432e88d1c2485919c0560661f0a25afda73ed55ad3f64d52dba3faab0a0d4bb",
+    "nodeBaseline": {
+      "parseMs": 50,
+      "decryptMs": 206,
+      "environment": "Node container only; not representative of iPad Safari"
+    }
+  },
+  "physicalDevicePilot": {
+    "executed": false,
+    "ipadSafari": "PENDING",
+    "phone": "PENDING",
+    "serviceWorkerUpdateRecovery": "PENDING",
+    "offlineColdStart": "PENDING",
+    "full15MinuteSession": "PENDING"
+  },
+  "automatedGate": "PASS",
+  "overallStage13": "OPEN-PHYSICAL-PILOT-PENDING",
+  "browserAutomation": {
+    "attempted": true,
+    "result": "BLOCKED_BY_ENVIRONMENT",
+    "error": "ERR_BLOCKED_BY_ADMINISTRATOR",
+    "url": "http://127.0.0.1:8765/",
+    "countsAsPass": false
+  }
+}

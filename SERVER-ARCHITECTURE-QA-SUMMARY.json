@@ -1,0 +1,58 @@
+{
+  "schema": "maturita-desk-server-architecture-qa-v1",
+  "appVersion": "0.8.0",
+  "classification": "PUBLIC-SANITIZED-QA",
+  "deploymentModes": [
+    "standalone-local",
+    "school-server"
+  ],
+  "providers": {
+    "auth": [
+      "local-device",
+      "school-server-session",
+      "signed-offline-lease"
+    ],
+    "content": [
+      "encrypted-local",
+      "school-server-encrypted-pack"
+    ],
+    "factCheck": [
+      "isolated-http",
+      "school-server-session-http"
+    ]
+  },
+  "privacyBoundary": {
+    "studentIdentityFields": false,
+    "factCheckBodyFields": [
+      "query"
+    ],
+    "bearerTokenPersistence": false,
+    "decryptedPackPersistence": false
+  },
+  "serverConnection": {
+    "liveSchoolServerConnected": false,
+    "identityProviderConfigured": false,
+    "productionSigningKeyConfigured": false
+  },
+  "automatedChecks": {
+    "publicShellValidator": "PASS",
+    "runtimeConfig": "PASS",
+    "runtimeBakedNetworkParity": "PASS",
+    "authProvider": "PASS",
+    "signedOfflineLease": "PASS",
+    "contentProvider": "PASS",
+    "providerRegistry": "PASS",
+    "schoolServerIntegrationSynthetic": "PASS",
+    "existingExamEngineRegression": "PASS",
+    "existingContentCryptoRegression": "PASS",
+    "existingReviewRegression": "PASS",
+    "factCheckQueryOnlyRegression": "PASS",
+    "mainRuntimeSmoke": "PASS"
+  },
+  "browserGate": {
+    "attempted": true,
+    "result": "BLOCKED_BY_ENVIRONMENT",
+    "error": "ERR_BLOCKED_BY_ADMINISTRATOR",
+    "passed": false
+  }
+}

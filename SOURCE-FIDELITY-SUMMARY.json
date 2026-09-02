@@ -1,0 +1,46 @@
+{
+  "schema": "maturita-desk-source-fidelity-summary-v1",
+  "generatedAt": "2026-09-01T13:29:56.043671Z",
+  "classification": "PUBLIC-SANITIZED-QA",
+  "appVersion": "0.5.0",
+  "contentVersion": "2027.0.1-review",
+  "method": "Unicode/punctuation/whitespace-normalized exact text comparison against corresponding DOCX sources",
+  "packToSource": {
+    "totalFields": 2933,
+    "exactMatches": 2933,
+    "mismatches": 0,
+    "byKind": {
+      "examTaskTitles": 20,
+      "examTaskBlocks": 100,
+      "examTaskSteps": 75,
+      "examSectionLabels": 120,
+      "examQuestions": 515,
+      "examAnswers": 937,
+      "examExtraPrompts": 99,
+      "examExtraAnswers": 218,
+      "practiceTaskTitles": 20,
+      "practiceTaskBlocks": 117,
+      "practiceTaskSteps": 75,
+      "practiceSectionLabels": 120,
+      "practiceQuestions": 517
+    }
+  },
+  "sourceCandidateCoverage": {
+    "teacherCandidateLines": 1562,
+    "teacherCovered": 1562,
+    "practiceCandidateLines": 527,
+    "practiceCovered": 527,
+    "missing": 0
+  },
+  "mediaVisualIntegrityReview": {
+    "comparisonImagesReviewed": 40,
+    "referenceImagesReviewed": 64,
+    "blankOrCorruptImagesFound": 0,
+    "semanticAndPedagogicalApproval": "REQUIRED"
+  },
+  "limitations": [
+    "This verifies faithful transfer of source-derived text and technical image readability, not factual accuracy.",
+    "AI-assisted guidance and pedagogical suitability still require English-department review.",
+    "Source candidate coverage uses structural heuristics for prompt/answer-like DOCX lines."
+  ]
+}

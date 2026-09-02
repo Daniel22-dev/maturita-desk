@@ -1,0 +1,71 @@
+MATURITA DESK 0.6.0 — POSTUP PEDAGOGICKÉ REVIZE
+================================================
+
+Účel
+-----
+Stage 8 umožňuje přímo v Maturita Desk lidsky zkontrolovat draftovou Teacher Guidance pro cvičný režim.
+Tato revize NEMĚNÍ původní šifrovaný Content Pack v prohlížeči.
+
+1. Importujte a odemkněte interní Content Pack
+------------------------------------------------
+Použijte pouze interní revizní .mdesk a jeho heslo předané odděleně.
+
+2. Otevřete Content Pack → Pedagogická revize
+---------------------------------------------
+Aplikace načte revizní frontu. U aktuálního packu jde o:
+- 517 cvičných Topic otázek,
+- 75 kroků cvičných Task Boxů,
+- 592 položek celkem,
+- 135 HIGH,
+- 457 NORMAL.
+
+3. Nejprve zpracujte HIGH
+-------------------------
+Výchozí filtr je HIGH + čeká na revizi.
+U každé položky vidíte:
+- studentský cvičný prompt,
+- aktuální draft Teacher Guidance,
+- případný follow-up,
+- dostupnou informaci o původu/matchi draftu.
+
+4. Zvolte jedno lidské rozhodnutí
+---------------------------------
+SCHVÁLIT BEZE ZMĚNY
+Draft považujete za pedagogicky použitelný.
+
+UPRAVIT A SCHVÁLIT
+Upravíte Teacher Guidance a/nebo follow-up a uložíte lidskou verzi.
+Jeden obsahový bod zapisujte ideálně na jeden řádek.
+
+ODMÍTNOUT DRAFT
+Draft není použitelný. Odmítnutí je blokující stav a finální review gate nebude splněn,
+dokud položku nepřevedete na schválenou nebo upravenou verzi.
+
+5. Neuvádějte údaje studentů
+----------------------------
+Do interní revizní poznámky nevkládejte jméno, třídu, osobní údaje ani informace o konkrétním studentovi.
+
+6. Exportujte .mdreview
+-----------------------
+Průběžně lze revizi exportovat jako .mdreview.
+Exporter do něj automaticky nekopíruje ostré exam prompty, ale lidské editace jsou volný vstup; soubor je proto interním pracovním artefaktem.
+
+7. Pokud reviduje více kolegů
+-----------------------------
+Jejich .mdreview soubory lze v neveřejném pipeline sloučit.
+Konfliktní rozhodnutí ke stejné položce se automaticky nepřepíší — konflikt musí vyřešit člověk.
+
+8. Kdy je revize hotová
+-----------------------
+Hotovo znamená:
+- pending = 0,
+- rejected = 0,
+- všech 592 položek je approved nebo edited.
+
+Až potom lze soukromým nástrojem vytvořit nový pedagogicky revidovaný .mdesk.
+Maturita Desk v prohlížeči sama produkční pack nevytváří.
+
+DŮLEŽITÉ
+--------
+Stage 8 technicky připravuje a eviduje lidskou revizi. Neprohlašuje AI drafty automaticky za správné.
+Interní Content Pack 2027.0.1-review zůstává do dokončení skutečné revize pedagogicky neschválený.

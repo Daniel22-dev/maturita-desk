@@ -1,0 +1,80 @@
+{
+  "schema": "ghrab-platform-consumer-v1",
+  "appId": "maturita-desk",
+  "appName": "Maturita Desk",
+  "appVersion": "0.10.0",
+  "platform": {
+    "version": "1.1.0",
+    "contract": "ghrab-platform-v1",
+    "requiredRange": ">=1.1.0 <2.0.0",
+    "compatibilityWindow": [
+      "1.1.x",
+      "1.2.x"
+    ]
+  },
+  "theme": {
+    "supported": [
+      "light",
+      "dark",
+      "system"
+    ],
+    "default": "system",
+    "systemFallback": "light"
+  },
+  "storageMigration": {
+    "id": "maturita-desk-storage-v1",
+    "backup": "none",
+    "mappings": [],
+    "protectedIndexedDb": "ghrab.maturita-desk.protected-content.v1",
+    "reviewIndexedDb": "ghrab.maturita-desk.pedagogical-review.v1",
+    "offlineAuthLease": "ghrab.maturita-desk.auth-lease.v1",
+    "installationId": "ghrab.maturita-desk.installation-id.v1"
+  },
+  "bridge": {
+    "contract": "ghrab-studio-handoff-v2",
+    "acceptsLegacy": "ghrab-handoff-v1",
+    "maxBytes": 20000
+  },
+  "artifact": {
+    "schema": "ghrab-artifact-envelope-v1",
+    "checksum": "SHA-256",
+    "exports": [
+      "maturita-desk-review-patch"
+    ],
+    "imports": [
+      "maturita-desk-content-pack",
+      "maturita-desk-review-patch"
+    ],
+    "acceptsLegacyJson": false,
+    "nativeFormats": [
+      "mdesk",
+      "mdreview"
+    ]
+  },
+  "cache": {
+    "name": "ghrab-maturita-desk-v0.10.0",
+    "updateMessage": "GHRAB_SKIP_WAITING"
+  },
+  "quality": {
+    "schema": "ghrab-quality-consumer-v1",
+    "accessibilityContract": "ghrab-a11y-v1",
+    "performanceContract": "ghrab-performance-v1",
+    "referenceProfile": {
+      "cpuSlowdown": 4,
+      "viewport": "1366x768",
+      "memoryClassGb": 4,
+      "viewportWidths": [
+        1440,
+        1180,
+        1024,
+        820,
+        430,
+        390,
+        320
+      ]
+    },
+    "stage": "stage-13-synthetic-device-pilot",
+    "finalRelease": false,
+    "cleanInstallRequired": true
+  }
+}

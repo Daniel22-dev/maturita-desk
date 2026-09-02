@@ -1,0 +1,113 @@
+{
+  "schema": "maturita-desk-content-qa-summary-v3",
+  "appVersion": "0.6.0",
+  "contentVersion": "2027.0.1-review",
+  "classification": "PUBLIC-SANITIZED-QA",
+  "candidateStatus": "INTERNAL-REVIEW-NOT-PEDAGOGICALLY-APPROVED",
+  "topics": 20,
+  "sourceDocuments": 80,
+  "sourceInventory": {
+    "teacherExamFiles": 20,
+    "pictureComparisonFiles": 20,
+    "practiceStudentFiles": 20,
+    "examStudentFilesValidationAndReferenceImages": 20,
+    "sourceSha256Verified": 80
+  },
+  "convertedContent": {
+    "comparisonImages": 40,
+    "referenceImages": 64,
+    "embeddedRasterImages": 104,
+    "examTaskSteps": 75,
+    "examSections": 120,
+    "examQuestions": 515,
+    "examExtraPrompts": 99,
+    "practiceTaskSteps": 75,
+    "practiceSections": 120,
+    "practiceQuestions": 517
+  },
+  "practiceTeacherGuidance": {
+    "sourceMatchedDrafts": 217,
+    "scaffoldOnlyDrafts": 300,
+    "highReviewPriority": 135,
+    "normalReviewPriority": 382,
+    "totalDrafts": 517,
+    "teacherReviewRequired": true,
+    "algorithm": "source-aligned-v4-conservative-unique"
+  },
+  "media": {
+    "comparisonImageBytes": 9485302,
+    "referenceImageBytes": 1937240,
+    "uniqueImageHashes": 104,
+    "allowedFormats": [
+      "JPEG",
+      "PNG",
+      "WebP"
+    ],
+    "externalUrlsAllowed": false
+  },
+  "scope": {
+    "sharpStudentWorksheetRendered": false,
+    "sharpStudentReferenceGalleryRetained": true,
+    "studentIdentityDataIncluded": false,
+    "teacherAnswersExternallyFactChecked": false
+  },
+  "automatedChecks": {
+    "sourceInventory": "PASS",
+    "sourceSha256": "PASS",
+    "topicCount": "PASS",
+    "twoComparisonImagesPerTopic": "PASS",
+    "referenceImageInventory": "PASS",
+    "mediaIntegrityAndUniqueness": "PASS",
+    "externalMediaNegativeControl": "PASS",
+    "structuralValidation": "PASS",
+    "sourceAnswerUniquePerSection": "PASS",
+    "guidanceMetadata": "PASS",
+    "studentIdentityStructuralCheck": "PASS",
+    "publicShellLeakGate": "PASS",
+    "publicShellTestSuite": "PASS",
+    "encryptedPackRoundTrip": "PASS",
+    "wrongPassphraseNegativeControl": "PASS",
+    "ciphertextTamperNegativeControl": "PASS",
+    "aadMetadataTamperNegativeControl": "PASS",
+    "browserDeviceSmoke": "BLOCKED_IN_BUILD_ENVIRONMENT-REAL_DEVICE_REQUIRED",
+    "stage8ReviewScope": "PASS",
+    "reviewPatchSourceBinding": "PASS",
+    "reviewPatchForgedSummaryNegativeControl": "PASS",
+    "syntheticReviewPrivatePipelineRoundTrip": "PASS"
+  },
+  "encryptedArtifact": {
+    "file": "Maturita-Desk-AJ-2027-interni-revize-2027.0.1.mdesk",
+    "bytes": 21221634,
+    "sha256": "433c95838b98ad10d20b1633fb31b1e3d7e9bea0a3862c5c934b2908a26c48f4",
+    "classification": "CONFIDENTIAL-EXAM",
+    "cipher": "AES-256-GCM",
+    "tagBits": 128,
+    "kdf": "PBKDF2-SHA-256",
+    "iterations": 310000
+  },
+  "testExecution": {
+    "npmTest": "PASS",
+    "publicShellClassification": "SYNTHETIC-ONLY",
+    "localChromiumSmoke": {
+      "status": "BLOCKED_BY_ENVIRONMENT",
+      "error": "ERR_BLOCKED_BY_ADMINISTRATOR",
+      "attempts": 1,
+      "stage": "Stage 8 review + exam browser scenario"
+    },
+    "requiredManualTargets": [
+      "Safari on managed iPad",
+      "phone browser at approximately 390 px viewport",
+      "desktop browser"
+    ]
+  },
+  "stage8PedagogicalReview": {
+    "practiceTopicQuestions": 517,
+    "practiceTaskSteps": 75,
+    "totalReviewableItems": 592,
+    "highPriority": 135,
+    "normalPriority": 457,
+    "humanReviewed": 0,
+    "pending": 592,
+    "status": "OPEN"
+  }
+}

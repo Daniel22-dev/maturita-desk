@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Synthetic demo picture A">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#d9b9c9"/><stop offset="1" stop-color="#f8eee6"/></linearGradient>
+    <linearGradient id="road" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#4c263d"/><stop offset="1" stop-color="#74516a"/></linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#sky)"/>
+  <circle cx="975" cy="140" r="80" fill="#f1c86d" opacity=".85"/>
+  <path d="M0 520 260 340l170 120 230-210 260 250 280-100v400H0Z" fill="#789083" opacity=".92"/>
+  <path d="M420 800 650 430l180 370Z" fill="url(#road)"/>
+  <path d="m633 800 82-370" stroke="#f8eee6" stroke-width="18" stroke-dasharray="44 36" opacity=".9"/>
+  <rect x="110" y="325" width="230" height="210" rx="12" fill="#fff8f1"/>
+  <path d="M85 330 225 235l140 95Z" fill="#4c263d"/>
+  <rect x="155" y="385" width="55" height="72" fill="#9ebbb0"/>
+  <rect x="245" y="385" width="55" height="72" fill="#9ebbb0"/>
+  <text x="70" y="720" font-family="system-ui, sans-serif" font-size="42" font-weight="700" fill="#fff8f1">SYNTHETIC DEMO · A</text>
+</svg>

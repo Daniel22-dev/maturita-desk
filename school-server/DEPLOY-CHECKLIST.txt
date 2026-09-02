@@ -1,0 +1,56 @@
+MATURITA DESK 0.10.0 / STAGE 13 (server contract inherited from Stage 12R) — SCHOOL SERVER SECURITY CHECKLIST
+
+[ ] HTTPS a školní doména/subdoména
+[ ] reálný Identity Provider (Google Workspace / Microsoft 365 / jiný školní SSO)
+[ ] HttpOnly + Secure session cookie
+[ ] SameSite politika ověřená proti login flow
+[ ] Origin kontrola
+[ ] CSRF ochrana pro cookie-based POST
+[ ] žádný bearer token/API key v localStorage nebo veřejném JS
+[ ] capability mapování: exam, practice, review, content:download, fact-check
+[ ] runtime deployment.json + baked runtime-config.js jsou OBA school-server profil
+[ ] baked runtime-config.js má trust.expectedMode=school-server a správný trust.expectedEnvironmentId
+[ ] baked trust.appOrigins obsahuje přesný produkční origin aplikace; network config ho nesmí rozšířit
+[ ] test kopie standalone buildu na školní origin => locked/deployment-origin-mismatch
+[ ] logoutEndpoint je povinný a chybějící endpoint => locked
+[ ] záměrně chybná runtime konfigurace => locked/no capabilities
+[ ] ECDSA P-256 podpisový klíč uložen pouze server-side
+[ ] veřejný JWK neobsahuje private d a keyId je rotovatelný
+[ ] offline lease <= 24 h (klient delší odmítá)
+[ ] spravované iPady mají vynucený automatický systémový čas / MDM policy
+[ ] otestován forward expiry + clock rollback offline lease
+[ ] rozhodnut vyšší device binding (WebAuthn/non-extractable key/MDM), pokud je požadován
+[ ] content/active vrací pouze encrypted .mdesk envelope
+[ ] žádný cleartext maturitní obsah v CDN/public assets/logu
+[ ] definovaný publisher release hash/signature proces pro ostrý Content Pack
+[ ] Fact Check přijímá pouze JSON {query}
+[ ] OpenAI key pouze v server secret store
+[ ] serverové Fact Check rate limiting / abuse protection
+[ ] pokud se používá inner serverless worker: FACTCHECK_GATE_TOKEN pouze server-side a browser k němu nemá přístup
+[ ] forged Origin bez server-side gate nesmí zavolat placený upstream
+[ ] request/response size limits na auth/content/fact-check jsou streamované/průběžné, ne post-hoc po response.text()
+[ ] Content Pack envelope strop 32 MiB + fyzický iPad performance test
+[ ] API odpovědi session/fact-check používají Cache-Control: no-store
+[ ] reverse proxy neloguje Fact Check query / clear exam content
+[ ] response CSP včetně frame-ancestors
+[ ] Strict-Transport-Security
+[ ] X-Content-Type-Options: nosniff
+[ ] Referrer-Policy
+[ ] Permissions-Policy
+[ ] audit log bez Notes/student PII/clear exam payloadu
+[ ] test access bypass bez session a bez capability
+[ ] test role/capability escalation
+[ ] test revokace uživatele
+[ ] test expirace offline lease
+[ ] logout: POST success + následný GET /session potvrzuje neautorizovaný stav
+[ ] test online -> offline -> refresh -> unlock -> pokračování
+[ ] test výpadku sítě uprostřed 15min zkoušky
+[ ] SIM-03 Back/Restore/Reopen
+[ ] SIM-04 Multi-Tab collision
+[ ] SIM-07 Service Worker update/recovery drill
+[ ] test iPad Safari, telefon, desktop
+[ ] repo MFA/passkey, branch protection, review rules, secret/push protection
+[ ] signing/API key rotation + incident/recovery postup
+[ ] nezávislý bezpečnostní audit exact release SHA před ostrým provozem
+
+REÁLNÁ STUDENTSKÁ DATA: NEPOUŽÍVAT, DOKUD NENÍ PŘÍSLUŠNÝ PRIVACY/SECURITY GATE SCHVÁLEN.

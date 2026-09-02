@@ -1,0 +1,148 @@
+{
+  "schema": "maturita-desk-security-qa-v2",
+  "version": "0.9.2",
+  "date": "2026-09-01",
+  "classification": "SYNTHETIC-ONLY-SECURITY-REAUDIT-CANDIDATE",
+  "framework": "GARP-2.3-compatible",
+  "gates": {
+    "security": "AMBER",
+    "privacy": "AMBER",
+    "redTeam": "AMBER",
+    "releaseIntegrity": "AMBER_SELF_VERIFIED_PENDING_INDEPENDENT_RECHECK",
+    "overall": "AMBER"
+  },
+  "findings": {
+    "stage12Internal": {
+      "confirmedCritical": 0,
+      "confirmedHigh": 2,
+      "confirmedMedium": 6,
+      "confirmedLow": 3
+    },
+    "claudeIndependentStage12": {
+      "releaseIntegrityBlockers": 1,
+      "confirmedIncompleteFixes": [
+        "B-02",
+        "B-03",
+        "N-01"
+      ],
+      "additionalActionable": [
+        "N-02",
+        "N-03",
+        "N-05",
+        "N-06",
+        "N-08",
+        "N-09"
+      ],
+      "acknowledgedOpenNonCode": [
+        "N-04",
+        "N-07"
+      ]
+    },
+    "stage12rRemediation": {
+      "fixed": [
+        "B-02",
+        "B-03",
+        "N-01",
+        "N-02",
+        "N-03",
+        "N-06",
+        "N-08",
+        "N-09"
+      ],
+      "mitigatedDeviceGateOpen": [
+        "N-05"
+      ],
+      "openDocumented": [
+        "N-04",
+        "N-07"
+      ],
+      "releaseProcessRemediatedIndependentVerificationPending": [
+        "B-01"
+      ],
+      "openConfirmedHighOrCriticalCodeBlockers": 0
+    }
+  },
+  "automated": {
+    "npmTest": "PASS_BEFORE_PACKAGING",
+    "artifactSecurityScan": "PASS_BEFORE_PACKAGING",
+    "secretFindings": 0,
+    "forbiddenPublicArtifacts": 0,
+    "npmDependencies": 0,
+    "streamedResponseCaps": "PASS",
+    "claudeFindingRegressionSuite": "PASS",
+    "actualAppStateFactCheckCanary": "PASS_QUERY_ONLY",
+    "aiRedStructuralVariants": 24,
+    "aiRedMutationFamilies": 6,
+    "aiRedStructuralEscapes": 0,
+    "aiBehavioralLiveAttempts": 0,
+    "aiBehavioralASR": "N/A"
+  },
+  "rt": {
+    "RT-00": "PASS",
+    "RT-01": "NOT_TESTED_COMPLETE_CLIENT_SUBTESTS_PASS",
+    "RT-02": "NOT_TESTED_COMPLETE_TAMPER_SUBTESTS_PASS",
+    "RT-03": "PASS_CLIENT_VERIFIER_LIVE_ISSUER_NOT_TESTED",
+    "RT-04": "NOT_TESTED_COMPLETE_EXAM_TIMER_SUBTEST_PASS",
+    "RT-05": "NOT_TESTED",
+    "RT-06": "NOT_TESTED_COMPLETE_STRUCTURAL_SUBTESTS_PASS",
+    "RT-07": "PASS_AVAILABLE_LAYER",
+    "RT-08": "PASS_AVAILABLE_LAYER",
+    "RT-09": "NOT_TESTED_BEHAVIORAL_STRUCTURAL_PASS",
+    "RT-10": "PASS",
+    "RT-11": "NOT_TESTED_COMPLETE_CLIENT_SUBTESTS_PASS",
+    "RT-12": "PASS_AVAILABLE_LAYER",
+    "RT-13": "NOT_TESTED_COMPLETE_STATIC_CSP_PASS",
+    "RT-14": "PASS_AVAILABLE_LAYER",
+    "RT-15": "NOT_TESTED",
+    "RT-16": "AMBER_NOT_TESTED_COMPLETE",
+    "RT-17": "N_A_STUDENT_RECORDS_SHARED_DEVICE_LIFECYCLE_NOT_TESTED",
+    "RT-18": "PASS_DISTRIBUTED_CLIENT_CONTRACT",
+    "RT-19": "PASS_STRUCTURAL",
+    "RT-20": "NOT_TESTED_COMPLETE"
+  },
+  "sim": {
+    "SIM-01": "PASS_STRUCTURAL",
+    "SIM-02": "NOT_TESTED_LIVE",
+    "SIM-03": "NOT_TESTED",
+    "SIM-04": "NOT_TESTED",
+    "SIM-05": "PASS_STRUCTURAL",
+    "SIM-06": "PASS_SYNTHETIC",
+    "SIM-07": "NOT_TESTED",
+    "SIM-08": "PASS_SOURCE_BINDING_SECOND_IDENTITY_NOT_TESTED"
+  },
+  "air": {
+    "AIR-01_to_AIR-12_behavioral": "NOT_TESTED",
+    "structural": "PASS_24_OF_24_6_FAMILIES",
+    "liveAttempts": 0,
+    "asr": "N/A"
+  },
+  "privacy": {
+    "realStudentDataUsedInAudit": false,
+    "studentIdentityFields": false,
+    "factCheckRequestFields": [
+      "query"
+    ],
+    "automaticExamContextEgress": false,
+    "automaticNotesEgress": false,
+    "notesStorage": "localStorage_local_only_policy_no_PII",
+    "fullSharedDeviceLifecycle": "NOT_TESTED",
+    "providerRetention": "NOT_TESTED"
+  },
+  "release": {
+    "stage12AuditedArtifactSha256": "73d59fb5f304a2176c481b04e838b41cff6d5fc2e7f21ce6fe8688ac9d479452",
+    "stage12DeclaredShaMismatchConfirmed": true,
+    "candidateZipSha256": "SEE_EXTERNAL_SHA256_AFTER_IMMUTABLE_PACKAGING",
+    "cleanUnpackRetest": "PENDING_FINAL_PACKAGING",
+    "hashRecheckAfterCleanUnpack": "PENDING_FINAL_PACKAGING",
+    "independentReaudit": "PENDING_EXACT_SHA"
+  },
+  "browser": {
+    "attempted": true,
+    "status": "NOT_TESTED_ENVIRONMENT_BLOCKED",
+    "error": "ERR_BLOCKED_BY_ADMINISTRATOR",
+    "evidence": "preview/browser-smoke-stage12r.log",
+    "realDeviceRequired": true
+  },
+  "stage": "stage-12r",
+  "independentReview": "Claude Stage12 findings verified against code; actionable findings remediated or explicitly retained as open; exact-SHA re-audit pending."
+}

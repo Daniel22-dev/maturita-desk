@@ -1,0 +1,41 @@
+{
+  "schema": "maturita-desk-stage8-review-qa-v1",
+  "appVersion": "0.6.0",
+  "contentVersion": "2027.0.1-review",
+  "classification": "PUBLIC-SANITIZED-QA",
+  "status": "HUMAN-REVIEW-OPEN",
+  "reviewScope": {
+    "topics": 20,
+    "practiceTopicQuestions": 517,
+    "practiceTaskSteps": 75,
+    "totalReviewableItems": 592,
+    "highPriority": 135,
+    "normalPriority": 457,
+    "uniqueStableIds": 592
+  },
+  "workflow": {
+    "localDecisionStore": "ghrab.maturita-desk.pedagogical-review.v1",
+    "patchSchema": "maturita-desk-review-patch-v1",
+    "statuses": ["approved", "edited", "rejected"],
+    "pendingIsImplicit": true,
+    "browserMutatesContentPack": false,
+    "reviewerIdentityStored": false,
+    "studentIdentityFields": false
+  },
+  "automatedChecks": {
+    "reviewScopeAgainstRealEncryptedPack": "PASS",
+    "stableIdsUnique": "PASS",
+    "reviewModel": "PASS",
+    "sourceBoundPatch": "PASS",
+    "forgedSummaryNegativeControl": "PASS",
+    "privateMergeConflictPolicy": "FAIL-CLOSED",
+    "syntheticPrivatePipelineRoundTrip": "PASS",
+    "publicShellRealContentLeakScan": "PASS"
+  },
+  "humanGate": {
+    "reviewed": 0,
+    "pending": 592,
+    "complete": false,
+    "productionCandidateCreated": false
+  }
+}

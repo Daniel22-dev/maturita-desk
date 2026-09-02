@@ -1,0 +1,18 @@
+{
+  "schema": "maturita-desk-content-delivery-v1",
+  "envelope": {
+    "schema": "maturita-desk-encrypted-pack-v1",
+    "packId": "EXAMPLE_ONLY",
+    "contentVersion": "EXAMPLE_ONLY",
+    "classification": "CONFIDENTIAL-EXAM",
+    "label": "Example only - real encrypted envelope omitted",
+    "crypto": {
+      "cipher": "AES-256-GCM",
+      "kdf": "PBKDF2-SHA-256",
+      "iterations": 310000,
+      "salt": "EXAMPLE_ONLY",
+      "iv": "EXAMPLE_ONLY"
+    },
+    "ciphertext": "EXAMPLE_ONLY"
+  }
+}

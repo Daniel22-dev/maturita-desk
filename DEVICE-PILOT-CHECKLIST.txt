@@ -1,0 +1,79 @@
+MATURITA DESK 0.10.0 — STAGE 13 / DEVICE ACCEPTANCE CHECKLIST
+==============================================================
+
+BUILD POLICY: SYNTHETIC-ONLY. CONFIDENTIAL-EXAM JE ZABLOKOVÁN.
+REÁLNÁ STUDENTSKÁ DATA: NEPOUŽÍVAT.
+
+1. iPAD / PWA START
+[ ] online první start a Offline shell = Připraven
+[ ] přidání na plochu / standalone PWA
+[ ] úplně zavřít, airplane mode, znovu spustit offline
+
+2. STRESS PACK ~30 MiB
+[ ] import bez pádu
+[ ] zaznamenat čas importu z Pilot panelu
+[ ] unlock heslem STAGE13-SYNTHETIC-STRESS-2027
+[ ] zaznamenat čas unlocku
+[ ] žádný neúnosný UI stall / memory kill
+
+3. CELÁ 15MIN RELACE
+[ ] start až tlačítkem Zahájit zkoušku
+[ ] Pictures ~2 min
+[ ] Task ~4 min
+[ ] Topic ~9 min
+[ ] celkový timer bez resetu
+[ ] žádný automatický phase switch
+
+4. LIFECYCLE
+[ ] background 30–60 s
+[ ] lock screen cca 30 s
+[ ] Back / návrat
+[ ] OS kill / reopen
+[ ] čas dopočten podle timestampů
+[ ] Notes zachovány
+[ ] protected pack po reopen znovu zamčen (správně)
+
+5. MULTI-TAB WRITER GUARD
+[ ] panel A má running session
+[ ] panel B nesmí zahájit paralelní zápis přes čerstvý lease
+[ ] B nesmí přepsat Notes A
+[ ] konflikt je viditelný
+[ ] explicitní takeover funguje pouze vědomě
+
+6. SERVICE WORKER UPDATE
+[ ] nasadit Pilot B na stejnou URL
+[ ] nový worker čeká během running session
+[ ] žádný samovolný reload uprostřed relace
+[ ] update lze aplikovat po ukončení
+[ ] po aktualizaci aplikace normálně startuje
+
+7. iPAD LAYOUT
+[ ] landscape hlavní režim
+[ ] portrait nezablokuje workflow
+[ ] Picture A/B bez cropu
+[ ] zoom/pan funguje dotykem
+[ ] Notes / Fact Check / transition actions dosažitelné
+
+8. TELEFON
+[ ] 390–430 px portrait
+[ ] celý Exam workflow
+[ ] persistentní total timer
+[ ] mobile Pictures/Task/Topic nav
+[ ] A/B přepínač
+[ ] soft keyboard nezpůsobí auto-zoom
+[ ] Notes textarea zůstane nad klávesnicí
+
+9. OFFLINE BĚHEM RUNNING SESSION
+[ ] airplane mode během zkoušky
+[ ] Pictures/Task/Topic/Notes/timer fungují dál
+[ ] Fact Check failure izolovaný
+[ ] návrat sítě neresetuje session
+
+10. VÝSTUP
+[ ] všechny povinné položky v Pilot panelu označené
+[ ] export JSON
+[ ] export TXT
+[ ] bez osobních údajů
+
+Stage 13 = PASS až po skutečném zařízení. Pokud cokoli selže, zaznamenejte zařízení,
+OS/browser verzi, krok, očekávané a skutečné chování — bez jmen studentů/testerů.

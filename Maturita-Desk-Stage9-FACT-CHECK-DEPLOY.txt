@@ -1,0 +1,52 @@
+MATURITA DESK — FACT CHECK DEPLOYMENT PO STAGE 12R
+==================================================
+
+TENTO DOKUMENT NAHRAZUJE PŮVODNÍ STAGE 9 POSTUP PRO PŘÍMÝ SERVERLESS WORKER.
+
+1. KLIENT
+---------
+Veřejná PWA obsahuje Fact Check UI a odesílá aplikačnímu FactCheckProvideru pouze explicitně napsaný dotaz.
+Do request body se nesmí automaticky přidávat téma, zadání, Teacher Guidance, Notes, Content Pack ani session.
+
+2. PROČ UŽ NESTAČÍ CORS
+-----------------------
+Hlavička Origin není serverová autentizace. Externí klient ji může napodobit. Veřejný Worker chráněný pouze ALLOWED_ORIGINS by proto byl otevřenou placenou bránou k OpenAI.
+
+3. STAGE 12R FAIL-CLOSED MODEL
+------------------------------
+Referenční worker vyžaduje:
+  - OPENAI_API_KEY (serverový secret),
+  - FACTCHECK_GATE_TOKEN (serverový secret, min. 32 znaků),
+  - FACTCHECK_RATE_LIMITER (povinná binding/služba),
+  - ALLOWED_ORIGINS (doplňkový CORS allowlist).
+
+Bez gate tokenu nebo limiteru se worker nespustí do použitelného režimu.
+
+FACTCHECK_GATE_TOKEN NIKDY NEVKLÁDAT DO runtime-config.js ANI DO VEŘEJNÉHO JS.
+Proto veřejná GitHub Pages PWA nemá tento Worker volat přímo.
+
+4. PODPOROVANÉ NASAZENÍ
+-----------------------
+Preferované: PWA -> školní same-origin gateway (cookie session) -> případný interní worker -> OpenAI.
+
+Dočasná alternativa: PWA -> autentizovaná edge gateway -> interní worker. Edge gateway ověří učitele a gate header přidá server-side.
+
+Dokud autentizovaná gateway neexistuje, Fact Check zůstává v public runtime-config nenakonfigurovaný.
+
+5. RUNTIME ORIGIN PINNING
+-------------------------
+Stage 12R dovolí endpoint pouze na originu, který je předem povolen v RELEASE-PINNED baked runtime konfiguraci. Síťový config smí trust pouze zúžit, nikdy rozšířit.
+Při změně hostingu musí IT vytvořit schválený deployment profil; nestačí podvrhnout config/deployment.json.
+
+6. POVINNÝ LIVE TEST
+--------------------
+Na iPadu, telefonu a desktopu ověřit:
+  a) správné, nepravdivé a kontextové tvrzení;
+  b) výpadek internetu a timeout;
+  c) zdroje;
+  d) timer během ověřování;
+  e) Network body = pouze {query};
+  f) query/result se po reloadu neobnovují;
+  g) bez autentizované gateway upstream není volán;
+  h) rate limit fail-closed;
+  i) behaviorální prompt-injection AIR proti skutečnému produkčnímu provideru.

@@ -1,0 +1,50 @@
+{
+  "schema": "maturita-desk-stage9-fact-check-qa-v1",
+  "appVersion": "0.7.0",
+  "classification": "PUBLIC-SANITIZED-QA",
+  "status": "AUTOMATED-MOCK-READY_AUTHENTICATED-GATEWAY-REQUIRED_LIVE-INTEGRATION-OPEN",
+  "privacyBoundary": {
+    "clientRequestFields": [
+      "query"
+    ],
+    "automaticExamContext": false,
+    "automaticNotesContext": false,
+    "persistentHistory": false,
+    "clientApiKey": false
+  },
+  "serverReference": {
+    "provider": "OpenAI Responses API",
+    "webSearchRequired": true,
+    "store": false,
+    "structuredOutput": true,
+    "defaultModel": "gpt-5.6-terra",
+    "originAllowlist": true,
+    "rateLimiterRequired": true,
+    "serverSideGateTokenRequired": true,
+    "directAnonymousBrowserDeployment": false
+  },
+  "automatedChecks": {
+    "clientQuerySanitization": "PASS",
+    "clientQueryOnlyRequest": "PASS",
+    "clientUnsafeUrlFiltering": "PASS",
+    "clientNoCredentials": "PASS",
+    "workerRejectsExtraFields": "PASS",
+    "workerRejectsDisallowedOrigin": "PASS",
+    "workerRequiresServerSecret": "PASS",
+    "workerStoreFalse": "PASS",
+    "workerWebSearchRequired": "PASS",
+    "workerSourceDedupe": "PASS",
+    "workerNoSourceFailClosed": "PASS",
+    "workerRawUpstreamErrorHidden": "PASS",
+    "publicShellSecretScan": "PASS",
+    "workerRequiresRateLimiter": "PASS",
+    "workerRequiresServerSideGate": "PASS",
+    "workerHealthDoesNotExposeConfiguredState": "PASS",
+    "workerChunkedResponseCap": "PASS"
+  },
+  "liveIntegration": {
+    "proxyDeployed": false,
+    "openAiRequestExecuted": false,
+    "targetDeviceSmoke": false
+  }
+}

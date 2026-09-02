@@ -1,0 +1,10 @@
+MATURITA DESK 0.9.2 / STAGE 12R
+INTERNAL NOTE FOR INDEPENDENT RE-AUDIT
+
+Finální přesný ZIP SHA-256 není záměrně zapsán uvnitř tohoto ZIPu, protože by tím vznikla kruhová závislost: změna vnitřního souboru by změnila hash ZIPu.
+
+Autoritativní SHA-256 je proto dodáván jako samostatný soubor vedle finálního ZIPu. Auditor má před čtením nálezů nejprve spočítat hash přijatého ZIPu a porovnat jej s tímto externím .sha256 souborem.
+
+Prosím znovu ověřit původní PoC scénáře B-02, B-03, N-01, N-02, N-03, N-05, N-06, N-08 a nový actual-app-state test k N-09. N-04 a N-07 zůstávají explicitně otevřené.
+
+Dokumentace: SECURITY-REVIEW-STAGE12R.md a STAGE-12R-STATUS.md.
