@@ -1,0 +1,76 @@
+{
+  "schema": "ai-studio-app-manifest-v1",
+  "id": "maturita-desk",
+  "name": {
+    "cs": "Maturita Desk",
+    "en": "Maturita Desk"
+  },
+  "status": {
+    "cs": "Řízený pilot · demo obsah",
+    "en": "Controlled pilot · demo content"
+  },
+  "description": {
+    "cs": "Učitelská PWA pro přípravu a průběh ústní maturitní zkoušky z anglického jazyka. Ve veřejném AI Studiu je určena pouze pro demo a syntetický obsah; ostré CONFIDENTIAL-EXAM balíčky zůstávají blokované.",
+    "en": "Teacher PWA for preparing and running the English oral Matura exam. In the public AI Studio it is restricted to demo and synthetic content; real CONFIDENTIAL-EXAM packs remain blocked."
+  },
+  "launchUrl": "https://daniel22-dev.github.io/maturita-desk/",
+  "manualUrl": "https://daniel22-dev.github.io/maturita-desk/",
+  "repository": "Daniel22-dev/maturita-desk",
+  "icon": "https://daniel22-dev.github.io/maturita-desk/assets/icons/icon-192.png",
+  "accent": "#4b263d",
+  "tags": [
+    {
+      "cs": "AJ · maturita",
+      "en": "EN · Matura"
+    },
+    {
+      "cs": "Ústní zkouška",
+      "en": "Oral exam"
+    },
+    {
+      "cs": "Demo obsah",
+      "en": "Demo content"
+    }
+  ],
+  "capabilities": [
+    "oral-exam",
+    "encrypted-content-pack",
+    "offline",
+    "standalone-pwa",
+    "ghrab-platform-v1",
+    "artifact-envelope-v1",
+    "accessibility-v1",
+    "performance-budget-v1"
+  ],
+  "compatibility": {
+    "studioMinVersion": "0.21.35",
+    "studioBridge": "2.0",
+    "platformContract": "ghrab-platform-v1",
+    "platformRange": ">=1.1.0 <2.0.0"
+  },
+  "integration": {
+    "launchMode": "external-protected",
+    "securityBoundary": "public-demo-only",
+    "requiresHttps": true,
+    "externalTargetUrl": "https://daniel22-dev.github.io/maturita-desk/",
+    "studioAccessIsLauncherGateOnly": true,
+    "contentMode": "synthetic-demo-only",
+    "confidentialExamAllowed": false
+  },
+  "platform": {
+    "schema": "ghrab-platform-app-integration-v1",
+    "contract": "ghrab-platform-v1",
+    "requiredPlatformRange": ">=1.1.0 <2.0.0",
+    "platformVersion": "1.1.0",
+    "brandVersion": "1.0.0",
+    "themeContract": "ghrab-theme-v1",
+    "swContract": 1,
+    "studioBridge": "ghrab-studio-handoff-v2",
+    "artifactEnvelope": "ghrab-artifact-envelope-v1",
+    "storagePrefix": "ghrab.maturita-desk.",
+    "cacheName": "ghrab-maturita-desk-v1.0.1",
+    "accessibilityContract": "ghrab-a11y-v1",
+    "performanceContract": "ghrab-performance-v1"
+  },
+  "version": "1.0.1"
+}
