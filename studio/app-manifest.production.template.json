@@ -47,8 +47,9 @@
     "platformRange": ">=1.1.0 <2.0.0"
   },
   "integration": {
-    "launchMode": "external",
+    "launchMode": "external-protected",
     "securityBoundary": "isolated-origin",
+    "requiresHttps": true,
     "studioAccessIsLauncherGateOnly": true,
     "contentAuthorization": "signed-origin-plus-signed-encrypted-pack"
   },
