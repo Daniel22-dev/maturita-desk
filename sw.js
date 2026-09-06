@@ -1,5 +1,5 @@
 const GHRAB_SW_CONTRACT = 'ghrab-service-worker-v1';
-const CACHE_NAME = 'ghrab-maturita-desk-v1.0.2';
+const CACHE_NAME = 'ghrab-maturita-desk-v1.0.3';
 const CACHE_PREFIXES = ['ghrab-maturita-desk-v'];
 const CORE_ASSETS = [
   './',

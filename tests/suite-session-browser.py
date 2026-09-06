@@ -144,9 +144,9 @@ with sync_playwright() as pw:
     assert unnamed == 0
     # Cache Storage is explicitly non-content and must survive suite cleanup. In the routed browser harness
     # service workers are blocked by the environment, so seed the real app cache namespace directly.
-    page.evaluate("""async () => { const c=await caches.open('ghrab-maturita-desk-v1.0.2'); await c.put('./synthetic-static', new Response('synthetic static cache')); }""")
+    page.evaluate("""async () => { const c=await caches.open('ghrab-maturita-desk-v1.0.3'); await c.put('./synthetic-static', new Response('synthetic static cache')); }""")
     caches_before = page.evaluate("caches.keys()")
-    assert 'ghrab-maturita-desk-v1.0.2' in caches_before, caches_before
+    assert 'ghrab-maturita-desk-v1.0.3' in caches_before, caches_before
     # Protected DB is opened by the normal content manager and must survive suite cleanup.
     page.wait_for_timeout(250)
     seed_owned_data(page)

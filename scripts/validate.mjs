@@ -3,7 +3,7 @@ import path from 'node:path';
 
 const root = path.resolve(new URL('..', import.meta.url).pathname);
 const required = [
-  'index.html','manifest.webmanifest','sw.js','runtime-config.js','platform-build-info.json','config/deployment.json','config/origin-authorization.json','config/origin-authorization.README.txt','config/platform-manifest.json','config/brand-manifest.json','ghrab-platform.consumer.json',
+  'index.html','manifest.webmanifest','studio-manifest.json','src/studio-manifest.template.json','sw.js','runtime-config.js','platform-build-info.json','config/deployment.json','config/origin-authorization.json','config/origin-authorization.README.txt','config/platform-manifest.json','config/brand-manifest.json','ghrab-platform.consumer.json',
   'src/main.js','src/platform-config.js','src/suite-session.js','src/config/data-manifest.json','src/styles.css','src/demo-content.js','src/exam-engine.js','src/notes.js','src/content-validator.js','src/content-pack.js','src/content-pack-store.js',
   'src/review-model.js','src/review-store.js','src/review-patch.js','src/fact-check.js','src/net/read-limited.js','src/device-runtime.js','src/pilot.js','src/session-coordinator.js','src/origin-authorization.js',
   'src/providers/runtime.js','src/providers/auth-lease.js','src/providers/auth-provider.js','src/providers/content-provider.js','src/providers/registry.js',
@@ -20,6 +20,7 @@ for (const rel of required) if (!fs.existsSync(path.join(root, rel))) failures.p
 const pkg = readJson('package.json');
 const manifest = readJson('manifest.webmanifest');
 const consumer = readJson('ghrab-platform.consumer.json');
+const studioManifest = readJson('studio-manifest.json');
 const platform = readJson('config/platform-manifest.json');
 const deployment = readJson('config/deployment.json');
 const serverExample = readJson('school-server/deployment.school-server.example.json');
@@ -51,14 +52,15 @@ const baked = readText('runtime-config.js');
 const sampleText = readText('samples/synthetic-demo-2027.mdesk');
 const sample = JSON.parse(sampleText);
 
-if (pkg.version !== '1.0.2') failures.push('Platform 1.1.2 candidate version must be 1.0.2');
+if (pkg.version !== '1.0.3') failures.push('Platform 1.1.2 candidate version must be 1.0.3');
 for (const [name, version] of [['manifest',manifest.version],['consumer',consumer.appVersion],['platform',platform.version]]) if (version !== pkg.version) failures.push(`${name} version mismatch`);
+if (studioManifest.id !== 'maturita-desk' || studioManifest.version !== pkg.version || studioManifest.platform?.platformVersion !== '1.1.2' || studioManifest.platform?.requiredPlatformRange !== '>=1.1.2 <2.0.0' || studioManifest.compatibility?.platformRange !== '>=1.1.2 <2.0.0' || studioManifest.platform?.storagePrefix !== 'ghrab.maturita-desk.' || studioManifest.platform?.cacheName !== `ghrab-maturita-desk-v${pkg.version}`) failures.push('Studio manifest/version/platform metadata mismatch');
 const dataManifest = readJson('src/config/data-manifest.json');
 const platformBuild = readJson('platform-build-info.json');
 if (consumer.platform?.version !== '1.1.2' || consumer.platform?.requiredRange !== '>=1.1.2 <2.0.0' || manifest.ghrab_platform?.version !== '1.1.2' || manifest.ghrab_platform?.required_range !== '>=1.1.2 <2.0.0' || platformBuild.platformVersion !== '1.1.2') failures.push('GHRAB Platform 1.1.2 metadata mismatch');
 if (dataManifest.appVersion !== pkg.version || dataManifest.deletion?.suiteSessionContract !== 'ghrab-suite-session-v1' || platform.sharedDeviceLifecycle?.contract !== 'ghrab-suite-session-v1') failures.push('Suite-session/data-manifest integration metadata missing');
-if (consumer.cache?.name !== 'ghrab-maturita-desk-v1.0.2' || manifest.ghrab_platform?.cache_name !== 'ghrab-maturita-desk-v1.0.2' || !sw.includes("ghrab-maturita-desk-v1.0.2")) failures.push('1.0.2 cache version mismatch');
-if (platform.stage !== 'serverless-1.0.2' || consumer.quality?.stage !== 'serverless-1.0.2') failures.push('Platform 1.1.2 candidate stage marker missing');
+if (consumer.cache?.name !== 'ghrab-maturita-desk-v1.0.3' || manifest.ghrab_platform?.cache_name !== 'ghrab-maturita-desk-v1.0.3' || !sw.includes("ghrab-maturita-desk-v1.0.3")) failures.push('1.0.3 cache version mismatch');
+if (platform.stage !== 'serverless-1.0.3' || consumer.quality?.stage !== 'serverless-1.0.3') failures.push('Platform 1.1.2 candidate stage marker missing');
 if (consumer.quality?.finalRelease !== false || consumer.quality?.softwareBaseline !== 'platform-1.1.2-candidate' || consumer.quality?.externalAcceptance !== 'independent-re-audit-pending') failures.push('Candidate / independent acceptance semantics invalid');
 if (platform.securityAudit?.softwareBaselineFinal !== false || platform.securityAudit?.overallGate !== 'AMBER-PLATFORM-1.1.2-ECOSYSTEM-WAVE-CANDIDATE') failures.push('Release status must remain a non-production Platform 1.1.2 ecosystem-wave candidate');
 
@@ -99,10 +101,10 @@ if (!content.includes("CONTENT_DELIVERY_SCHEMA = 'maturita-desk-content-delivery
 if (content.includes('decryptContentPack')) failures.push('Content delivery provider must never decrypt server response');
 if (!registry.includes('createLocalDeviceAuthProvider') || !registry.includes('createSchoolServerAuthProvider') || !registry.includes('createSchoolServerContentProvider')) failures.push('Provider registry incomplete');
 
-if (!main.includes("APP_VERSION = '1.0.2'") || !main.includes('Diagnostika zařízení') || !main.includes('Ověřit / dohledat') || !main.includes('Podpis vydavatele') || !main.includes('RUNTIME_CONFIG.content.confidentialAllowed')) failures.push('Final serverless UX incomplete');
+if (!main.includes("APP_VERSION = '1.0.3'") || !main.includes('Diagnostika zařízení') || !main.includes('Ověřit / dohledat') || !main.includes('Podpis vydavatele') || !main.includes('RUNTIME_CONFIG.content.confidentialAllowed')) failures.push('Final serverless UX incomplete');
 if (!main.includes("document.addEventListener('change', handleChange)") || fs.existsSync(path.join(root,'src/content-import-bridge.js'))) failures.push('Content Pack import must use the final delegated document handler, not the Stage 13 bridge');
 if (main.includes('pilotClassificationAllowed(')) failures.push('Legacy synthetic-only UI classification gate must not control final Content Pack policy');
-if (!diagnostics.includes("PILOT_BUILD = 'serverless-1.0.2'") || !diagnostics.includes('PILOT_SYNTHETIC_ONLY = false') || !diagnostics.includes('SERVERLESS DEVICE DIAGNOSTICS')) failures.push('Device diagnostics model incomplete');
+if (!diagnostics.includes("PILOT_BUILD = 'serverless-1.0.3'") || !diagnostics.includes('PILOT_SYNTHETIC_ONLY = false') || !diagnostics.includes('SERVERLESS DEVICE DIAGNOSTICS')) failures.push('Device diagnostics model incomplete');
 if (!coordinator.includes("SESSION_OWNER_KEY = 'ghrab.maturita-desk.session-owner.v1'") || !coordinator.includes('SESSION_OWNER_STALE_MS = 12000') || !coordinator.includes('claimSessionOwnership') || !main.includes('function setupSessionCoordination') || !main.includes('function takeOverSession')) failures.push('Multi-tab writer guard missing');
 
 if (!worker.includes('FACTCHECK_ACCESS_TOKEN') || !worker.includes('FACTCHECK_GATE_TOKEN') || !worker.includes('FACTCHECK_RATE_LIMITER') || !worker.includes("tools: [{ type: 'web_search'") || !worker.includes('body.query')) failures.push('Serverless Verify/lookup worker contract incomplete');
@@ -151,11 +153,11 @@ if (combined.includes('OPENAI_API_KEY=')) failures.push('OpenAI key assignment i
 if (/data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/=]{200000,}/.test(combined)) failures.push('Large embedded raster media found in public shell');
 
 if (failures.length) {
-  console.error('Maturita Desk 1.0.2 Platform 1.1.2 candidate validation: FAIL');
+  console.error('Maturita Desk 1.0.3 Platform 1.1.2 candidate validation: FAIL');
   failures.forEach(item => console.error(`- ${item}`));
   process.exit(1);
 }
-console.log('Maturita Desk 1.0.2 Platform 1.1.2 candidate validation: PASS');
+console.log('Maturita Desk 1.0.3 Platform 1.1.2 candidate validation: PASS');
 console.log(`Version: ${pkg.version}`);
 console.log('Public shell: no real exam content, passphrase, OpenAI secret or publisher private key.');
 console.log('Origin policy: shared GitHub Pages = demo-only; neutral production hosts require a signed same-origin authorization grant.');

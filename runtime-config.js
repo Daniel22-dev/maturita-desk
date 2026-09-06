@@ -1,5 +1,5 @@
 /*
- * Maturita Desk 1.0.2 - origin-neutral serverless baseline.
+ * Maturita Desk 1.0.3 - origin-neutral serverless baseline.
  * The GitHub Pages shell is public/demo-safe. A neutral isolated HTTPS host can
  * be authorized later by a signed config/origin-authorization.json without
  * changing application source code or moving the GitHub repository.

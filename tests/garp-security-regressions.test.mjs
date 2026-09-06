@@ -49,7 +49,7 @@ assert.match(sessionCoordinator, /suiteSessionPersistenceAllowed\(storage\)/);
 assert.match(authLease, /assertSuiteSessionPersistenceAllowed\(storage\)/);
 assert.match(reviewStore, /assertSuiteSessionPersistenceAllowed\(\)/);
 assert.match(protectedStore, /ghrab\.maturita-desk\.protected-content\.v1/);
-assert.match(sw, /ghrab-maturita-desk-v1\.0\.2/);
+assert.match(sw, /ghrab-maturita-desk-v1\.0\.3/);
 assert.match(sw, /src\/config\/data-manifest\.json/);
 
 // F-02: local phases are distinguishable; Platform retains authority for final seen acknowledgement.

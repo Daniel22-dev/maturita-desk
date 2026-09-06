@@ -4,7 +4,7 @@
     schema: 'ghrab-platform-app-config-v1',
     appId: 'maturita-desk',
     appName: 'Maturita Desk',
-    appVersion: '1.0.2',
+    appVersion: '1.0.3',
     requiredPlatformRange: '>=1.1.2 <2.0.0',
     platformContract: 'ghrab-platform-v1',
     brandVersion: '1.0.0',
@@ -18,7 +18,7 @@
       schema: 'ghrab-quality-consumer-v1',
       accessibilityContract: 'ghrab-a11y-v1',
       performanceContract: 'ghrab-performance-v1',
-      stage: 'serverless-1.0.2'
+      stage: 'serverless-1.0.3'
     }
   });
 })(window);

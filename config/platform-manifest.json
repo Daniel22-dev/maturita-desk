@@ -1,8 +1,8 @@
 {
   "schema": "maturita-desk-platform-manifest-v1",
   "appId": "maturita-desk",
-  "version": "1.0.2",
-  "stage": "serverless-1.0.2",
+  "version": "1.0.3",
+  "stage": "serverless-1.0.3",
   "contentPolicy": {
     "publicShellMayContainExamContent": false,
     "demoContent": "synthetic-only",
@@ -158,7 +158,7 @@
     "standalonePwaDetected": true
   },
   "securityAudit": {
-    "stage": "serverless-1.0.2",
+    "stage": "serverless-1.0.3",
     "candidate": true,
     "independentStage12AuditReceived": true,
     "runtimeConfigFailClosed": "release-pinned mode/environment + signed origin authorization for neutral isolated deployments; network config may only narrow",

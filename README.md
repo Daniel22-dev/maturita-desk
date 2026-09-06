@@ -1,6 +1,6 @@
-# Maturita Desk 1.0.2 — GHRAB Platform 1.1.2 ecosystem-wave candidate
+# Maturita Desk 1.0.3 — GHRAB Platform 1.1.2 ecosystem-wave candidate
 
-Maturita Desk je učitelská PWA pro přípravu a průběh ústní maturitní zkoušky z anglického jazyka. Verze **1.0.2** je kandidát pro koordinovanou release wave **GHRAB Platform 1.1.2**. Zachovává funkční serverless baseline 1.0.1 a přidává suite-level shared-device lifecycle `ghrab-suite-session-v1`, data manifest a fail-closed cleanup vlastních pracovních dat. Tento kandidát zatím není automaticky produkční release.
+Maturita Desk je učitelská PWA pro přípravu a průběh ústní maturitní zkoušky z anglického jazyka. Verze **1.0.3** je kandidát pro koordinovanou release wave **GHRAB Platform 1.1.2**. Zachovává funkční serverless baseline 1.0.1 a přidává suite-level shared-device lifecycle `ghrab-suite-session-v1`, data manifest a fail-closed cleanup vlastních pracovních dat. Tento kandidát zatím není automaticky produkční release.
 
 
 ## GHRAB Platform 1.1.2 a sdílené zařízení
@@ -53,7 +53,7 @@ Podrobnosti: `serverless/SERVERLESS-FACT-CHECK-SETUP.txt`.
 
 ## Budoucí školní server
 
-Architektura `school-server` zůstává připravena pro SSO, centrální autorizaci, automatickou distribuci šifrovaného Content Packu a serverovou Fact Check gateway. Není podmínkou serverless provozu 1.0.2.
+Architektura `school-server` zůstává připravena pro SSO, centrální autorizaci, automatickou distribuci šifrovaného Content Packu a serverovou Fact Check gateway. Není podmínkou serverless provozu 1.0.3.
 
 ## Co znamená „final baseline“
 

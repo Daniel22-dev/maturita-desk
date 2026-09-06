@@ -1,7 +1,7 @@
 {
   "schema": "ghrab-data-manifest-v1",
   "appId": "maturita-desk",
-  "appVersion": "1.0.2",
+  "appVersion": "1.0.3",
   "manifestVersion": 1,
   "dataCategories": [
     "settings",
@@ -131,7 +131,7 @@
     "consumedByRuntime": false,
     "sharedPlatformKeysOwnedByApp": false,
     "clearOnEndWork": false,
-    "note": "Maturita Desk 1.0.2 does not read/write Studio handoff at runtime; shared platform handoff keys are therefore not deleted by app cleanup."
+    "note": "Maturita Desk 1.0.3 does not read/write Studio handoff at runtime; shared platform handoff keys are therefore not deleted by app cleanup."
   },
   "export": {
     "supported": true,
