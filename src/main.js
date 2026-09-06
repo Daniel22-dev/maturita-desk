@@ -19,9 +19,10 @@ import { hasCapability } from './providers/auth-provider.js';
 import { installDeviceRuntime } from './device-runtime.js';
 import { PILOT_BUILD, PILOT_CHECKS, PILOT_STORAGE_KEY, addPilotEvent, capturePilotDevice, createPilotRun, normalizePilotRun, pilotReportText, pilotSummary, recordPilotMetric, serializePilotReport, setPilotCheck } from './pilot.js';
 import { SESSION_OWNER_HEARTBEAT_MS, claimSessionOwnership, readSessionOwner, refreshSessionOwnership, releaseSessionOwnership } from './session-coordinator.js';
+import { installSuiteSessionLifecycle } from './suite-session.js';
 
 const APP_ID = 'maturita-desk';
-const APP_VERSION = '1.0.1';
+const APP_VERSION = '1.0.2';
 const FACT_ACCESS_KEY = 'ghrab.maturita-desk.fact-access.v1';
 const UI_KEY = 'ghrab.maturita-desk.ui-settings.v1';
 const SESSION_KEY = 'ghrab.maturita-desk.session.v1';
@@ -37,6 +38,23 @@ const CONTENT_STORE_ADAPTER = Object.freeze({
   removeActivePack
 });
 const PROVIDERS = createProviderRegistry(RUNTIME_CONFIG, { contentStore: CONTENT_STORE_ADAPTER, getFactAccessToken: loadFactAccessToken });
+
+async function confirmRemoteSuiteLogout() {
+  if (RUNTIME_CONFIG.mode !== 'school-server') return { ok: true, reason: 'not-active' };
+  try {
+    const snapshot = await PROVIDERS.auth.logout();
+    return snapshot?.status === 'signed-out'
+      ? { ok: true, reason: 'server-confirmed' }
+      : { ok: false, reason: String(snapshot?.status || 'logout-unconfirmed') };
+  } catch {
+    return { ok: false, reason: 'logout-error' };
+  }
+}
+
+// Install and fully replay any pending suite end before application-owned persisted
+// state is loaded. This prevents delayed-open resurrection on shared devices.
+const SUITE_LIFECYCLE = await installSuiteSessionLifecycle({ remoteLogout: confirmRemoteSuiteLogout });
+
 let FACT_CHECK_PROVIDER = PROVIDERS.factCheck;
 let deviceRuntimeController = null;
 let sessionChannel = null;
@@ -106,6 +124,33 @@ const state = {
   confirmation: null
 };
 
+SUITE_LIFECYCLE.registerRuntimeReset(async detail => {
+  const previousSessionId = state.session?.id || '';
+  if (previousSessionId) releaseSessionOwnership(localStorage, { instanceId: INSTANCE_ID, sessionId: previousSessionId });
+  state.session = null;
+  state.mode = null;
+  state.screen = 'home';
+  state.drawer = null;
+  state.modal = null;
+  state.factQuery = '';
+  state.factState = 'idle';
+  state.factResult = null;
+  state.factError = '';
+  state.notesSavedAt = 0;
+  state.review.records = new Map();
+  state.review.items = [];
+  state.review.selectedId = null;
+  state.review.error = '';
+  state.pilot = createPilotRun({ appVersion: APP_VERSION, device: capturePilotDevice() });
+  if (state.content.unlocked) state.content.unlocked = null;
+  if (state.content.activeMeta) state.content.status = 'locked';
+  state.runtime.sessionLock = 'suite-session-pending';
+  state.runtime.lifecycle = `suite-end:${String(detail?.generation || '')}`;
+  await releaseWakeLock();
+  try { render(); } catch {}
+  return { ok: true };
+});
+
 applyTheme(state.theme);
 resumeSessionIfPresent();
 render();
@@ -147,6 +192,7 @@ function loadFactAccessToken() {
 function saveFactAccessToken(value) {
   const token = String(value || '').trim();
   if (token.length < 32 || token.length > 256 || !/^[A-Za-z0-9._~+-]+$/.test(token)) return false;
+  if (!SUITE_LIFECYCLE.persistenceAllowed()) return false;
   try { sessionStorage.setItem(FACT_ACCESS_KEY, token); return true; }
   catch { return false; }
 }
@@ -156,6 +202,7 @@ function clearFactAccessToken() {
 }
 
 function savePilotRun() {
+  if (!SUITE_LIFECYCLE.persistenceAllowed()) return false;
   try {
     state.pilot.device = capturePilotDevice();
     localStorage.setItem(PILOT_STORAGE_KEY, JSON.stringify(state.pilot));
@@ -200,6 +247,10 @@ function loadSession() {
 }
 
 function saveSession({ broadcast = true } = {}) {
+  if (!SUITE_LIFECYCLE.persistenceAllowed()) {
+    state.runtime.sessionLock = 'suite-session-pending';
+    return false;
+  }
   if (!state.session) {
     try { localStorage.removeItem(SESSION_KEY); } catch {}
     return true;
@@ -1269,7 +1320,7 @@ function renderHome() {
           <button class="soft-button compact" data-action="open-access">Přístup</button>
           <button class="soft-button compact" data-action="open-content">Content Pack</button>
           <button class="soft-button compact" data-action="open-pilot">Diagnostika</button>
-          <span class="prototype-pill">1.0.1 · Serverless</span>
+          <span class="prototype-pill">1.0.2 · Serverless</span>
           <button class="icon-button" data-action="cycle-theme" aria-label="Změnit vzhled" title="Vzhled: ${escapeHtml(state.theme)}">${icon('theme')}</button>
         </div>
       </div>
@@ -2647,14 +2698,21 @@ function setupKeyboardShortcuts() {
 
 function persistSessionForLifecycle(reason = 'lifecycle') {
   state.runtime.lifecycle = reason;
+  if (!SUITE_LIFECYCLE.persistenceAllowed()) return false;
   pilotEvent('lifecycle.background', { reason });
   if (!state.session) return true;
   if (state.session.status === 'running') touchClock(state.session);
   return saveSession({ broadcast: false });
 }
 
-function restoreSessionForeground(reason = 'foreground') {
+async function restoreSessionForeground(reason = 'foreground') {
   state.runtime.lifecycle = 'active';
+  const reconciled = await SUITE_LIFECYCLE.reconcile(`foreground:${reason}`);
+  if (!reconciled?.ok || !SUITE_LIFECYCLE.persistenceAllowed()) {
+    state.runtime.sessionLock = 'suite-session-pending';
+    syncRootRuntimeFlags();
+    return;
+  }
   pilotEvent('lifecycle.foreground', { reason });
   deviceRuntimeController?.refresh?.();
   if (state.session?.status === 'running') {
@@ -2671,13 +2729,13 @@ function restoreSessionForeground(reason = 'foreground') {
 function setupLifecyclePersistence() {
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') persistSessionForLifecycle('hidden');
-    else restoreSessionForeground('visible');
+    else void restoreSessionForeground('visible');
   });
   document.addEventListener('freeze', () => persistSessionForLifecycle('freeze'));
-  document.addEventListener('resume', () => restoreSessionForeground('resume'));
+  document.addEventListener('resume', () => void restoreSessionForeground('resume'));
   window.addEventListener('pagehide', () => persistSessionForLifecycle('pagehide'));
-  window.addEventListener('pageshow', () => restoreSessionForeground('pageshow'));
-  window.addEventListener('focus', () => restoreSessionForeground('focus'));
+  window.addEventListener('pageshow', () => void restoreSessionForeground('pageshow'));
+  window.addEventListener('focus', () => void restoreSessionForeground('focus'));
   window.addEventListener('beforeunload', () => persistSessionForLifecycle('beforeunload'));
 }
 

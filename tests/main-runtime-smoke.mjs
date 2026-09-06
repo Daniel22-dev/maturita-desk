@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import { createSuitePlatform } from './suite-test-utils.mjs';
 
 class StorageStub {
   constructor() { this.map = new Map(); }
@@ -45,6 +47,10 @@ TOPICS[13].title = 'TOPIC_CANARY_SYNTH';
 let capturedFactRequest = null;
 globalThis.fetch = async (url, options = {}) => {
   const href = String(url || '');
+  if (href.includes('src/config/data-manifest.json')) {
+    const body = fs.readFileSync(new URL('../src/config/data-manifest.json', import.meta.url), 'utf8');
+    return new Response(body, { status: 200, headers: { 'Content-Type': 'application/json' } });
+  }
   if (href.includes('/fact-check')) {
     capturedFactRequest = { url: href, options, body: JSON.parse(options.body || '{}') };
     return new Response(JSON.stringify({
@@ -66,6 +72,7 @@ globalThis.MATURITA_DESK_RUNTIME = {
 };
 globalThis.localStorage = new StorageStub();
 globalThis.sessionStorage = new StorageStub();
+globalThis.GHRAB_PLATFORM = createSuitePlatform(globalThis.localStorage);
 sessionStorage.setItem('ghrab.maturita-desk.fact-access.v1', 'SYNTHETIC-TEACHER-ACCESS-1234567890');
 Object.defineProperty(globalThis, 'navigator', { value: { onLine: true, maxTouchPoints: 5 }, configurable: true });
 Object.defineProperty(globalThis, 'BroadcastChannel', { value: undefined, configurable: true });

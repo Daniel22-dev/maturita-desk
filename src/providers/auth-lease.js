@@ -1,3 +1,5 @@
+import { assertSuiteSessionPersistenceAllowed } from '../suite-session.js';
+
 export const OFFLINE_LEASE_SCHEMA = 'maturita-desk-offline-auth-lease-v1';
 export const SIGNED_LEASE_SCHEMA = 'maturita-desk-signed-auth-lease-v1';
 export const OFFLINE_LEASE_STORAGE_KEY = 'ghrab.maturita-desk.auth-lease.v1';
@@ -14,6 +16,7 @@ export function getOrCreateInstallationId(storage = globalThis.localStorage, cry
 }
 
 export function saveSignedLease(envelope, storage = globalThis.localStorage) {
+  assertSuiteSessionPersistenceAllowed(storage);
   validateSignedLeaseShape(envelope);
   storage?.setItem?.(OFFLINE_LEASE_STORAGE_KEY, JSON.stringify(envelope));
 }

@@ -1,4 +1,5 @@
 import { normalizeReviewRecord } from './review-model.js';
+import { assertSuiteSessionPersistenceAllowed } from './suite-session.js';
 
 const DB_NAME = 'ghrab.maturita-desk.pedagogical-review.v1';
 const DB_VERSION = 1;
@@ -21,6 +22,7 @@ export async function loadReviewRecords(packId, contentVersion) {
 }
 
 export async function saveReviewRecord(packId, contentVersion, rawRecord) {
+  assertSuiteSessionPersistenceAllowed();
   requirePackRef(packId, contentVersion);
   const record = normalizeReviewRecord(rawRecord);
   if (!record) throw new Error('Revizní záznam není platný.');
@@ -66,6 +68,7 @@ export async function clearReviewRecords(packId, contentVersion) {
 }
 
 export async function importReviewRecords(packId, contentVersion, records) {
+  assertSuiteSessionPersistenceAllowed();
   requirePackRef(packId, contentVersion);
   const normalized = (Array.isArray(records) ? records : []).map(normalizeReviewRecord).filter(Boolean);
   const existing = new Map((await loadReviewRecords(packId, contentVersion)).map(record => [record.itemId, record]));

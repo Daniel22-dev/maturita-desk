@@ -1,0 +1,181 @@
+{
+  "schema": "ghrab-data-manifest-v1",
+  "appId": "maturita-desk",
+  "appVersion": "1.0.2",
+  "manifestVersion": 1,
+  "dataCategories": [
+    "settings",
+    "working-content",
+    "diagnostics",
+    "credentials",
+    "session-state",
+    "protected-content",
+    "review-content",
+    "security-state"
+  ],
+  "privacy": {
+    "studentContentMayOccur": true,
+    "studentIdentityFieldsRequired": false,
+    "telemetryContainsContentByDefault": false,
+    "decryptedExamContentPersisted": false,
+    "passphrasePersisted": false,
+    "pseudonymisationIsNotAnonymisation": true
+  },
+  "stores": [
+    {
+      "kind": "localStorage",
+      "category": "working-content",
+      "patterns": ["ghrab.maturita-desk.session.v1"],
+      "sensitivity": "potentially-student-related",
+      "authority": "client",
+      "clearOnEndWork": true,
+      "note": "Exam/practice runtime including Notes and timing/session recovery."
+    },
+    {
+      "kind": "localStorage",
+      "category": "session-state",
+      "patterns": ["ghrab.maturita-desk.session-owner.v1"],
+      "sensitivity": "non-content-session-coordination",
+      "authority": "client",
+      "clearOnEndWork": true,
+      "note": "Multi-tab writer lease; must not survive suite-session termination."
+    },
+    {
+      "kind": "localStorage",
+      "category": "diagnostics",
+      "patterns": ["ghrab.maturita-desk.pilot-run.v1"],
+      "sensitivity": "potentially-user-authored-diagnostics",
+      "authority": "client",
+      "clearOnEndWork": true,
+      "note": "Device/pilot diagnostics can contain free-form synthetic/manual notes."
+    },
+    {
+      "kind": "localStorage",
+      "category": "credential",
+      "patterns": ["ghrab.maturita-desk.auth-lease.v1"],
+      "sensitivity": "credential-session",
+      "authority": "client",
+      "clearOnEndWork": true,
+      "note": "Signed offline authorization lease."
+    },
+    {
+      "kind": "localStorage",
+      "category": "device-security-state",
+      "patterns": ["ghrab.maturita-desk.installation-id.v1"],
+      "sensitivity": "pseudonymous-device-identifier",
+      "authority": "client",
+      "clearOnEndWork": false,
+      "note": "Logical installation binding for future school-server offline authorization; does not grant access by itself."
+    },
+    {
+      "kind": "localStorage",
+      "category": "settings",
+      "patterns": ["ghrab.maturita-desk.ui-settings.v1", "ghrab.maturita-desk.theme.v1"],
+      "sensitivity": "non-content-setting",
+      "authority": "client",
+      "clearOnEndWork": false
+    },
+    {
+      "kind": "localStorage",
+      "category": "security-state",
+      "patterns": ["ghrab.maturita-desk.suite-session-seen.v1", "ghrab.maturita-desk.suite-session-status.v1"],
+      "sensitivity": "non-content-security-state",
+      "authority": "client+platform",
+      "clearOnEndWork": false,
+      "note": "Per-app acknowledgement and F-02 lifecycle evidence. Must survive cleanup to prevent replay loops and distinguish observed/cleaned/acknowledged states."
+    },
+    {
+      "kind": "sessionStorage",
+      "category": "credential",
+      "patterns": ["ghrab.maturita-desk.fact-access.v1"],
+      "sensitivity": "credential-session",
+      "authority": "client",
+      "clearOnEndWork": true,
+      "note": "Temporary teacher access token for isolated Fact Check deployment; never an OpenAI API key."
+    },
+    {
+      "kind": "indexedDB",
+      "category": "protected-content",
+      "patterns": ["ghrab.maturita-desk.protected-content.v1"],
+      "sensitivity": "encrypted-confidential-exam-content",
+      "authority": "client",
+      "clearOnEndWork": false,
+      "note": "Encrypted signed Content Pack intentionally persists across sessions; plaintext/passphrase are memory-only."
+    },
+    {
+      "kind": "indexedDB",
+      "category": "review-content",
+      "patterns": ["ghrab.maturita-desk.pedagogical-review.v1"],
+      "sensitivity": "potentially-user-authored-working-content",
+      "authority": "client",
+      "clearOnEndWork": true,
+      "note": "Local pedagogical review decisions/notes are working content and are deleted as an app-owned database on suite end."
+    },
+    {
+      "kind": "cacheStorage",
+      "category": "application-cache",
+      "patterns": ["ghrab-maturita-desk-v*"],
+      "sensitivity": "non-content-static-cache",
+      "authority": "client",
+      "clearOnEndWork": false,
+      "note": "Explicit static/core allowlist; protected content, API routes, .mdesk and .mdreview are excluded from cache."
+    }
+  ],
+  "memory": {
+    "clearOnEndWork": true,
+    "paths": ["state.session", "state.factQuery", "state.factResult", "state.review.records", "state.content.unlocked", "state.pilot"],
+    "note": "Open-tab runtime reset is part of the suite-session handler; persistence writers also fail closed on generation mismatch."
+  },
+  "handoff": {
+    "contract": "ghrab-studio-handoff-v2",
+    "consumedByRuntime": false,
+    "sharedPlatformKeysOwnedByApp": false,
+    "clearOnEndWork": false,
+    "note": "Maturita Desk 1.0.2 does not read/write Studio handoff at runtime; shared platform handoff keys are therefore not deleted by app cleanup."
+  },
+  "export": {
+    "supported": true,
+    "requiresExplicitUserAction": true,
+    "includesSecrets": false,
+    "artifactTypes": ["maturita-desk-review-patch", "maturita-desk-pilot-report"],
+    "nativeFormats": ["mdreview", "json", "txt"],
+    "browserDownloadedFilesControlledByCleanup": false
+  },
+  "import": {
+    "supported": true,
+    "artifactTypes": ["maturita-desk-content-pack", "maturita-desk-review-patch"],
+    "nativeFormats": ["mdesk", "mdreview"],
+    "schemaAndIntegrityValidationRequired": true
+  },
+  "deletion": {
+    "supported": true,
+    "suiteSessionContract": "ghrab-suite-session-v1",
+    "clientVerified": true,
+    "remoteSchoolLogout": "required-when-school-server-mode-active"
+  },
+  "sharedDevice": {
+    "supported": true,
+    "control": "GHRABPlatform.session.onEnd()",
+    "failClosedWriterGuard": true,
+    "delayedOpenReplay": true,
+    "multiTabAware": true
+  },
+  "ownership": {
+    "localStoragePatterns": ["ghrab.maturita-desk.*"],
+    "sessionStoragePatterns": ["ghrab.maturita-desk.*"],
+    "indexedDbNames": ["ghrab.maturita-desk.protected-content.v1", "ghrab.maturita-desk.pedagogical-review.v1"],
+    "cacheStoragePatterns": ["ghrab-maturita-desk-v*"],
+    "reservedSharedKeys": ["ghrab.platform.suite-session-generation.v1", "ghrab.platform.handoff.v2", "ghrab.handoff.v1"],
+    "note": "Cleanup uses only explicit app-owned entries marked clearOnEndWork=true; shared platform tombstones/handoff state are not blindly removed."
+  },
+  "sharedPlatformState": {
+    "suiteSessionGeneration": {
+      "key": "ghrab.platform.suite-session-generation.v1",
+      "schema": "ghrab-suite-session-v1",
+      "sensitivity": "non-content-security-state",
+      "authority": "shared-platform-client",
+      "ownedByApp": false,
+      "clearOnEndWork": false
+    }
+  }
+}

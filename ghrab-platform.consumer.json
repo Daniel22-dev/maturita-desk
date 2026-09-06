@@ -2,11 +2,11 @@
   "schema": "ghrab-platform-consumer-v1",
   "appId": "maturita-desk",
   "appName": "Maturita Desk",
-  "appVersion": "1.0.1",
+  "appVersion": "1.0.2",
   "platform": {
-    "version": "1.1.0",
+    "version": "1.1.2",
     "contract": "ghrab-platform-v1",
-    "requiredRange": ">=1.1.0 <2.0.0",
+    "requiredRange": ">=1.1.2 <2.0.0",
     "compatibilityWindow": [
       "1.1.x",
       "1.2.x"
@@ -52,7 +52,7 @@
     ]
   },
   "cache": {
-    "name": "ghrab-maturita-desk-v1.0.1",
+    "name": "ghrab-maturita-desk-v1.0.2",
     "updateMessage": "GHRAB_SKIP_WAITING"
   },
   "quality": {
@@ -73,16 +73,27 @@
         320
       ]
     },
-    "stage": "serverless-1.0.1",
-    "finalRelease": true,
+    "stage": "serverless-1.0.2",
+    "finalRelease": false,
     "cleanInstallRequired": false,
-    "softwareBaseline": "feature-complete",
-    "externalAcceptance": "pending"
+    "softwareBaseline": "platform-1.1.2-candidate",
+    "externalAcceptance": "independent-re-audit-pending"
   },
   "deployment": {
     "standalonePwa": true,
     "aiStudioEntry": true,
     "sourceRepository": "Daniel22-dev/maturita-desk",
     "productionOriginPolicy": "signed-isolated-origin-authorization"
+  },
+  "brand": {
+    "version": "1.0.0",
+    "logo": "assets/brand/school-logo.png",
+    "footerContract": "ghrab-footer-v1"
+  },
+  "suiteSession": {
+    "contract": "ghrab-suite-session-v1",
+    "dataManifest": "src/config/data-manifest.json",
+    "cleanupModule": "src/suite-session.js",
+    "acknowledgement": "platform-seen-plus-app-status-v1"
   }
 }

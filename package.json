@@ -1,10 +1,18 @@
 {
   "name": "maturita-desk",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "type": "module",
-  "description": "Maturita Desk 1.0.1 final serverless software baseline: encrypted signed Content Packs, offline-capable exam/practice workflow, device diagnostics, and serverless-ready Verify / Lookup.",
+  "description": "Maturita Desk 1.0.2 candidate for GHRAB Platform 1.1.2 ecosystem release wave: encrypted signed Content Packs, offline exam/practice workflow, and fail-closed shared-device suite cleanup.",
   "scripts": {
-    "test": "node scripts/validate.mjs && node scripts/security-scan.mjs && node tests/exam-engine.test.mjs && node tests/notes.test.mjs && node tests/content-validator.test.mjs && node tests/rich-content.test.mjs && node tests/content-pack.test.mjs && node tests/review-model.test.mjs && node tests/review-patch.test.mjs && node tests/fact-check.test.mjs && node tests/response-limits.test.mjs && node tests/fact-check-worker.test.mjs && node tests/runtime-config.test.mjs && node tests/runtime-pair.test.mjs && node tests/origin-authorization.test.mjs && node tests/serverless-final.test.mjs && node tests/auth-provider.test.mjs && node tests/content-provider.test.mjs && node tests/provider-registry.test.mjs && node tests/server-mode-integration.test.mjs && node tests/device-runtime.test.mjs && node tests/device-session-resume.test.mjs && node tests/pwa-hardening.test.mjs && node tests/security-stage12.test.mjs && node tests/claude-stage12-findings.test.mjs && node tests/ai-red-structural.test.mjs && node tests/pilot.test.mjs && node tests/session-coordinator.test.mjs && node tests/main-multitab-smoke.mjs && node tests/main-runtime-smoke.mjs"
+    "test": "node scripts/validate.mjs && node scripts/security-scan.mjs && node tests/exam-engine.test.mjs && node tests/notes.test.mjs && node tests/content-validator.test.mjs && node tests/rich-content.test.mjs && node tests/content-pack.test.mjs && node tests/review-model.test.mjs && node tests/review-patch.test.mjs && node tests/fact-check.test.mjs && node tests/response-limits.test.mjs && node tests/fact-check-worker.test.mjs && node tests/runtime-config.test.mjs && node tests/runtime-pair.test.mjs && node tests/origin-authorization.test.mjs && node tests/serverless-final.test.mjs && node tests/auth-provider.test.mjs && node tests/content-provider.test.mjs && node tests/provider-registry.test.mjs && node tests/server-mode-integration.test.mjs && node tests/device-runtime.test.mjs && node tests/device-session-resume.test.mjs && node tests/pwa-hardening.test.mjs && node tests/security-stage12.test.mjs && node tests/claude-stage12-findings.test.mjs && node tests/ai-red-structural.test.mjs && node tests/pilot.test.mjs && node tests/session-coordinator.test.mjs && node tests/main-multitab-smoke.mjs && node tests/main-runtime-smoke.mjs && node scripts/ghrab-platform-conformance.mjs && node tests/suite-session-core.test.mjs && node tests/garp-security-regressions.test.mjs && node tests/accessibility-static.test.mjs",
+    "qa:platform": "node scripts/ghrab-platform-conformance.mjs",
+    "qa:quality": "node scripts/validate.mjs && node scripts/ghrab-platform-conformance.mjs && node tests/accessibility-static.test.mjs",
+    "qa:security": "node scripts/security-scan.mjs && node tests/security-stage12.test.mjs && node tests/garp-security-regressions.test.mjs && node tests/ai-red-structural.test.mjs",
+    "qa:pwa": "node tests/pwa-hardening.test.mjs",
+    "qa:xss": "node tests/security-stage12.test.mjs && node tests/content-validator.test.mjs && node tests/rich-content.test.mjs",
+    "qa:runtime": "node tests/main-runtime-smoke.mjs && node tests/main-multitab-smoke.mjs && node tests/suite-session-core.test.mjs",
+    "qa:accessibility": "node tests/accessibility-static.test.mjs",
+    "qa:release": "npm test"
   }
 }

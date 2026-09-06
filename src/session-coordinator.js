@@ -1,3 +1,5 @@
+import { suiteSessionPersistenceAllowed } from './suite-session.js';
+
 export const SESSION_OWNER_SCHEMA = 'maturita-desk-session-owner-v1';
 export const SESSION_OWNER_KEY = 'ghrab.maturita-desk.session-owner.v1';
 export const SESSION_OWNER_STALE_MS = 12000;
@@ -17,6 +19,7 @@ export function readSessionOwner(storage, now = Date.now()) {
 
 export function claimSessionOwnership(storage, { instanceId, sessionId, now = Date.now(), force = false } = {}) {
   requireIds(instanceId, sessionId);
+  if (!suiteSessionPersistenceAllowed(storage)) return { ok: false, reason: 'suite-session-pending', owner: readSessionOwner(storage, now) };
   const current = readSessionOwner(storage, now);
   if (!force && current?.fresh && current.instanceId !== instanceId) return { ok: false, reason: 'owned-by-other', owner: current };
   const next = ownerRecord(instanceId, sessionId, now);
@@ -32,6 +35,7 @@ export function claimSessionOwnership(storage, { instanceId, sessionId, now = Da
 
 export function refreshSessionOwnership(storage, { instanceId, sessionId, now = Date.now() } = {}) {
   requireIds(instanceId, sessionId);
+  if (!suiteSessionPersistenceAllowed(storage)) return { ok: false, reason: 'suite-session-pending', owner: readSessionOwner(storage, now) };
   const current = readSessionOwner(storage, now);
   if (current?.fresh && current.instanceId !== instanceId) return { ok: false, reason: 'owned-by-other', owner: current };
   if (current && current.instanceId === instanceId && current.sessionId !== sessionId && current.fresh) return { ok: false, reason: 'instance-session-mismatch', owner: current };

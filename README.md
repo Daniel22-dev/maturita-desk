@@ -1,6 +1,15 @@
-# Maturita Desk 1.0.1 — Serverless Final Baseline
+# Maturita Desk 1.0.2 — GHRAB Platform 1.1.2 ecosystem-wave candidate
 
-Maturita Desk je učitelská PWA pro přípravu a průběh ústní maturitní zkoušky z anglického jazyka. Verze **1.0.1** je aktualizovana **feature-complete serverless software baseline**. Od této verze se další běžné změny vedou jako aktualizace 1.0.x/1.x, ne jako další vývojové Stage.
+Maturita Desk je učitelská PWA pro přípravu a průběh ústní maturitní zkoušky z anglického jazyka. Verze **1.0.2** je kandidát pro koordinovanou release wave **GHRAB Platform 1.1.2**. Zachovává funkční serverless baseline 1.0.1 a přidává suite-level shared-device lifecycle `ghrab-suite-session-v1`, data manifest a fail-closed cleanup vlastních pracovních dat. Tento kandidát zatím není automaticky produkční release.
+
+
+## GHRAB Platform 1.1.2 a sdílené zařízení
+
+Aplikace načítá přesnou vendor vrstvu Platform 1.1.2 z referenčního AI Studia 0.21.40. Při suite-level „Ukončit práci“ reaguje přes `GHRAB_PLATFORM.session.onEnd(...)`, načte `src/config/data-manifest.json` a maže pouze přesné app-owned položky s `clearOnEndWork: true`. Writer guard kontroluje suite generation, takže stale/BFCache/multi-tab kontext nesmí po ukončení relace obnovit starý pracovní obsah.
+
+Šifrovaný podepsaný Content Pack, statické PWA cache, instalační ID, legitimní UI nastavení a lifecycle tombstones se bez důvodu nemažou. School-server logout je při aktivním school-server režimu součástí fail-closed cleanupu a musí být serverem potvrzen.
+
+F-02 je lokálně rozlišen stavem `observed -> cleanup-complete -> acknowledged`; finální per-app acknowledgement zapisuje až Platform 1.1.2 po úspěšném handleru. F-03 (same-origin schopnost kompromitovaného skriptu ovlivnit sdílený tombstone/ack jiné aplikace) zůstává ekosystémovou trust-boundary otázkou, nikoli vlastností, kterou může child aplikace sama kryptograficky vyřešit.
 
 ## Běžný serverless provoz
 
@@ -44,7 +53,7 @@ Podrobnosti: `serverless/SERVERLESS-FACT-CHECK-SETUP.txt`.
 
 ## Budoucí školní server
 
-Architektura `school-server` zůstává připravena pro SSO, centrální autorizaci, automatickou distribuci šifrovaného Content Packu a serverovou Fact Check gateway. Není podmínkou serverless provozu 1.0.1.
+Architektura `school-server` zůstává připravena pro SSO, centrální autorizaci, automatickou distribuci šifrovaného Content Packu a serverovou Fact Check gateway. Není podmínkou serverless provozu 1.0.2.
 
 ## Co znamená „final baseline“
 

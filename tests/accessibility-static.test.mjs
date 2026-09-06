@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const root = new URL('../', import.meta.url);
+const read = rel => fs.readFileSync(new URL(rel, root), 'utf8');
+const index = read('index.html');
+const main = read('src/main.js');
+const css = read('src/styles.css');
+assert.match(index, /<html lang="cs"/);
+assert.match(index, /name="viewport"/);
+assert.doesNotMatch(index, /user-scalable\s*=\s*no|maximum-scale\s*=\s*1/i);
+assert.match(index, /aria-live="polite"/);
+assert.match(main, /aria-label=/);
+assert.match(main, /role="dialog"|aria-modal="true"/);
+assert.match(css, /:focus-visible|focus-visible/);
+assert.match(css, /min-height:\s*44px/);
+console.log('Accessibility static smoke: PASS (language, zoom, live region, labels/dialog semantics, focus/touch targets).');

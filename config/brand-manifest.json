@@ -1,6 +1,6 @@
 {
   "schema": "ghrab-brand-release-v1",
-  "brandVersion": "1.0.1",
+  "brandVersion": "1.0.0",
   "owner": "Gymnázium, Ostrava-Hrabůvka",
   "author": "Daniel Baláž",
   "appIdentity": {
@@ -13,5 +13,9 @@
     "ownerLine": "Autor a vývojový garant: Daniel Baláž",
     "schoolLine": "Gymnázium, Ostrava-Hrabůvka · Součást AI Studia GHRAB"
   },
-  "note": "Kanonické školní logo bude připojeno při integrační etapě; Stage 6 používá pouze vlastní značku aplikace; kanonické školní logo se připojí v integrační etapě."
+  "note": "Kanonické školní logo převzato beze změny z referenční GHRAB Platform 1.1.2.",
+  "canonicalSchoolLogo": {
+    "path": "../assets/brand/school-logo.png",
+    "source": "GHRAB Platform 1.1.2 reference bundle"
+  }
 }

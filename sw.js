@@ -1,16 +1,26 @@
 const GHRAB_SW_CONTRACT = 'ghrab-service-worker-v1';
-const CACHE_NAME = 'ghrab-maturita-desk-v1.0.1';
+const CACHE_NAME = 'ghrab-maturita-desk-v1.0.2';
 const CACHE_PREFIXES = ['ghrab-maturita-desk-v'];
 const CORE_ASSETS = [
   './',
   './index.html',
   './manifest.webmanifest',
   './ghrab-platform.consumer.json',
+  './platform-build-info.json',
+  './ghrab/ghrab-platform.js',
+  './ghrab/ghrab-platform.css',
+  './ghrab/ghrab-platform-manifest-1.1.2.json',
+  './ghrab/ghrab-artifact-envelope-v1.schema.json',
+  './ghrab/ghrab-app-registry-v2.schema.json',
+  './assets/brand/school-logo.png',
   './runtime-config.js',
   './config/origin-authorization.json',
   './config/brand-manifest.json',
   './config/platform-manifest.json',
   './src/main.js',
+  './src/platform-config.js',
+  './src/suite-session.js',
+  './src/config/data-manifest.json',
   './src/demo-content.js',
   './src/exam-engine.js',
   './src/notes.js',
@@ -150,6 +160,8 @@ self.addEventListener('fetch', event => {
   if (!isCoreAsset(url, scopePath)) return;
   if (url.pathname.endsWith('/manifest.webmanifest') ||
       url.pathname.endsWith('/ghrab-platform.consumer.json') ||
+      url.pathname.endsWith('/platform-build-info.json') ||
+      url.pathname.endsWith('/src/config/data-manifest.json') ||
       url.pathname.endsWith('/runtime-config.js') ||
       url.pathname.endsWith('/config/origin-authorization.json')) {
     event.respondWith(networkFirstCore(request));

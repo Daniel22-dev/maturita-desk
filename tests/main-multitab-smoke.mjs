@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import { createSuitePlatform } from './suite-test-utils.mjs';
 import { SESSION_OWNER_KEY, SESSION_OWNER_SCHEMA } from '../src/session-coordinator.js';
 
 class StorageStub {
@@ -41,6 +43,16 @@ globalThis.MATURITA_DESK_RUNTIME = {
   factCheck:{ provider:'isolated-http', endpoint:'', timeoutMs:18000 }
 };
 globalThis.localStorage = storage;
+globalThis.sessionStorage = new StorageStub();
+globalThis.GHRAB_PLATFORM = createSuitePlatform(storage);
+globalThis.fetch = async (url) => {
+  const href = String(url || '');
+  if (href.includes('src/config/data-manifest.json')) {
+    const body = fs.readFileSync(new URL('../src/config/data-manifest.json', import.meta.url), 'utf8');
+    return new Response(body, { status: 200, headers: { 'Content-Type': 'application/json' } });
+  }
+  throw new Error(`Unexpected fetch in multi-tab smoke: ${href}`);
+};
 Object.defineProperty(globalThis,'navigator',{value:{onLine:true,maxTouchPoints:5},configurable:true});
 Object.defineProperty(globalThis,'BroadcastChannel',{value:BroadcastChannelStub,configurable:true});
 globalThis.window = {
