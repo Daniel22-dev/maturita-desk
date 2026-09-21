@@ -5,7 +5,7 @@ const origin = 'https://teacher.example';
 const gate = 'synthetic-gate-token-32-characters-minimum-0001';
 const limiter = { async limit() { return { success: true }; } };
 const env = {
-  OPENAI_API_KEY: 'test-secret-not-real',
+  OPENAI_API_KEY: 'EXAMPLE_NOT_A_REAL_KEY',
   OPENAI_FACTCHECK_MODEL: 'gpt-5.6-terra',
   ALLOWED_ORIGINS: origin,
   FACTCHECK_GATE_TOKEN: gate,
@@ -61,7 +61,7 @@ assert.equal('session' in capturedUpstream.body, false);
 
 const directAccess = 'synthetic-direct-access-token-00000000000001';
 const directEnv = {
-  OPENAI_API_KEY: 'test-secret-not-real',
+  OPENAI_API_KEY: 'EXAMPLE_NOT_A_REAL_KEY',
   OPENAI_FACTCHECK_MODEL: 'gpt-5.6-terra',
   ALLOWED_ORIGINS: origin,
   FACTCHECK_ACCESS_TOKEN: directAccess,
