@@ -17,6 +17,10 @@ const errors = [];
 const passed = [];
 const run = (s, a) => spawnSync(process.execPath, [path.join(here, s), ...a], { encoding: 'utf8' });
 const runEnv = (s, a, env) => spawnSync(process.execPath, [path.join(here, s), ...a], { encoding: 'utf8', env: { ...process.env, ...env } });
+const runWithoutGhrabEnv = (s, a) => {
+  const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('GHRAB_')));
+  return spawnSync(process.execPath, [path.join(here, s), ...a], { encoding: 'utf8', env });
+};
 const expect = (name, cond) => { if (cond) passed.push(name); else errors.push(name); };
 
 function crc32(buffer) {
@@ -152,7 +156,7 @@ try {
   // --- provenance
   const artifact = path.join(t, 'build.zip');
   await writeFile(artifact, 'synthetic-artifact');
-  run('create-build-provenance.mjs', [artifact, path.join(t, 'prov-local.json')]);
+  runWithoutGhrabEnv('create-build-provenance.mjs', [artifact, path.join(t, 'prov-local.json')]);
   r = run('verify-build-provenance.mjs', [artifact, path.join(t, 'prov-local.json')]);
   expect('NC-untrusted-local-builder-rejected', r.status !== 0);
   r = run('verify-build-provenance.mjs', [artifact, path.join(t, 'prov-local.json'), '--allow-local-builder']);
