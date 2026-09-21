@@ -1,0 +1,73 @@
+name: Maturita Desk P5 release gate
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [candidate, main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  p5-release-gate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.22.2
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Set deterministic build time
+        shell: bash
+        run: echo "SOURCE_DATE_EPOCH=$(git show -s --format=%ct HEAD)" >> "$GITHUB_ENV"
+      - name: Run application regression suite
+        run: npm test
+      - name: Run GARP 2.5.1 tooling selftest
+        run: npm run qa:garp25:tooling
+      - name: Verify workflow supply-chain policy
+        run: npm run qa:garp25:pinned
+      - name: Scan source secrets
+        run: npm run qa:garp25:secrets
+      - name: Build clean Pages artifact
+        run: npm run build:pages
+      - name: Verify Studio manifest
+        run: npm run verify:studio-manifest -- dist-pages/studio-manifest.json
+      - name: Scan deployment artifact
+        run: npm run qa:garp25:deployment
+      - name: Verify Safe Promotion topology
+        run: npm run qa:safe-promotion
+      - name: Verify auto-patch topology
+        run: npm run qa:auto-patch-topology
+      - name: Verify AI Studio dispatch contract
+        run: npm run test:studio-dispatch
+      - name: Build exact PREP release identity
+        if: github.event_name != 'pull_request'
+        env:
+          GHRAB_SOURCE_REPOSITORY: ${{ github.repository }}
+          GHRAB_SOURCE_COMMIT: ${{ github.sha }}
+          GHRAB_BUILD_ID: p5-${{ github.run_id }}-${{ github.run_attempt }}
+          GHRAB_WORKFLOW_REF: ${{ github.workflow_ref }}
+          GHRAB_RELEASE_STAGE: PREP-VALIDATION
+        run: |
+          npm run prepare:pages
+          npm run verify:release-chain
+      - name: Upload P5 evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: maturita-desk-p5-${{ github.sha }}
+          path: |
+            dist-pages/studio-manifest.json
+            dist-pages/release-integrity.json
+            dist-pages/sbom.cdx.json
+            dist-pages/build-provenance.json
+            dist-pages/security-evidence-manifest.json
+            qa-results/release-current/**
+          if-no-files-found: ignore
