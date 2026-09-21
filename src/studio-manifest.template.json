@@ -20,9 +20,18 @@
   "icon": "assets/apps/maturita-desk.png",
   "accent": "#4b263d",
   "tags": [
-    { "cs": "AJ · maturita", "en": "EN · Matura" },
-    { "cs": "Ústní zkouška", "en": "Oral exam" },
-    { "cs": "Demo obsah", "en": "Demo content" }
+    {
+      "cs": "AJ · maturita",
+      "en": "EN · Matura"
+    },
+    {
+      "cs": "Ústní zkouška",
+      "en": "Oral exam"
+    },
+    {
+      "cs": "Demo obsah",
+      "en": "Demo content"
+    }
   ],
   "capabilities": [
     "oral-exam",
@@ -76,5 +85,11 @@
     "contract": "ghrab-suite-session-v1",
     "cleanup": "data-manifest-clearOnEndWork-only",
     "acknowledgement": "platform-seen-after-successful-cleanup"
+  },
+  "releaseIdentity": {
+    "contract": "ghrab-release-integrity-v2",
+    "url": "./release-integrity.json",
+    "appId": "maturita-desk",
+    "version": "__APP_VERSION__"
   }
 }

@@ -21,3 +21,5 @@ test-results/
 # Publisher private signing keys are release secrets
 *.private.jwk
 publisher-private/
+dist-pages/
+qa-results/

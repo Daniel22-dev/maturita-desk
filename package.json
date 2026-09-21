@@ -1,9 +1,9 @@
 {
   "name": "maturita-desk",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "private": true,
   "type": "module",
-  "description": "Maturita Desk 1.0.3 candidate for GHRAB Platform 1.1.2 ecosystem release wave: encrypted signed Content Packs, offline exam/practice workflow, and fail-closed shared-device suite cleanup.",
+  "description": "Maturita Desk 1.0.4 candidate for GHRAB Platform 1.1.2 ecosystem release wave: encrypted signed Content Packs, offline exam/practice workflow, and fail-closed shared-device suite cleanup.",
   "scripts": {
     "pretest": "node scripts/generate-studio-manifest.mjs",
     "test": "node scripts/validate.mjs && node scripts/security-scan.mjs && node tests/exam-engine.test.mjs && node tests/notes.test.mjs && node tests/content-validator.test.mjs && node tests/rich-content.test.mjs && node tests/content-pack.test.mjs && node tests/review-model.test.mjs && node tests/review-patch.test.mjs && node tests/fact-check.test.mjs && node tests/response-limits.test.mjs && node tests/fact-check-worker.test.mjs && node tests/runtime-config.test.mjs && node tests/runtime-pair.test.mjs && node tests/origin-authorization.test.mjs && node tests/serverless-final.test.mjs && node tests/auth-provider.test.mjs && node tests/content-provider.test.mjs && node tests/provider-registry.test.mjs && node tests/server-mode-integration.test.mjs && node tests/device-runtime.test.mjs && node tests/device-session-resume.test.mjs && node tests/pwa-hardening.test.mjs && node tests/security-stage12.test.mjs && node tests/claude-stage12-findings.test.mjs && node tests/ai-red-structural.test.mjs && node tests/pilot.test.mjs && node tests/session-coordinator.test.mjs && node tests/main-multitab-smoke.mjs && node tests/main-runtime-smoke.mjs && node scripts/ghrab-platform-conformance.mjs && node tests/suite-session-core.test.mjs && node tests/garp-security-regressions.test.mjs && node tests/accessibility-static.test.mjs",
@@ -14,6 +14,21 @@
     "qa:xss": "node tests/security-stage12.test.mjs && node tests/content-validator.test.mjs && node tests/rich-content.test.mjs",
     "qa:runtime": "node tests/main-runtime-smoke.mjs && node tests/main-multitab-smoke.mjs && node tests/suite-session-core.test.mjs",
     "qa:accessibility": "node tests/accessibility-static.test.mjs",
-    "qa:release": "npm test"
+    "qa:release": "npm test",
+    "build:pages": "node scripts/build-pages-profile.mjs",
+    "verify:studio-manifest": "node scripts/verify-studio-manifest-contract.mjs",
+    "qa:garp25:tooling": "node security/garp25/tools/selftest-garp251.mjs",
+    "qa:garp25:pinned": "node scripts/qa-garp25-pinned-inputs.mjs",
+    "qa:garp25:secrets": "node security/garp25/tools/scan-source-secrets.mjs .",
+    "qa:garp25:deployment": "node security/garp25/tools/scan-deployment-leaks.mjs dist-pages",
+    "qa:garp25:static": "npm run qa:garp25:tooling && npm run qa:garp25:pinned && npm run qa:garp25:secrets && npm run test && npm run build:pages && npm run verify:studio-manifest && npm run qa:garp25:deployment",
+    "prepare:pages": "node scripts/create-pages-release-identity.mjs",
+    "verify:release-chain": "node scripts/verify-release-chain.mjs",
+    "qa:safe-promotion": "node scripts/qa-safe-promotion.mjs",
+    "test:studio-dispatch": "node scripts/test-ai-studio-dispatch.mjs",
+    "qa:auto-patch-topology": "node scripts/qa-auto-patch-notification.mjs"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }
