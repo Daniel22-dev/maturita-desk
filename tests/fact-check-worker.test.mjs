@@ -59,17 +59,17 @@ assert.equal('topic' in capturedUpstream.body, false);
 assert.equal('notes' in capturedUpstream.body, false);
 assert.equal('session' in capturedUpstream.body, false);
 
-const directAccess = 'synthetic-direct-access-token-00000000000001';
+const DIRECT_ACCESS_TOKEN_FIXTURE = 'synthetic-direct-access-token-00000000000001';
 const directEnv = {
   OPENAI_API_KEY: 'EXAMPLE_NOT_A_REAL_KEY',
   OPENAI_FACTCHECK_MODEL: 'gpt-5.6-terra',
   ALLOWED_ORIGINS: origin,
-  FACTCHECK_ACCESS_TOKEN: directAccess,
+  FACTCHECK_ACCESS_TOKEN: DIRECT_ACCESS_TOKEN_FIXTURE,
   FACTCHECK_RATE_LIMITER: limiter
 };
 const directRequest = new Request('https://worker.example/fact-check', {
   method: 'POST',
-  headers: { Origin: origin, 'Content-Type': 'application/json', 'X-Maturita-Desk-Access': directAccess },
+  headers: { Origin: origin, 'Content-Type': 'application/json', 'X-Maturita-Desk-Access': DIRECT_ACCESS_TOKEN_FIXTURE },
   body: JSON.stringify({ query: 'Who is the current synthetic office holder?' })
 });
 const directResponse = await handleFactCheckRequest(directRequest, directEnv, async () => new Response(JSON.stringify({
@@ -83,7 +83,7 @@ const directMissingToken = await handleFactCheckRequest(new Request('https://wor
 }), directEnv, mockOpenAI);
 assert.equal(directMissingToken.status, 401);
 const ambiguousAuth = await handleFactCheckRequest(new Request('https://worker.example/fact-check', {
-  method: 'POST', headers: { Origin: origin, 'Content-Type': 'application/json', 'X-Maturita-Desk-Access': directAccess }, body: JSON.stringify({ query: 'A fact' })
+  method: 'POST', headers: { Origin: origin, 'Content-Type': 'application/json', 'X-Maturita-Desk-Access': DIRECT_ACCESS_TOKEN_FIXTURE }, body: JSON.stringify({ query: 'A fact' })
 }), { ...directEnv, FACTCHECK_GATE_TOKEN: gate }, mockOpenAI);
 assert.equal(ambiguousAuth.status, 503);
 
