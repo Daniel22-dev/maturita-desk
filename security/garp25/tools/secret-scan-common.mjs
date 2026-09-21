@@ -43,8 +43,8 @@ function pgpPrivateKey(text) {
 function jwkPrivateKey(text) {
   const variants = [text, text.replace(/\\(["'])/g, '$1')];
   for (const value of variants) {
-    const kty = /(?:["']?kty["']?)\s*:\s*["'](?:EC|OKP|RSA)["']/i;
-    const d = /(?:["']?d["']?)\s*:\s*["'][A-Za-z0-9_-]{20,}["']/i;
+    const kty = /(?:^|[,{]\s*)["']?kty["']?\s*:\s*["'](?:EC|OKP|RSA)["']/im;
+    const d = /(?:^|[,{]\s*)["']?d["']?\s*:\s*["'][A-Za-z0-9_-]{20,}["']/im;
     const km = kty.exec(value), dm = d.exec(value);
     if (km && dm && Math.abs(km.index - dm.index) <= 4096) return true;
   }
