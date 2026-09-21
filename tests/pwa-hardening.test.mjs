@@ -18,7 +18,7 @@ assert.match(index, /format-detection/);
 assert.equal(manifest.orientation, 'any');
 assert.equal(manifest.id, './');
 assert.deepEqual(manifest.display_override, ['standalone', 'minimal-ui']);
-assert.equal(manifest.version, '1.0.3');
+assert.equal(manifest.version, '1.0.4');
 assert.match(manifest.ghrab_platform.cache_name, /v1\.0\.3$/);
 
 assert.match(css, /safe-area-inset-top/);
