@@ -48,10 +48,10 @@ assert.equal(dataManifest.deletion.suiteSessionContract, 'ghrab-suite-session-v1
 
 const index = text('index.html');
 assert.match(index, /data-ghrab-app-id="maturita-desk"/);
-assert.match(index, /data-ghrab-app-version="1\.0\.3"/);
+assert.match(index, /data-ghrab-app-version="1\.0\.4"/);
 assert.match(index, /src\/platform-config\.js/);
-assert.match(index, /ghrab\/ghrab-platform\.js\?v=1\.0\.3/);
-assert.match(index, /ghrab\/ghrab-platform\.css\?v=1\.0\.3/);
+assert.match(index, /ghrab\/ghrab-platform\.js\?v=1\.0\.4/);
+assert.match(index, /ghrab\/ghrab-platform\.css\?v=1\.0\.4/);
 assert.ok(index.indexOf('src/platform-config.js') < index.indexOf('ghrab/ghrab-platform.js'), 'platform config must load before vendor runtime');
 assert.ok(index.indexOf('ghrab/ghrab-platform.js') < index.indexOf('src/main.js'), 'Platform 1.1.2 must load before app module');
 
