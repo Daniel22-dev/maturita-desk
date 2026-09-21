@@ -1,48 +1,177 @@
-name: Maturita Desk - QA and Deploy
+name: Maturita Desk verified deploy
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["Maturita Desk P5 release gate"]
+    types: [completed]
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages
+  group: maturita-desk-pages-${{ github.event.workflow_run.head_branch || github.ref_name }}
   cancel-in-progress: true
 
 jobs:
-  test-and-deploy:
-    runs-on: ubuntu-latest
+  release-build:
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref_name == 'main') ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    outputs:
+      app_version: ${{ steps.identity.outputs.app_version }}
+      source_sha: ${{ steps.identity.outputs.source_sha }}
+      artifact_digest: ${{ steps.identity.outputs.artifact_digest }}
+      manifest_sha256: ${{ steps.identity.outputs.manifest_sha256 }}
+      sbom_sha256: ${{ steps.identity.outputs.sbom_sha256 }}
+      evidence_manifest_sha256: ${{ steps.identity.outputs.evidence_manifest_sha256 }}
+      build_provenance_sha256: ${{ steps.identity.outputs.build_provenance_sha256 }}
+      assurance_mode: ${{ steps.identity.outputs.assurance_mode }}
+      release_stage: ${{ steps.identity.outputs.release_stage }}
+      garp_profile: ${{ steps.identity.outputs.garp_profile }}
+      gate: ${{ steps.identity.outputs.gate }}
+    steps:
+      - name: Checkout verified main source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.22.2
+          cache: npm
+      - name: Confirm verified source identity
+        shell: bash
+        env:
+          EXPECTED_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Set deterministic build time
+        shell: bash
+        run: echo "SOURCE_DATE_EPOCH=$(git show -s --format=%ct HEAD)" >> "$GITHUB_ENV"
+      - name: Re-run mandatory release controls
+        run: |
+          npm test
+          npm run qa:garp25:tooling
+          npm run qa:garp25:pinned
+          npm run qa:garp25:secrets
+          npm run qa:safe-promotion
+          npm run qa:auto-patch-topology
+      - name: Build clean production artifact
+        run: npm run build:pages
+      - name: Build exact LIVE release identity
+        env:
+          GHRAB_SOURCE_REPOSITORY: ${{ github.repository }}
+          GHRAB_SOURCE_COMMIT: ${{ github.event.workflow_run.head_sha || github.sha }}
+          GHRAB_BUILD_ID: deploy-${{ github.run_id }}-${{ github.run_attempt }}
+          GHRAB_WORKFLOW_REF: ${{ github.workflow_ref }}
+          GHRAB_RELEASE_STAGE: LIVE-PUBLIC-PAGES
+        run: |
+          npm run prepare:pages
+          npm run verify:release-chain
+      - name: Export release identity
+        id: identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo "app_version=$(jq -r '.version' dist-pages/release-integrity.json)"
+            echo "source_sha=$(jq -r '.sourceCommit' dist-pages/release-integrity.json)"
+            echo "artifact_digest=$(jq -r '.artifactDigest' dist-pages/release-integrity.json)"
+            echo "manifest_sha256=$(jq -r '.manifestSha256' dist-pages/release-integrity.json)"
+            echo "sbom_sha256=$(jq -r '.sbomSha256' dist-pages/release-integrity.json)"
+            echo "evidence_manifest_sha256=$(jq -r '.evidenceManifestSha256' dist-pages/release-integrity.json)"
+            echo "build_provenance_sha256=$(jq -r '.buildProvenanceSha256' dist-pages/release-integrity.json)"
+            echo "assurance_mode=$(jq -r '.assuranceMode' dist-pages/release-integrity.json)"
+            echo "release_stage=$(jq -r '.releaseStage' dist-pages/release-integrity.json)"
+            echo "garp_profile=$(jq -r '.garpProfile' dist-pages/release-integrity.json)"
+            echo "gate=$(jq -r '.gate' dist-pages/release-integrity.json)"
+          } >> "$GITHUB_OUTPUT"
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d
+      - name: Upload verified Pages artifact
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9
+        with:
+          path: dist-pages
 
+  deploy:
+    needs: release-build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-
-      - name: Setup Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
-        with:
-          node-version: 22
-
-      - name: Run Maturita Desk regression suite
-        run: npm test
-
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9
-        with:
-          path: .
-
-      - name: Deploy to GitHub Pages
+      - name: Deploy verified artifact to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128
+
+  verify-live-and-notify:
+    needs: [release-build, deploy]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout release verifier
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ needs.release-build.outputs.source_sha }}
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.22.2
+      - name: Verify AI Studio dispatch credential
+        shell: bash
+        env:
+          AI_STUDIO_DISPATCH_TOKEN: ${{ secrets.AI_STUDIO_DISPATCH_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "${AI_STUDIO_DISPATCH_TOKEN:-}" || { echo "::error::Missing AI_STUDIO_DISPATCH_TOKEN."; exit 1; }
+      - name: Verify the live release before notifying AI Studio
+        env:
+          GHRAB_LIVE_URL: https://daniel22-dev.github.io/maturita-desk/
+          GHRAB_LIVE_ALLOWED_ORIGIN: https://daniel22-dev.github.io
+          GHRAB_LIVE_APP_ID: maturita-desk
+          GHRAB_LIVE_VERSION: ${{ needs.release-build.outputs.app_version }}
+          GHRAB_LIVE_SOURCE_SHA: ${{ needs.release-build.outputs.source_sha }}
+          GHRAB_LIVE_ARTIFACT_DIGEST: ${{ needs.release-build.outputs.artifact_digest }}
+          GHRAB_LIVE_MANIFEST_SHA256: ${{ needs.release-build.outputs.manifest_sha256 }}
+          GHRAB_LIVE_ATTEMPTS: "8"
+          GHRAB_LIVE_DELAY_MS: "5000"
+          GHRAB_LIVE_MAX_DELAY_MS: "30000"
+          GHRAB_LIVE_OUT: qa-results/live-release.json
+        run: node scripts/verify-live-release.mjs
+      - name: Build AI Studio app-updated dispatch
+        env:
+          APP_VERSION: ${{ needs.release-build.outputs.app_version }}
+          SOURCE_REPOSITORY: ${{ github.repository }}
+          SOURCE_SHA: ${{ needs.release-build.outputs.source_sha }}
+          DEPLOYED_URL: https://daniel22-dev.github.io/maturita-desk/
+          ARTIFACT_DIGEST: ${{ needs.release-build.outputs.artifact_digest }}
+          MANIFEST_SHA256: ${{ needs.release-build.outputs.manifest_sha256 }}
+          SBOM_SHA256: ${{ needs.release-build.outputs.sbom_sha256 }}
+          EVIDENCE_MANIFEST_SHA256: ${{ needs.release-build.outputs.evidence_manifest_sha256 }}
+          BUILD_PROVENANCE_SHA256: ${{ needs.release-build.outputs.build_provenance_sha256 }}
+          ASSURANCE_MODE: ${{ needs.release-build.outputs.assurance_mode }}
+          RELEASE_STAGE: ${{ needs.release-build.outputs.release_stage }}
+          GARP_PROFILE: ${{ needs.release-build.outputs.garp_profile }}
+          RELEASE_GATE: ${{ needs.release-build.outputs.gate }}
+        run: node scripts/build-ai-studio-dispatch.mjs qa-results/live-release.json qa-results/dispatch.json
+      - name: Dispatch app-updated event to AI Studio
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.AI_STUDIO_DISPATCH_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh api --method POST repos/Daniel22-dev/AI-Studio-GHRAB/dispatches --input qa-results/dispatch.json
+          echo "app-updated dispatched only after verified live deployment."
