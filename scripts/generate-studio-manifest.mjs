@@ -6,7 +6,8 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '..');
 const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
 const template = fs.readFileSync(path.join(root, 'src', 'studio-manifest.template.json'), 'utf8');
-const buildTime = new Date().toISOString();
+const epoch=Number(process.env.SOURCE_DATE_EPOCH || 0);
+const buildTime=epoch>0 ? new Date(epoch*1000).toISOString() : new Date().toISOString();
 const rendered = template
   .replaceAll('__APP_VERSION__', pkg.version)
   .replaceAll('__BUILD_TIME__', buildTime);
