@@ -1,6 +1,8 @@
-# Maturita Desk 1.0.4 — GHRAB Platform 1.1.2 ecosystem-wave candidate
+# Maturita Desk 1.0.4 — verified release pipeline / controlled pilot
 
-Maturita Desk je učitelská PWA pro přípravu a průběh ústní maturitní zkoušky z anglického jazyka. Verze **1.0.4** je kandidát pro koordinovanou release wave **GHRAB Platform 1.1.2**. Zachovává funkční serverless baseline 1.0.1 a přidává suite-level shared-device lifecycle `ghrab-suite-session-v1`, data manifest a fail-closed cleanup vlastních pracovních dat. Tento kandidát zatím není automaticky produkční release.
+Maturita Desk je učitelská PWA pro přípravu a průběh ústní maturitní zkoušky z anglického jazyka. Verze **1.0.4** je zapojena do řízeného release řetězce GHRAB Platform 1.1.2: `candidate → P5 → Safe Promotion → protected main → verified deploy → live release verification → AI Studio auto-patch`.
+
+**Důležité rozlišení:** release infrastruktura a veřejný demo shell jsou technicky ověřené a nasazené, ale aplikační/provozní status zůstává **controlled pilot / AMBER**. Veřejný GitHub Pages origin je pouze pro demo a syntetický obsah. Ostré `CONFIDENTIAL-EXAM` použití stále vyžaduje samostatný autorizovaný HTTPS origin, fyzickou device acceptance a pedagogické schválení konkrétního Content Packu. Volitelná funkce Ověřit / dohledat navíc zůstává bez živého endpointu, dokud nebude samostatně nasazena a behaviorálně ověřena.
 
 
 ## GHRAB Platform 1.1.2 a sdílené zařízení
@@ -63,4 +65,4 @@ Architektura `school-server` zůstává připravena pro SSO, centrální autoriz
 
 Automatický PASS proto neznamená, že konkrétní obsah nebo konkrétní školní nasazení bylo lidsky schváleno.
 
-Viz `RELEASE-1.0.1-STATUS.md`, `SERVERLESS-PRODUCTION-DEPLOY.txt` a `DEVICE-ACCEPTANCE-1.0.1.txt`.
+Aktuální stav viz `BUILD-REPORT.md`, `SERVERLESS-PRODUCTION-DEPLOY.txt`, `DEVICE-ACCEPTANCE-1.0.4.txt` a `docs/FINAL-AUDIT-1.0.4.md`. Historické Stage/QA podklady jsou v `docs/archive/pre-1.0.4/` a nejsou aktuálním GREEN release evidence.

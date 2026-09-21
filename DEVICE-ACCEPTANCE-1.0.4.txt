@@ -1,0 +1,53 @@
+MATURITA DESK 1.0.4 - DEVICE ACCEPTANCE
+======================================
+
+STATUS
+------
+Automated release and security gates may be GREEN while physical acceptance
+remains a separate operational gate.
+
+DATA RULE
+---------
+Use only synthetic or approved anonymized/internal review content. Do not use
+student personal data during acceptance testing.
+
+1. NOTEBOOK / DESKTOP
+[ ] first online start and PWA shell ready
+[ ] full Exam/Practice workflow
+[ ] reload/re-unlock behavior
+[ ] background/sleep/return
+[ ] multi-tab writer guard
+[ ] offline cold start after shell installation
+
+2. iPAD / TABLET
+[ ] install/standalone PWA
+[ ] landscape and portrait remain usable
+[ ] import/unlock synthetic or approved review pack
+[ ] full 15-minute exam lifecycle
+[ ] lock screen/background/resume
+[ ] no unacceptable UI stall or memory termination
+[ ] service-worker update deferred during a running session
+
+3. PHONE
+[ ] 390-430 px portrait workflow
+[ ] navigation and phase controls reachable
+[ ] soft keyboard does not break Notes/Fact Check controls
+[ ] reload/recovery behavior works
+
+4. OFFLINE / NETWORK TRANSITIONS
+[ ] airplane mode during running session
+[ ] Pictures/Task/Topic/Notes/timer continue
+[ ] optional Fact Check failure is isolated
+[ ] network return does not reset session
+
+5. SHARED-DEVICE LIFECYCLE
+[ ] End Work clears only data-manifest entries marked clearOnEndWork
+[ ] stale/BFCache/multi-tab contexts cannot restore cleared working data
+[ ] encrypted pack and legitimate durable settings remain
+
+6. OUTPUT
+[ ] record device + OS/browser version
+[ ] record expected vs actual behavior for any failure
+[ ] export only non-personal diagnostic evidence
+
+Physical acceptance is PASS only after these scenarios are actually executed.

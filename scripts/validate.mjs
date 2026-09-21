@@ -11,10 +11,11 @@ const required = [
   'serverless/fact-check-worker.mjs','serverless/SERVERLESS-FACT-CHECK-SETUP.txt','serverless/runtime-config.serverless-fact-check.example.js','serverless/README.md',
   'tools/generate-publisher-key.mjs','tools/sign-content-pack.mjs','tools/sign-origin-authorization.mjs','tools/verify-content-pack-signature.mjs','tools/create-content-pack.mjs','tools/create-synthetic-demo-pack.mjs','tools/create-stage13-stress-pack.mjs',
   'school-server/CONTRACT.md','school-server/README.md','school-server/DEPLOY-CHECKLIST.txt','school-server/deployment.school-server.example.json','school-server/runtime-config.school-server.example.js','school-server/session-response.example.json','school-server/content-delivery.example.json',
-  'samples/synthetic-demo-2027.mdesk','README.md','RELEASE-1.0.1-STATUS.md','SERVERLESS-PRODUCTION-DEPLOY.txt','DEVICE-ACCEPTANCE-1.0.1.txt','GITHUB-UPDATE-1.0.1.txt','SECURITY-NOTES.md','BUILD-REPORT.md',
-  'SECURITY-AUDIT-STAGE12.md','SECURITY-REVIEW-STAGE12R.md','CLAUDE-REAUDIT-NOTES.txt','CONTENT-QA-SUMMARY.json','SOURCE-FIDELITY-SUMMARY.json','REVIEW-QA-SUMMARY.json','FACT-CHECK-QA-SUMMARY.json','PILOT-QA-SUMMARY.json'
+  'samples/synthetic-demo-2027.mdesk','README.md','docs/archive/pre-1.0.4/RELEASE-1.0.1-STATUS.md','SERVERLESS-PRODUCTION-DEPLOY.txt','DEVICE-ACCEPTANCE-1.0.4.txt','docs/archive/pre-1.0.4/GITHUB-UPDATE-1.0.1.txt','SECURITY-NOTES.md','BUILD-REPORT.md',
+  'docs/archive/pre-1.0.4/SECURITY-AUDIT-STAGE12.md','docs/archive/pre-1.0.4/SECURITY-REVIEW-STAGE12R.md','docs/archive/pre-1.0.4/CLAUDE-REAUDIT-NOTES.txt','docs/archive/pre-1.0.4/CONTENT-QA-SUMMARY.json','docs/archive/pre-1.0.4/SOURCE-FIDELITY-SUMMARY.json','docs/archive/pre-1.0.4/REVIEW-QA-SUMMARY.json','docs/archive/pre-1.0.4/FACT-CHECK-QA-SUMMARY.json','docs/archive/pre-1.0.4/PILOT-QA-SUMMARY.json'
 ];
 const failures = [];
+// Archived pre-1.0.4 QA files are historical regression fixtures only; current GREEN evidence comes from active P5/Safe Promotion/deploy runs.
 for (const rel of required) if (!fs.existsSync(path.join(root, rel))) failures.push(`Missing: ${rel}`);
 
 const pkg = readJson('package.json');
@@ -24,12 +25,12 @@ const studioManifest = readJson('studio-manifest.json');
 const platform = readJson('config/platform-manifest.json');
 const deployment = readJson('config/deployment.json');
 const serverExample = readJson('school-server/deployment.school-server.example.json');
-const serverQa = readJson('SERVER-ARCHITECTURE-QA-SUMMARY.json');
-const qa = readJson('CONTENT-QA-SUMMARY.json');
-const fidelity = readJson('SOURCE-FIDELITY-SUMMARY.json');
-const reviewQa = readJson('REVIEW-QA-SUMMARY.json');
-const factQa = readJson('FACT-CHECK-QA-SUMMARY.json');
-const pilotQa = readJson('PILOT-QA-SUMMARY.json');
+const serverQa = readJson('docs/archive/pre-1.0.4/SERVER-ARCHITECTURE-QA-SUMMARY.json');
+const qa = readJson('docs/archive/pre-1.0.4/CONTENT-QA-SUMMARY.json');
+const fidelity = readJson('docs/archive/pre-1.0.4/SOURCE-FIDELITY-SUMMARY.json');
+const reviewQa = readJson('docs/archive/pre-1.0.4/REVIEW-QA-SUMMARY.json');
+const factQa = readJson('docs/archive/pre-1.0.4/FACT-CHECK-QA-SUMMARY.json');
+const pilotQa = readJson('docs/archive/pre-1.0.4/PILOT-QA-SUMMARY.json');
 const main = readText('src/main.js');
 const engine = readText('src/exam-engine.js');
 const notes = readText('src/notes.js');

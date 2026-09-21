@@ -1,6 +1,6 @@
-# Maturita Desk 1.0.1 — private content & release pipeline
+# Maturita Desk 1.0.4 — private content & release pipeline
 
-Tento dokument popisuje neveřejnou cestu pro skutečný maturitní obsah. Public GitHub repozitář smí obsahovat pouze shell, syntetický demo pack, veřejné publisher klíče a validační/signing nástroje. Zdrojové DOCX, clear-content mezivýstupy, `.mdreview`, reálné `.mdesk`, passphrase a publisher private key zůstávají mimo repozitář.
+Tento dokument popisuje neveřejnou cestu pro skutečný maturitní obsah. Release infrastruktura 1.0.4 pro veřejný demo shell je technicky ověřena, ale schválení a distribuce ostrého obsahu zůstávají samostatnou provozní a pedagogickou bránou. Public GitHub repozitář smí obsahovat pouze shell, syntetický demo pack, veřejné publisher klíče a validační/signing nástroje. Zdrojové DOCX, clear-content mezivýstupy, `.mdreview`, reálné `.mdesk`, passphrase a publisher private key zůstávají mimo repozitář.
 
 ## 1. Obsahová revize
 
@@ -12,7 +12,7 @@ Content Pack je `maturita-desk-encrypted-pack-v1`, AES-256-GCM, PBKDF2-SHA-256. 
 
 ## 3. Publisher signature — povinná pro CONFIDENTIAL-EXAM
 
-Maturita Desk 1.0.1 před importem/odemčením `CONFIDENTIAL-EXAM` ověřuje samostatný publisher podpis:
+Maturita Desk 1.0.4 před importem/odemčením `CONFIDENTIAL-EXAM` ověřuje samostatný publisher podpis:
 
 - schema `maturita-desk-publisher-signature-v1`;
 - ECDSA P-256 + SHA-256;
