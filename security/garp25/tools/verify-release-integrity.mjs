@@ -22,7 +22,7 @@ if (manifest.digestAlgorithmId !== 'ghrab-artifact-digest-v2') fail(['digestAlgo
 if (manifest.hashAlgorithm !== 'SHA-256') fail(['hashAlgorithm']);
 if (!Array.isArray(manifest.files) || !manifest.files.length) fail(['files-empty']);
 
-const EXCLUDE = new Set(['release-integrity.json', 'release-integrity.sig',
+const EXCLUDE = new Set(['.nojekyll', 'release-integrity.json', 'release-integrity.sig',
   'package-attestation.json', 'package-attestation.sig', 'SHA256SUMS.txt']);
 const hex = b => createHash('sha256').update(b).digest('hex');
 const expected = new Map(manifest.files.map(f => [String(f.path).normalize('NFC'), f]));

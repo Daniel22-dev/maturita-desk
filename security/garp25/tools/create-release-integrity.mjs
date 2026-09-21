@@ -12,7 +12,7 @@ if (!dirArg || !appId || !version || !keyId) {
   process.exit(2);
 }
 const root = path.resolve(dirArg);
-const EXCLUDE = new Set(['release-integrity.json', 'release-integrity.sig',
+const EXCLUDE = new Set(['.nojekyll', 'release-integrity.json', 'release-integrity.sig',
   'package-attestation.json', 'package-attestation.sig', 'SHA256SUMS.txt']);
 const hex = b => createHash('sha256').update(b).digest('hex');
 
