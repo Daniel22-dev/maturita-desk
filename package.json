@@ -14,6 +14,21 @@
     "qa:xss": "node tests/security-stage12.test.mjs && node tests/content-validator.test.mjs && node tests/rich-content.test.mjs",
     "qa:runtime": "node tests/main-runtime-smoke.mjs && node tests/main-multitab-smoke.mjs && node tests/suite-session-core.test.mjs",
     "qa:accessibility": "node tests/accessibility-static.test.mjs",
-    "qa:release": "npm test"
+    "qa:release": "npm test",
+    "build:pages": "node scripts/build-pages-profile.mjs",
+    "verify:studio-manifest": "node scripts/verify-studio-manifest-contract.mjs",
+    "qa:garp25:tooling": "node security/garp25/tools/selftest-garp251.mjs",
+    "qa:garp25:pinned": "node scripts/qa-garp25-pinned-inputs.mjs",
+    "qa:garp25:secrets": "node security/garp25/tools/scan-source-secrets.mjs .",
+    "qa:garp25:deployment": "node security/garp25/tools/scan-deployment-leaks.mjs dist-pages",
+    "qa:garp25:static": "npm run qa:garp25:tooling && npm run qa:garp25:pinned && npm run qa:garp25:secrets && npm run test && npm run build:pages && npm run verify:studio-manifest && npm run qa:garp25:deployment",
+    "prepare:pages": "node scripts/create-pages-release-identity.mjs",
+    "verify:release-chain": "node scripts/verify-release-chain.mjs",
+    "qa:safe-promotion": "node scripts/qa-safe-promotion.mjs",
+    "test:studio-dispatch": "node scripts/test-ai-studio-dispatch.mjs",
+    "qa:auto-patch-topology": "node scripts/qa-auto-patch-notification.mjs"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }
