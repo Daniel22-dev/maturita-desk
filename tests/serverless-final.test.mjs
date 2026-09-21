@@ -44,8 +44,9 @@ const combinedText = [
 assert.doesNotMatch(combinedText, /maturita\.ghrabuvka\.cz|maturita-fact\.ghrabuvka\.cz/, 'final source must not be tied to a school domain');
 
 assert.equal(fs.existsSync(new URL('START-MATURITA-DESK-INTERNAL.cmd', root)), false, 'normal final release must not ship the localhost launcher');
-assert.equal(fs.existsSync(new URL('RELEASE-1.0.1-STATUS.md', root)), true);
+assert.equal(fs.existsSync(new URL('docs/archive/pre-1.0.4/RELEASE-1.0.1-STATUS.md', root)), true, 'historical 1.0.1 release evidence must remain archived for traceability');
+assert.equal(fs.existsSync(new URL('DEVICE-ACCEPTANCE-1.0.4.txt', root)), true, 'current device acceptance checklist must match the 1.0.4 baseline');
 assert.equal(fs.existsSync(new URL('SERVERLESS-PRODUCTION-DEPLOY.txt', root)), true);
 assert.equal(fs.existsSync(new URL('config/origin-authorization.json', root)), true);
 
-console.log('Serverless 1.0.1 origin-neutral trust/profile tests: PASS');
+console.log('Serverless 1.0.4 origin-neutral trust/profile tests: PASS');

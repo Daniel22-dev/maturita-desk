@@ -1,4 +1,4 @@
-MATURITA DESK 1.0.1 - ORIGIN-NEUTRAL SERVERLESS DEPLOYMENT
+MATURITA DESK 1.0.4 - ORIGIN-NEUTRAL SERVERLESS DEPLOYMENT
 ==========================================================
 
 GOAL
@@ -49,3 +49,14 @@ FACT CHECK / VERIFY-LOOKUP
 The core application works without the online service. When enabled, a
 same-origin endpoint such as /api/fact-check is preferred because it keeps the
 PWA CSP narrow. OpenAI credentials remain server-side only.
+
+
+CURRENT RELEASE STATUS
+----------------------
+The public GitHub Pages demo shell is released through the protected
+candidate -> P5 -> Safe Promotion -> main -> verified deploy chain and is
+enrolled in AI Studio patch-only auto-promotion.
+
+This verification applies to the demo/synthetic public shell. It does not turn
+the shared GitHub Pages origin into the isolated CONFIDENTIAL-EXAM production
+origin described above.
