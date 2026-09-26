@@ -11,7 +11,7 @@ const required = [
   'serverless/fact-check-worker.mjs','serverless/SERVERLESS-FACT-CHECK-SETUP.txt','serverless/runtime-config.serverless-fact-check.example.js','serverless/README.md',
   'tools/generate-publisher-key.mjs','tools/sign-content-pack.mjs','tools/sign-origin-authorization.mjs','tools/verify-content-pack-signature.mjs','tools/create-content-pack.mjs','tools/create-synthetic-demo-pack.mjs','tools/create-stage13-stress-pack.mjs',
   'school-server/CONTRACT.md','school-server/README.md','school-server/DEPLOY-CHECKLIST.txt','school-server/deployment.school-server.example.json','school-server/runtime-config.school-server.example.js','school-server/session-response.example.json','school-server/content-delivery.example.json',
-  'samples/synthetic-demo-2027.mdesk','README.md','docs/archive/pre-1.0.4/RELEASE-1.0.1-STATUS.md','SERVERLESS-PRODUCTION-DEPLOY.txt','DEVICE-ACCEPTANCE-1.0.4.txt','docs/archive/pre-1.0.4/GITHUB-UPDATE-1.0.1.txt','SECURITY-NOTES.md','BUILD-REPORT.md',
+  'samples/synthetic-demo-2027.mdesk','README.md','docs/archive/pre-1.0.4/RELEASE-1.0.1-STATUS.md','SERVERLESS-PRODUCTION-DEPLOY.txt','DEVICE-ACCEPTANCE-1.0.5.txt','docs/archive/pre-1.0.4/GITHUB-UPDATE-1.0.1.txt','SECURITY-NOTES.md','BUILD-REPORT.md',
   'docs/archive/pre-1.0.4/SECURITY-AUDIT-STAGE12.md','docs/archive/pre-1.0.4/SECURITY-REVIEW-STAGE12R.md','docs/archive/pre-1.0.4/CLAUDE-REAUDIT-NOTES.txt','docs/archive/pre-1.0.4/CONTENT-QA-SUMMARY.json','docs/archive/pre-1.0.4/SOURCE-FIDELITY-SUMMARY.json','docs/archive/pre-1.0.4/REVIEW-QA-SUMMARY.json','docs/archive/pre-1.0.4/FACT-CHECK-QA-SUMMARY.json','docs/archive/pre-1.0.4/PILOT-QA-SUMMARY.json'
 ];
 const failures = [];
@@ -53,15 +53,15 @@ const baked = readText('runtime-config.js');
 const sampleText = readText('samples/synthetic-demo-2027.mdesk');
 const sample = JSON.parse(sampleText);
 
-if (pkg.version !== '1.0.4') failures.push('Platform 1.1.2 candidate version must be 1.0.4');
+if (pkg.version !== '1.0.5') failures.push('Platform 1.1.2 candidate version must be 1.0.5');
 for (const [name, version] of [['manifest',manifest.version],['consumer',consumer.appVersion],['platform',platform.version]]) if (version !== pkg.version) failures.push(`${name} version mismatch`);
 if (studioManifest.id !== 'maturita-desk' || studioManifest.version !== pkg.version || studioManifest.platform?.platformVersion !== '1.1.2' || studioManifest.platform?.requiredPlatformRange !== '>=1.1.2 <2.0.0' || studioManifest.compatibility?.platformRange !== '>=1.1.2 <2.0.0' || studioManifest.platform?.storagePrefix !== 'ghrab.maturita-desk.' || studioManifest.platform?.cacheName !== `ghrab-maturita-desk-v${pkg.version}`) failures.push('Studio manifest/version/platform metadata mismatch');
 const dataManifest = readJson('src/config/data-manifest.json');
 const platformBuild = readJson('platform-build-info.json');
 if (consumer.platform?.version !== '1.1.2' || consumer.platform?.requiredRange !== '>=1.1.2 <2.0.0' || manifest.ghrab_platform?.version !== '1.1.2' || manifest.ghrab_platform?.required_range !== '>=1.1.2 <2.0.0' || platformBuild.platformVersion !== '1.1.2') failures.push('GHRAB Platform 1.1.2 metadata mismatch');
 if (dataManifest.appVersion !== pkg.version || dataManifest.deletion?.suiteSessionContract !== 'ghrab-suite-session-v1' || platform.sharedDeviceLifecycle?.contract !== 'ghrab-suite-session-v1') failures.push('Suite-session/data-manifest integration metadata missing');
-if (consumer.cache?.name !== 'ghrab-maturita-desk-v1.0.4' || manifest.ghrab_platform?.cache_name !== 'ghrab-maturita-desk-v1.0.4' || !sw.includes("ghrab-maturita-desk-v1.0.4")) failures.push('1.0.4 cache version mismatch');
-if (platform.stage !== 'serverless-1.0.4' || consumer.quality?.stage !== 'serverless-1.0.4') failures.push('Platform 1.1.2 candidate stage marker missing');
+if (consumer.cache?.name !== 'ghrab-maturita-desk-v1.0.5' || manifest.ghrab_platform?.cache_name !== 'ghrab-maturita-desk-v1.0.5' || !sw.includes("ghrab-maturita-desk-v1.0.5")) failures.push('1.0.5 cache version mismatch');
+if (platform.stage !== 'serverless-1.0.5' || consumer.quality?.stage !== 'serverless-1.0.5') failures.push('Platform 1.1.2 candidate stage marker missing');
 if (consumer.quality?.finalRelease !== false || consumer.quality?.softwareBaseline !== 'platform-1.1.2-candidate' || consumer.quality?.externalAcceptance !== 'independent-re-audit-pending') failures.push('Candidate / independent acceptance semantics invalid');
 if (platform.securityAudit?.softwareBaselineFinal !== false || platform.securityAudit?.overallGate !== 'AMBER-PLATFORM-1.1.2-ECOSYSTEM-WAVE-CANDIDATE') failures.push('Release status must remain a non-production Platform 1.1.2 ecosystem-wave candidate');
 
@@ -102,10 +102,10 @@ if (!content.includes("CONTENT_DELIVERY_SCHEMA = 'maturita-desk-content-delivery
 if (content.includes('decryptContentPack')) failures.push('Content delivery provider must never decrypt server response');
 if (!registry.includes('createLocalDeviceAuthProvider') || !registry.includes('createSchoolServerAuthProvider') || !registry.includes('createSchoolServerContentProvider')) failures.push('Provider registry incomplete');
 
-if (!main.includes("APP_VERSION = '1.0.4'") || !main.includes('Diagnostika zařízení') || !main.includes('Ověřit / dohledat') || !main.includes('Podpis vydavatele') || !main.includes('RUNTIME_CONFIG.content.confidentialAllowed')) failures.push('Final serverless UX incomplete');
+if (!main.includes("APP_VERSION = '1.0.5'") || !main.includes('Diagnostika zařízení') || !main.includes('Ověřit / dohledat') || !main.includes('Podpis vydavatele') || !main.includes('RUNTIME_CONFIG.content.confidentialAllowed') || !main.includes('O aplikaci') || !main.includes('Katalog změn')) failures.push('Final serverless UX incomplete');
 if (!main.includes("document.addEventListener('change', handleChange)") || fs.existsSync(path.join(root,'src/content-import-bridge.js'))) failures.push('Content Pack import must use the final delegated document handler, not the Stage 13 bridge');
 if (main.includes('pilotClassificationAllowed(')) failures.push('Legacy synthetic-only UI classification gate must not control final Content Pack policy');
-if (!diagnostics.includes("PILOT_BUILD = 'serverless-1.0.4'") || !diagnostics.includes('PILOT_SYNTHETIC_ONLY = false') || !diagnostics.includes('SERVERLESS DEVICE DIAGNOSTICS')) failures.push('Device diagnostics model incomplete');
+if (!diagnostics.includes("PILOT_BUILD = 'serverless-1.0.5'") || !diagnostics.includes('PILOT_SYNTHETIC_ONLY = false') || !diagnostics.includes('SERVERLESS DEVICE DIAGNOSTICS')) failures.push('Device diagnostics model incomplete');
 if (!coordinator.includes("SESSION_OWNER_KEY = 'ghrab.maturita-desk.session-owner.v1'") || !coordinator.includes('SESSION_OWNER_STALE_MS = 12000') || !coordinator.includes('claimSessionOwnership') || !main.includes('function setupSessionCoordination') || !main.includes('function takeOverSession')) failures.push('Multi-tab writer guard missing');
 
 if (!worker.includes('FACTCHECK_ACCESS_TOKEN') || !worker.includes('FACTCHECK_GATE_TOKEN') || !worker.includes('FACTCHECK_RATE_LIMITER') || !worker.includes("tools: [{ type: 'web_search'") || !worker.includes('body.query')) failures.push('Serverless Verify/lookup worker contract incomplete');
@@ -154,11 +154,11 @@ if (combined.includes('OPENAI_API_KEY=')) failures.push('OpenAI key assignment i
 if (/data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/=]{200000,}/.test(combined)) failures.push('Large embedded raster media found in public shell');
 
 if (failures.length) {
-  console.error('Maturita Desk 1.0.4 Platform 1.1.2 candidate validation: FAIL');
+  console.error('Maturita Desk 1.0.5 Platform 1.1.2 candidate validation: FAIL');
   failures.forEach(item => console.error(`- ${item}`));
   process.exit(1);
 }
-console.log('Maturita Desk 1.0.4 Platform 1.1.2 candidate validation: PASS');
+console.log('Maturita Desk 1.0.5 Platform 1.1.2 candidate validation: PASS');
 console.log(`Version: ${pkg.version}`);
 console.log('Public shell: no real exam content, passphrase, OpenAI secret or publisher private key.');
 console.log('Origin policy: shared GitHub Pages = demo-only; neutral production hosts require a signed same-origin authorization grant.');

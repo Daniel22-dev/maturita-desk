@@ -1,9 +1,16 @@
-# Maturita Desk 1.0.4 — current build and release report
+# Maturita Desk 1.0.5 — current build and release report
 
-Software version: **1.0.4**  
+Software version: **1.0.5**  
 GHRAB Platform: **1.1.2**  
-Release-path status: **GREEN / verified**  
+Release-path status: **LOCAL 1.0.5 CANDIDATE / automated QA PASS; Safe Promotion + live verification pending**  
 Operational product status: **AMBER / controlled pilot**
+
+## 1.0.5 change
+- přidána karta **O aplikaci** podle společného vzoru AI Studia / AI Akademie;
+- doplněna identita, účel, autor a vývojový garant, školní projekt, určení, technický stav a provozní zásady;
+- **Katalog změn** je rozbalovací část uvnitř stránky O aplikaci;
+- domovská utility lišta a patička odkazují na O aplikaci;
+- záměrně nejsou přidány Podpora, Licence/právní informace ani samostatný blok Práce s daty.
 
 ## Current release controls
 `candidate → P5 release gate → canonical PR → Safe Promotion → protected main → main P5 → verified GitHub Pages deploy → live release verification → app-updated dispatch → AI Studio auto-patch`.
@@ -25,4 +32,4 @@ Release signing remains **TRANSITIONAL** until a production release-signing key 
 - live behavioral verification of Ověřit / dohledat if enabled;
 - live school-server/SSO validation if that future mode is adopted.
 
-Historical Stage/QA material in `docs/archive/pre-1.0.4/` is regression context only, not current GREEN evidence.
+Historical Stage/QA material in `docs/archive/pre-1.0.4/` is regression context only, not current 1.0.5 release evidence. 1.0.5 has local automated QA PASS; protected promotion and live deployment evidence are still pending.
