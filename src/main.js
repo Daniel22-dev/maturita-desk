@@ -22,7 +22,7 @@ import { SESSION_OWNER_HEARTBEAT_MS, claimSessionOwnership, readSessionOwner, re
 import { installSuiteSessionLifecycle } from './suite-session.js';
 
 const APP_ID = 'maturita-desk';
-const APP_VERSION = '1.0.4';
+const APP_VERSION = '1.0.5';
 const FACT_ACCESS_KEY = 'ghrab.maturita-desk.fact-access.v1';
 const UI_KEY = 'ghrab.maturita-desk.ui-settings.v1';
 const SESSION_KEY = 'ghrab.maturita-desk.session.v1';
@@ -66,6 +66,7 @@ const toastRoot = document.querySelector('#toast-root');
 
 const state = {
   screen: 'home',
+  aboutReturn: 'home',
   mode: null,
   topicId: 14,
   online: navigator.onLine,
@@ -920,6 +921,8 @@ async function handleClick(event) {
   if (action === 'open-content') { state.drawer = 'content'; renderDrawer(); return; }
   if (action === 'open-access') { state.drawer = 'access'; renderDrawer(); return; }
   if (action === 'open-pilot') { state.drawer = 'pilot'; state.pilot.device = capturePilotDevice(); savePilotRun(); renderDrawer(); return; }
+  if (action === 'open-about') { state.aboutReturn = state.screen === 'about' ? 'home' : state.screen; state.drawer = null; state.screen = 'about'; render(); return; }
+  if (action === 'close-about') { state.screen = state.aboutReturn || 'home'; state.aboutReturn = 'home'; render(); return; }
   if (action === 'pilot-mark') { updatePilotCheck(el.dataset.pilotId, el.dataset.status, Array.from(document.querySelectorAll('[data-pilot-note]')).find(node => node.dataset.pilotNote === (el.dataset.pilotId || ''))?.value || ''); renderDrawer(); return; }
   if (action === 'pilot-export-json') { downloadTextFile(`Maturita-Desk-diagnostics-${new Date().toISOString().slice(0,10)}.json`, serializePilotReport(state.pilot), 'application/json'); return; }
   if (action === 'pilot-export-txt') { downloadTextFile(`Maturita-Desk-diagnostics-${new Date().toISOString().slice(0,10)}.txt`, pilotReportText(state.pilot)); return; }
@@ -1297,6 +1300,7 @@ function render() {
     case 'resume-locked': app.innerHTML = renderResumeLocked(); break;
     case 'session-conflict': app.innerHTML = renderSessionConflict(); break;
     case 'review': app.innerHTML = renderReviewScreen(); break;
+    case 'about': app.innerHTML = renderAbout(); break;
     default: app.innerHTML = renderHome();
   }
   renderModal();
@@ -1316,11 +1320,12 @@ function renderHome() {
     <main class="home-page">
       <div class="home-topline">
         ${brandLockup()}
-        <div style="display:flex;gap:8px;align-items:center">
+        <div class="home-topline-actions">
           <button class="soft-button compact" data-action="open-access">Přístup</button>
           <button class="soft-button compact" data-action="open-content">Content Pack</button>
           <button class="soft-button compact" data-action="open-pilot">Diagnostika</button>
-          <span class="prototype-pill">1.0.4 · Serverless</span>
+          <button class="soft-button compact" data-action="open-about">O aplikaci</button>
+          <span class="prototype-pill">${APP_VERSION} · Serverless</span>
           <button class="icon-button" data-action="cycle-theme" aria-label="Změnit vzhled" title="Vzhled: ${escapeHtml(state.theme)}">${icon('theme')}</button>
         </div>
       </div>
@@ -1365,6 +1370,115 @@ function renderHome() {
         </div>
       </section>
       ${footer()}
+    </main>`;
+}
+
+function renderAbout() {
+  const changelog = [
+    {
+      version: '1.0.5',
+      title: 'O aplikaci a sjednocený katalog změn',
+      items: [
+        'Přidána společná karta O aplikaci podle standardu AI Studia a AI Akademie.',
+        'Doplněna identita aplikace, účel, autor a vývojový garant, školní projekt, určení, technický stav a provozní zásady.',
+        'Katalog změn je součástí stránky O aplikaci a není veden jako samostatná hlavní položka.',
+        'Domovská utility lišta a patička nově odkazují na O aplikaci.'
+      ]
+    },
+    {
+      version: '1.0.4',
+      title: 'Ověřený release řetězec a řízený pilot',
+      items: [
+        'Zapojení do GHRAB Platform 1.1.2 a řízeného candidate → Safe Promotion → main release řetězce.',
+        'Ověřená release identita, manifesty, bezpečnostní evidence a napojení na aktualizační tok AI Studia.',
+        'Veřejný build zůstává určen pro demo a syntetický obsah; ostrý CONFIDENTIAL-EXAM obsah má samostatné provozní gate.'
+      ]
+    },
+    {
+      version: '1.0.3',
+      title: 'Studio manifest a Platform 1.1.2',
+      items: [
+        'Doplněn veřejný studio-manifest.json a zdrojová šablona pro ověřování aplikace z AI Studia.',
+        'Zachována kompatibilita s GHRAB Platform 1.1.2 a stávajícími pravidly pro demo a chráněný obsah.'
+      ]
+    },
+    {
+      version: '1.0.1',
+      title: 'Origin-neutral serverless baseline',
+      items: [
+        'Odstraněna pevná závislost na konkrétní školní produkční doméně.',
+        'Budoucí izolovaný HTTPS origin je autorizován podepsanou konfigurací bez nutnosti změny zdrojového kódu aplikace.',
+        'Maturita Desk zůstává samostatná PWA a z AI Studia se spouští jako tatáž aplikace.'
+      ]
+    },
+    {
+      version: '1.0.0',
+      title: 'Serverless finální baseline',
+      items: [
+        'Uzavřen Exam Engine pro 15minutovou ústní zkoušku, nácvik, Pictures, Task Box, Topic a Teacher Guidance.',
+        'Doplněny lokální poznámky a obnova relace, offline PWA shell, ochrana proti konfliktu více panelů a šifrovaný Content Pack.',
+        'CONFIDENTIAL-EXAM vyžaduje oddělené bezpečnostní podmínky; veřejný repozitář neobsahuje reálné maturitní zadání ani privátní klíče.'
+      ]
+    }
+  ];
+  return `
+    <main class="page-shell about-page">
+      <div class="content-frame about-frame">
+        <div class="page-topline">
+          <button class="back-button" data-action="close-about">${icon('back')} <span>Zpět</span></button>
+          <span class="prototype-pill">Maturita Desk ${APP_VERSION}</span>
+        </div>
+        <header class="about-hero">
+          <div class="about-mark-wrap"><img src="./assets/icons/app-mark.svg" alt="" class="about-mark"></div>
+          <div>
+            <p class="eyebrow">O aplikaci</p>
+            <h1>Maturita Desk</h1>
+            <p>Učitelské pracovní prostředí pro přípravu a průběh ústní maturitní zkoušky z anglického jazyka. Spojuje řízený průběh zkoušky, časomíru, Teacher Guidance, poznámky a bezpečnou práci s odděleným maturitním obsahem.</p>
+          </div>
+        </header>
+
+        <section class="about-meta-grid" aria-label="Základní informace o aplikaci">
+          <article class="about-meta-card"><span>Aplikace</span><strong>Maturita Desk</strong><p>Verze ${APP_VERSION}<br>GHRAB Platform 1.1.2</p></article>
+          <article class="about-meta-card"><span>Autor a vývojový garant</span><strong>Daniel Baláž</strong><p>Koncepce, vývoj a pedagogické vedení aplikace.</p></article>
+          <article class="about-meta-card"><span>Školní projekt</span><strong>AI Studio GHRAB</strong><p>Gymnázium, Ostrava-Hrabůvka</p></article>
+          <article class="about-meta-card"><span>Stav</span><strong>Řízený pilot</strong><p>Veřejný build: demo / syntetický obsah.</p></article>
+        </section>
+
+        <section class="about-grid">
+          <article class="about-card">
+            <p class="about-card-kicker">Účel</p>
+            <h2>Klidné prostředí pro zkoušejícího</h2>
+            <p>Aplikace soustředí podklady a průběh ústní zkoušky do jednoho pracovního prostředí, aby zkoušející a přísedící nemuseli během zkoušky přepínat mezi více dokumenty a nástroji.</p>
+          </article>
+          <article class="about-card">
+            <p class="about-card-kicker">Určení a režimy</p>
+            <h2>Ostrá zkouška i nácvik</h2>
+            <p>Podporuje řízený 15minutový průběh zkoušky a samostatný nácvikový režim s učitelskou vrstvou. Obsah se načítá jako oddělený Content Pack; veřejná aplikace obsahuje pouze syntetickou demonstrační sadu.</p>
+          </article>
+          <article class="about-card">
+            <p class="about-card-kicker">Technický stav</p>
+            <h2>Serverless PWA · Platform 1.1.2</h2>
+            <p>Aktuální větev je vedena jako řízený pilot. Release infrastruktura je ověřená, ale schválení konkrétního ostrého maturitního obsahu a jeho produkčního prostředí zůstává samostatnou provozní a pedagogickou bránou.</p>
+          </article>
+          <article class="about-card">
+            <p class="about-card-kicker">Provozní zásady</p>
+            <h2>Oddělený a chráněný obsah</h2>
+            <p>Reálný maturitní obsah není součástí veřejného repozitáře. Chráněný Content Pack musí splnit podpisová a originová pravidla, dešifrovaná data zůstávají pouze v paměti a přístupová fráze se neukládá.</p>
+          </article>
+        </section>
+
+        <details class="about-changelog" id="changelog">
+          <summary><span><strong>Katalog změn</strong><small>Historie hlavních release milníků Maturita Desku</small></span><span class="about-chevron" aria-hidden="true">⌄</span></summary>
+          <div class="about-changelog-body">
+            ${changelog.map(entry => `
+              <article class="about-release">
+                <div class="about-release-version">v${escapeHtml(entry.version)}</div>
+                <div><h3>${escapeHtml(entry.title)}</h3><ul>${entry.items.map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul></div>
+              </article>`).join('')}
+          </div>
+        </details>
+        ${footer()}
+      </div>
     </main>`;
 }
 
@@ -2486,7 +2600,7 @@ function brandLockup() {
 }
 
 function footer() {
-  return `<footer class="home-footer"><span>Gymnázium, Ostrava-Hrabůvka · Součást AI Studia GHRAB</span><span>Maturita Desk ${APP_VERSION} · Serverless</span></footer>`;
+  return `<footer class="home-footer"><span>Gymnázium, Ostrava-Hrabůvka · Součást AI Studia GHRAB</span><span class="footer-meta">Maturita Desk ${APP_VERSION} · Serverless <button class="footer-link" data-action="open-about">O aplikaci</button></span></footer>`;
 }
 
 function toast(message) {

@@ -1,14 +1,14 @@
 {
   "schema": "ghrab-platform-build-v1",
   "appId": "maturita-desk",
-  "appVersion": "1.0.4",
+  "appVersion": "1.0.5",
   "platformVersion": "1.1.2",
   "platformContract": "ghrab-platform-v1",
   "brandVersion": "1.0.0",
-  "cacheName": "ghrab-maturita-desk-v1.0.4",
+  "cacheName": "ghrab-maturita-desk-v1.0.5",
   "qualityContracts": {
     "accessibility": "ghrab-a11y-v1",
     "performance": "ghrab-performance-v1"
   },
-  "builtAt": "2026-09-06T06:44:57.000Z"
+  "builtAt": "2026-09-26T20:19:05.000Z"
 }

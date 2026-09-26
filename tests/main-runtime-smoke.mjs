@@ -106,6 +106,7 @@ await import('../src/main.js');
 assert.match(app.innerHTML, /Maturita Desk/);
 assert.equal(document.documentElement.dataset.formFactor, 'phone');
 assert.equal(document.documentElement.dataset.orientation, 'portrait');
+await clickAboutSmoke();
 visualViewport.height = 520;
 vvListeners.resize?.forEach(cb => cb());
 assert.equal(document.documentElement.dataset.keyboard, 'open');
@@ -120,6 +121,19 @@ function actionTarget(dataset) {
     matches() { return false; }
   };
 }
+async function clickAboutSmoke() {
+  const cb = docListeners.click?.[0];
+  assert(cb, 'document click handler missing');
+  await cb({ target: actionTarget({ action: 'open-about' }) });
+  assert.match(app.innerHTML, /O aplikaci/);
+  assert.match(app.innerHTML, /Autor a vývojový garant/);
+  assert.match(app.innerHTML, /Daniel Baláž/);
+  assert.match(app.innerHTML, /Katalog změn/);
+  assert.match(app.innerHTML, /1\.0\.5/);
+  await cb({ target: actionTarget({ action: 'close-about' }) });
+  assert.match(app.innerHTML, /Examiner workspace/);
+}
+
 function modalTarget(action) {
   return { dataset: { modalAction: action }, closest(selector) { return selector === '[data-modal-action]' ? this : null; } };
 }
