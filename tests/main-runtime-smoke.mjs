@@ -129,7 +129,7 @@ async function clickAboutSmoke() {
   assert.match(app.innerHTML, /Autor a vývojový garant/);
   assert.match(app.innerHTML, /Daniel Baláž/);
   assert.match(app.innerHTML, /Katalog změn/);
-  assert.match(app.innerHTML, /1\.0\.5/);
+  assert.match(app.innerHTML, /1\.0\.6/);
   await cb({ target: actionTarget({ action: 'close-about' }) });
   assert.match(app.innerHTML, /Examiner workspace/);
 }

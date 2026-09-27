@@ -1,0 +1,11 @@
+{
+  "schema": "garp27-live-status-v1",
+  "garpVersion": "2.7",
+  "appId": "maturita-desk",
+  "appVersion": "1.0.6",
+  "environment": "school-runtime",
+  "overall": "NOT_TESTED",
+  "controls": [],
+  "runtimeEvidence": [],
+  "reason": "School-runtime GARP 2.7 live evidence is deferred until the approved target environment exists."
+}

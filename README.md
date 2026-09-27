@@ -1,6 +1,6 @@
-# Maturita Desk 1.0.5 — verified release pipeline / controlled pilot
+# Maturita Desk 1.0.6 — verified release pipeline / controlled pilot
 
-Maturita Desk je učitelská PWA pro přípravu a průběh ústní maturitní zkoušky z anglického jazyka. Verze **1.0.5** je zapojena do řízeného release řetězce GHRAB Platform 1.1.2: `candidate → P5 → Safe Promotion → protected main → verified deploy → live release verification → AI Studio auto-patch`.
+Maturita Desk je učitelská PWA pro přípravu a průběh ústní maturitní zkoušky z anglického jazyka. Verze **1.0.6** je zapojena do řízeného release řetězce GHRAB Platform 1.1.2: `candidate → P5 → Safe Promotion → protected main → verified deploy → live release verification → AI Studio auto-patch`. Aktivní bezpečnostní kontrakt je **GARP 2.7 FOUNDATION**; GARP 2.5.1/N5 zůstává zachován jako regresní baseline, nikoli jako druhá aktivní autorita.
 
 **Důležité rozlišení:** release infrastruktura a veřejný demo shell jsou technicky ověřené a nasazené, ale aplikační/provozní status zůstává **controlled pilot / AMBER**. Veřejný GitHub Pages origin je pouze pro demo a syntetický obsah. Ostré `CONFIDENTIAL-EXAM` použití stále vyžaduje samostatný autorizovaný HTTPS origin, fyzickou device acceptance a pedagogické schválení konkrétního Content Packu. Volitelná funkce Ověřit / dohledat navíc zůstává bez živého endpointu, dokud nebude samostatně nasazena a behaviorálně ověřena.
 
@@ -55,7 +55,7 @@ Podrobnosti: `serverless/SERVERLESS-FACT-CHECK-SETUP.txt`.
 
 ## Budoucí školní server
 
-Architektura `school-server` zůstává připravena pro SSO, centrální autorizaci, automatickou distribuci šifrovaného Content Packu a serverovou Fact Check gateway. Není podmínkou serverless provozu 1.0.5.
+Architektura `school-server` zůstává připravena pro SSO, centrální autorizaci, automatickou distribuci šifrovaného Content Packu a serverovou Fact Check gateway. Není podmínkou serverless provozu 1.0.6.
 
 ## Co znamená „final baseline“
 
@@ -65,4 +65,4 @@ Architektura `school-server` zůstává připravena pro SSO, centrální autoriz
 
 Automatický PASS proto neznamená, že konkrétní obsah nebo konkrétní školní nasazení bylo lidsky schváleno.
 
-Aktuální stav viz `BUILD-REPORT.md`, `SERVERLESS-PRODUCTION-DEPLOY.txt`, `DEVICE-ACCEPTANCE-1.0.5.txt` a `docs/FINAL-AUDIT-1.0.5.md`. Historické Stage/QA podklady jsou v `docs/archive/pre-1.0.4/` a nejsou aktuálním GREEN release evidence.
+Aktuální stav viz `BUILD-REPORT.md`, `SERVERLESS-PRODUCTION-DEPLOY.txt`, `DEVICE-ACCEPTANCE-1.0.6.txt` a `docs/FINAL-AUDIT-1.0.6.md`. Historické Stage/QA podklady jsou v `docs/archive/pre-1.0.4/` a nejsou aktuálním GREEN release evidence.

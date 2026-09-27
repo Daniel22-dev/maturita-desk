@@ -1,0 +1,52 @@
+{
+  "schema": "garp27-capability-inventory-v1",
+  "garpVersion": "2.7",
+  "appId": "maturita-desk",
+  "appVersion": "1.0.6",
+  "dataClass": "CONFIDENTIAL-EXAM encrypted content plus teacher-local workflow state; no student identity fields by contract",
+  "agentic": false,
+  "aiOperations": [
+    {
+      "id": "fact-check.lookup",
+      "browserRequestFields": ["query"],
+      "transport": "isolated-http-provider-v1",
+      "providerRuntime": "isolated-worker",
+      "providerTooling": ["web_search"],
+      "autonomousActions": false,
+      "liveEndpointConfiguredInSource": false
+    }
+  ],
+  "aiCore": "school-runtime integration deferred; current public shell uses an isolated Fact Check endpoint contract",
+  "platform": "1.1.2",
+  "runtimeProfiles": {
+    "standalone": {
+      "allowedEgress": ["same-origin", "configured-fact-check-https-or-localhost"],
+      "aiTransport": "isolated-http-provider-v1",
+      "allowLocalProviderKeys": false
+    },
+    "serverlessWorker": {
+      "allowedEgress": ["https://api.openai.com/v1/responses"],
+      "credentialLocation": "server-side environment only",
+      "requestPolicy": "query-only browser contract plus fixed structured provider request"
+    },
+    "school": {
+      "allowedEgress": ["same-origin-school-runtime"],
+      "aiTransport": "school-server-session-http-v1",
+      "allowLocalProviderKeys": false,
+      "status": "DEFERRED_BY_OWNER_DECISION"
+    }
+  },
+  "localInputClasses": ["encrypted-mdesk", "synthetic-demo-mdesk", "teacher-fact-check-query", "pedagogical-review-patch"],
+  "storageClasses": ["localStorage", "sessionStorage", "CacheStorage", "encrypted-content-store", "pedagogical-review-store"],
+  "crossAppInterfaces": ["AI Studio launcher manifest", "suite-session events", "repository_dispatch app-updated after verified public release"],
+  "privilegedBrowserCapabilities": ["Screen Wake Lock best-effort"],
+  "autonomousToolCapabilities": [],
+  "releaseAuthorities": ["GARP-2.7", "GARP-2.5.1-legacy-regression", "P5-R2", "Safe-Promotion"],
+  "serverCapabilities": {
+    "schoolSession": "DEFERRED",
+    "sameOriginAiGateway": "DEFERRED",
+    "egressNetworkEnforcement": "DEFERRED",
+    "centralMonitoring": "DEFERRED",
+    "liveRecovery": "DEFERRED"
+  }
+}

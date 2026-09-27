@@ -1,4 +1,4 @@
-# SECURITY NOTES — Maturita Desk 1.0.5
+# SECURITY NOTES — Maturita Desk 1.0.6
 
 ## Trust model
 
@@ -29,8 +29,8 @@ Publisher signature nechrání proti oprávněnému uživateli, který již odem
 Fyzické device acceptance, provozní security headers/hosting vlastnosti, pedagogické schválení konkrétního packu a behaviorální test živého AI provideru nejsou nahrazeny automatickými unit/regression testy.
 
 
-## Release assurance 1.0.5
+## Release assurance 1.0.6
 
-The 1.0.5 candidate must be released only through GREEN P5 + Safe Promotion to protected `main`, followed by verified deploy and live identity verification; this local source package does not itself constitute live release evidence. GARP/N5 scanning includes synthetic negative controls for JWK private `d`, encrypted private-key PEM, PGP private-key blocks and encoded private-key material.
+The 1.0.6 candidate uses **GARP 2.7 FOUNDATION** as the active security contract and retains GARP 2.5.1/N5 only as a legacy regression baseline. It must be released only through GREEN P5 + Safe Promotion to protected `main`, followed by verified deploy and live identity verification; this local source package does not itself constitute live release evidence. Server-dependent GARP 2.7 controls remain `DEFERRED_BY_OWNER_DECISION` / `NOT_TESTED` until an approved school runtime exists.
 
 This does not change the trust boundary: GitHub Pages remains demo/synthetic-only and `CONFIDENTIAL-EXAM` remains blocked there. Release signing is TRANSITIONAL until a production signing key exists.

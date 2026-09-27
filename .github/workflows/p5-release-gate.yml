@@ -47,6 +47,11 @@ jobs:
         run: npm run qa:auto-patch-topology
       - name: Verify AI Studio dispatch contract
         run: npm run test:studio-dispatch
+      - name: Run GARP 2.7 static gate
+        run: npm run qa:garp27:static
+      - name: Run GARP 2.7 FOUNDATION gate
+        if: github.event_name != 'pull_request'
+        run: npm run qa:garp27:foundation
       - name: Build exact PREP release identity
         if: github.event_name != 'pull_request'
         env:
@@ -70,4 +75,5 @@ jobs:
             dist-pages/build-provenance.json
             dist-pages/security-evidence-manifest.json
             qa-results/release-current/**
+            audit-evidence/garp27-current/**
           if-no-files-found: ignore

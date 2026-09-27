@@ -7,6 +7,7 @@ import { spawnSync } from 'node:child_process';
 const root = process.cwd();
 const dist = path.join(root, 'dist-pages');
 const evidenceDir = path.join(root, 'qa-results', 'release-current');
+const foundationSummary = path.join(evidenceDir, 'garp27-foundation-summary.json');
 const tools = path.join(root, 'security', 'garp25', 'tools');
 const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
 const appId = 'maturita-desk';
@@ -23,6 +24,7 @@ const files = {
   evidence: path.join(dist, 'security-evidence-manifest.json'),
 };
 for (const [n, f] of Object.entries(files)) add(`file.${n}`, fs.existsSync(f), f);
+add('file.garp27-foundation-summary', fs.existsSync(foundationSummary), foundationSummary);
 if (checks.some((c) => !c.ok)) finish();
 const integrity = JSON.parse(fs.readFileSync(files.integrity, 'utf8'));
 const manifest = JSON.parse(fs.readFileSync(files.manifest, 'utf8'));
@@ -32,6 +34,8 @@ add('identity.sourceCommit', isCommit(integrity.sourceCommit), integrity.sourceC
 add('identity.artifactDigest', isSha256(integrity.artifactDigest), integrity.artifactDigest);
 add('identity.assuranceMode', integrity.assuranceMode === 'TRANSITIONAL', integrity.assuranceMode);
 add('identity.releaseStage', ['PREP-VALIDATION', 'LIVE-PUBLIC-PAGES'].includes(integrity.releaseStage), integrity.releaseStage);
+add('identity.garpProfile', integrity.garpProfile === 'GARP-2.7-FOUNDATION', integrity.garpProfile);
+add('identity.liveSchoolRuntime', integrity.liveSchoolRuntime === 'NOT_TESTED', integrity.liveSchoolRuntime);
 add('identity.signature-not-overclaimed', ['NOT_PRESENT', 'VERIFIED'].includes(integrity.signature?.status), integrity.signature?.status);
 add('contract.pointer', manifest.releaseIdentity?.contract === 'ghrab-release-integrity-v2' && manifest.releaseIdentity?.url === './release-integrity.json', JSON.stringify(manifest.releaseIdentity || {}));
 add('contract.app-version', manifest.id === appId && manifest.version === pkg.version, `${manifest.id}/${manifest.version}`);

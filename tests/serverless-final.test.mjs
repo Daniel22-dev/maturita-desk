@@ -45,8 +45,8 @@ assert.doesNotMatch(combinedText, /maturita\.ghrabuvka\.cz|maturita-fact\.ghrabu
 
 assert.equal(fs.existsSync(new URL('START-MATURITA-DESK-INTERNAL.cmd', root)), false, 'normal final release must not ship the localhost launcher');
 assert.equal(fs.existsSync(new URL('docs/archive/pre-1.0.4/RELEASE-1.0.1-STATUS.md', root)), true, 'historical 1.0.1 release evidence must remain archived for traceability');
-assert.equal(fs.existsSync(new URL('DEVICE-ACCEPTANCE-1.0.5.txt', root)), true, 'current device acceptance checklist must match the 1.0.5 baseline');
+assert.equal(fs.existsSync(new URL('DEVICE-ACCEPTANCE-1.0.6.txt', root)), true, 'current device acceptance checklist must match the 1.0.6 baseline');
 assert.equal(fs.existsSync(new URL('SERVERLESS-PRODUCTION-DEPLOY.txt', root)), true);
 assert.equal(fs.existsSync(new URL('config/origin-authorization.json', root)), true);
 
-console.log('Serverless 1.0.5 origin-neutral trust/profile tests: PASS');
+console.log('Serverless 1.0.6 origin-neutral trust/profile tests: PASS');
