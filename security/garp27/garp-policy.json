@@ -1,0 +1,53 @@
+{
+  "schema": "garp27-policy-v1",
+  "garpVersion": "2.7",
+  "appId": "maturita-desk",
+  "appVersion": "1.0.6",
+  "identity": {
+    "standaloneProfile": "Public GitHub Pages shell is demo-only. Local-device mode does not grant server authority; confidential exam content additionally requires a valid signed origin authorization and a valid publisher signature.",
+    "schoolProfile": "Cookie-based school session and signed offline lease support remain compatibility code; live school-runtime authorization evidence is deferred until an approved school deployment exists.",
+    "session": "Browser state cannot mint server roles. School requests use credentials=include and require the configured logout/session contract; origin changes invalidate runtime authority rather than carrying it forward."
+  },
+  "requestApiAi": {
+    "registeredOperations": 1,
+    "agentic": false,
+    "controls": "The only AI-backed operation is fact-check lookup. The browser sends a sanitized query only to an explicitly configured HTTPS or localhost endpoint. The isolated worker rejects additional request fields, requires an access boundary and rate limiter, treats the query as untrusted content, and returns bounded structured output with sources."
+  },
+  "egress": {
+    "standalone": "Browser network access is limited to same-origin application resources and an explicitly configured Fact Check endpoint accepted by the client URL policy.",
+    "school": "School-mode provider traffic is intended for the same-origin school runtime; live network enforcement is deferred with the school server phase.",
+    "providerEgress": "The isolated Fact Check worker may call the fixed OpenAI Responses API endpoint with a server-side key. Provider credentials are not part of the browser artifact, and introducing another provider or destination requires inventory and policy review."
+  },
+  "files": {
+    "currentBoundary": "Manual Content Pack import accepts the defined encrypted envelope, enforces size and shape limits, validates classification, and requires a valid ECDSA P-256 publisher signature for CONFIDENTIAL-EXAM before use.",
+    "serverBoundary": "School-server delivery returns an encrypted envelope and must not decrypt exam content for the browser provider path. Quarantine and host filesystem isolation remain runtime controls to verify after server approval."
+  },
+  "dataLifecycle": {
+    "classification": "Teacher exam workflow state plus encrypted CONFIDENTIAL-EXAM content; application contracts intentionally contain no student identity fields.",
+    "storage": "Protected content and session state use namespaced browser storage; decrypted exam content is not persisted by the Content Pack pipeline and is excluded from service-worker caching.",
+    "retention": "Shared-device cleanup, explicit deletion, session termination and local-only notes/review handling remain the active browser lifecycle controls."
+  },
+  "release": {
+    "activeAuthority": "GARP-2.7",
+    "promotion": "candidate -> cumulative P5 and GARP 2.7 FOUNDATION gates -> canonical pull request -> protected main -> exact release identity -> verified GitHub Pages deployment -> app-updated dispatch",
+    "publicAssurance": "GARP 2.7 FOUNDATION is the active release contract; GARP 2.5.1/N5 remains a regression baseline. Public Pages identity can be live-verified, while school-runtime SHIELD-LIVE controls remain NOT_TESTED."
+  },
+  "inventory": {
+    "source": "security/garp27/capability-inventory.json",
+    "architecturePolicy": "security/garp27/architecture-policy.json",
+    "changeRule": "Any new AI operation, request field, egress destination, import class, privileged capability, storage class or release authority requires inventory update plus positive and negative regression coverage."
+  },
+  "securityHealth": {
+    "localCi": "Reference contract selftests, policy admission mutations, architecture-integrity, application-specific mutation checks, auto-patch contract checks and retained GARP 2.5.1/N5 regressions run in the release gate.",
+    "live": "School-runtime protection health is NOT_TESTED until an approved target environment supplies trusted runtime evidence.",
+    "failureMode": "Missing, stale, mismatched, parser-error or empty critical evidence never becomes PASS."
+  },
+  "incident": {
+    "current": "Fail-closed content import, bounded Fact Check errors, session cleanup, exact release evidence and protected promotion form the current application-side response baseline.",
+    "future": "Central alert delivery, infrastructure containment and school-runtime incident actions require the separately approved server phase."
+  },
+  "recovery": {
+    "current": "Safe Promotion, exact artifact identity, rollback-aware release integrity, re-locking protected content after reload, local export/deletion and service-worker update deferral during an active exam form the current recovery baseline.",
+    "future": "Server restore, trust-root custody, live egress containment and runtime recovery drills remain NOT_TESTED until the school environment is approved."
+  }
+}

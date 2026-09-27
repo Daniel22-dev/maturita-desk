@@ -1,0 +1,36 @@
+{
+  "schema": "garp27-migration-input-baseline-v1",
+  "appId": "maturita-desk",
+  "targetVersion": "1.0.6",
+  "garpVersion": "2.7",
+  "inputApplicationArchive": {
+    "name": "maturita-desk-main(6).zip",
+    "sha256": "f6b71d38972edacb1fbd0a9707166513e89da49278562695d6c56bfa229fc779",
+    "sourceCommitFromArchiveComment": "4018fdd3f31a4ac372a92ea27af48a76166ff134"
+  },
+  "inputGarpArchive": {
+    "name": "GARP-2.7-KONSOLIDOVANY-FINAL-r2-G02-FIX(6).zip",
+    "sha256": "0c278aefa0581b3ba13dd5725da9d3fc624976c255602ec16b054fc81da6f7c8",
+    "consolidationRevision": "2026-09-23-r2",
+    "g02Fix": true,
+    "packageSelftest": "PASS 19/19",
+    "contractSelftest": "PASS 25/25",
+    "canonicalPackageContractCheckSha256": "ddc64e0f88ff82e4af9440a3e8f5dcabafa83eb7ab45bf7efb2d84b4b34f47e5"
+  },
+  "referenceAuditAcceptance": {
+    "A-01": "ACCEPT_CLOSED_IN_REFERENCE_MASTER",
+    "A-02": "ACCEPT_CLOSED_IN_REFERENCE_MASTER",
+    "A-03": "ACCEPT_CLOSED_IN_REFERENCE_MASTER",
+    "A-04": "ACCEPT_CLOSED_IN_REFERENCE_MASTER",
+    "A-05": "ACCEPT_CLOSED_IN_REFERENCE_MASTER",
+    "A-06": "ACCEPT_CLOSED_IN_REFERENCE_MASTER",
+    "A-07": "ACCEPT_CLOSED_IN_REFERENCE_MASTER"
+  },
+  "applicationBaseline": {
+    "version": "1.0.5",
+    "npmTest": "PASS",
+    "node": "v22.16.0",
+    "releaseModel": "candidate -> P5 -> Safe Promotion -> protected main -> verified Pages -> live verification -> app-updated"
+  },
+  "serverPhase": "DEFERRED_BY_OWNER_DECISION"
+}

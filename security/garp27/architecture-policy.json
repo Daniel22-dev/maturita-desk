@@ -1,0 +1,91 @@
+{
+  "schema": "garp27-architecture-policy-v1",
+  "garpVersion": "2.7",
+  "appId": "maturita-desk",
+  "appVersion": "1.0.6",
+  "sourceScopes": [
+    "src",
+    "serverless",
+    "school-server",
+    "scripts"
+  ],
+  "productionArtifacts": [
+    "dist-pages"
+  ],
+  "forbiddenSourceEdges": [
+    {
+      "fromPrefix": "src/",
+      "toPrefix": "scripts/"
+    },
+    {
+      "fromPrefix": "src/",
+      "toPrefix": "security/"
+    },
+    {
+      "fromPrefix": "src/",
+      "toPrefix": ".github/"
+    },
+    {
+      "fromPrefix": "src/",
+      "toPrefix": "vendor/"
+    },
+    {
+      "fromPrefix": "src/",
+      "toPrefix": "audit-evidence/"
+    },
+    {
+      "fromPrefix": "serverless/",
+      "toPrefix": ".github/"
+    },
+    {
+      "fromPrefix": "serverless/",
+      "toPrefix": "audit-evidence/"
+    }
+  ],
+  "forbiddenArtifactPathPrefixes": [
+    "scripts/",
+    "tests/",
+    "tools/",
+    "security/",
+    "school-server/",
+    "serverless/",
+    "audit-evidence/",
+    "qa-results/",
+    ".github/",
+    "vendor/garp-2.7-consolidated-r2/"
+  ],
+  "requiredFiles": [
+    "package-lock.json",
+    "runtime-config.js",
+    "config/deployment.json",
+    "config/platform-manifest.json",
+    "src/fact-check.js",
+    "src/content-pack.js",
+    "serverless/fact-check-worker.mjs",
+    "security/garp27/garp-policy.json",
+    "security/garp27/capability-inventory.json",
+    "vendor/garp-2.7-consolidated-r2/MASTER/CONTRACTS/garp27-core.json",
+    "vendor/garp-2.7-consolidated-r2/MASTER/INVENTORY/ecosystem-apps.json",
+    "security/garp27/input-baseline.json"
+  ],
+  "minimumCheckedSourceFiles": 40,
+  "liveServerValidationRequired": true,
+  "singleAuthority": "GARP-2.7",
+  "legacyAuthorities": [
+    "GARP-2.5.1"
+  ],
+  "forbiddenArtifactFragmentParts": [
+    [
+      "-----BEGIN ",
+      "PRIVATE KEY-----"
+    ],
+    [
+      "-----BEGIN ",
+      "ENCRYPTED PRIVATE KEY-----"
+    ],
+    [
+      "-----BEGIN ",
+      "PGP PRIVATE KEY BLOCK-----"
+    ]
+  ]
+}

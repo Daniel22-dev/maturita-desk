@@ -22,7 +22,7 @@ import { SESSION_OWNER_HEARTBEAT_MS, claimSessionOwnership, readSessionOwner, re
 import { installSuiteSessionLifecycle } from './suite-session.js';
 
 const APP_ID = 'maturita-desk';
-const APP_VERSION = '1.0.5';
+const APP_VERSION = '1.0.6';
 const FACT_ACCESS_KEY = 'ghrab.maturita-desk.fact-access.v1';
 const UI_KEY = 'ghrab.maturita-desk.ui-settings.v1';
 const SESSION_KEY = 'ghrab.maturita-desk.session.v1';
@@ -1376,7 +1376,7 @@ function renderHome() {
 function renderAbout() {
   const changelog = [
     {
-      version: '1.0.5',
+      version: '1.0.6',
       title: 'O aplikaci a sjednocený katalog změn',
       items: [
         'Přidána společná karta O aplikaci podle standardu AI Studia a AI Akademie.',

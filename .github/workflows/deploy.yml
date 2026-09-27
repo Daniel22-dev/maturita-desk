@@ -64,6 +64,7 @@ jobs:
           npm run qa:garp25:secrets
           npm run qa:safe-promotion
           npm run qa:auto-patch-topology
+          npm run qa:garp27:foundation
       - name: Build clean production artifact
         run: npm run build:pages
       - name: Build exact LIVE release identity
