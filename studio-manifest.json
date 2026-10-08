@@ -15,7 +15,7 @@
     "en": "Teacher PWA for preparing and running the English oral Matura exam. In the public AI Studio it is restricted to demo and synthetic content; real CONFIDENTIAL-EXAM packs remain blocked."
   },
   "launchUrl": "https://daniel22-dev.github.io/maturita-desk/",
-  "manualUrl": "https://daniel22-dev.github.io/maturita-desk/",
+  "manualUrl": "https://daniel22-dev.github.io/maturita-desk/src/manual/index.html",
   "repository": "Daniel22-dev/maturita-desk",
   "icon": "assets/apps/maturita-desk.png",
   "accent": "#4b263d",
@@ -63,7 +63,7 @@
   "slug": "maturita-desk",
   "paths": {
     "app": "https://daniel22-dev.github.io/maturita-desk/",
-    "manual": "https://daniel22-dev.github.io/maturita-desk/",
+    "manual": "https://daniel22-dev.github.io/maturita-desk/src/manual/index.html",
     "manifest": "https://daniel22-dev.github.io/maturita-desk/studio-manifest.json"
   },
   "platform": {
