@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="cs" data-ghrab-access="checking" data-ghrab-app-id="maturita-desk" data-ghrab-app-version="1.0.6">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta name="color-scheme" content="dark light">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://daniel22-dev.github.io; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'self'">
+<title>Maturita Desk 1.0.6 – Samostatný manuál pro učitele</title>
+<style>
+:root{color-scheme:dark;--bg:#0f1020;--panel:#191b31;--line:#34354d;--text:#f3eff5;--muted:#b7b4cc;--accent:#ffa8ce;--alert:#ffe7ad;--ok:#a9e8ca;font-family:Inter,"Segoe UI",system-ui,sans-serif}
+*{box-sizing:border-box}html{scroll-behavior:smooth}html[data-ghrab-access=checking] body{visibility:hidden}
+body{margin:0;background:radial-gradient(ellipse 65% 40% at 80% 0%,#44264380,transparent 70%),var(--bg);color:var(--text);line-height:1.65}
+a{color:var(--accent);text-underline-offset:3px}a:focus-visible,button:focus-visible{outline:3px solid #ffa8ce;outline-offset:3px}
+header{border-bottom:1px solid var(--line);background:#0f1020d8;position:sticky;top:0;z-index:4;backdrop-filter:blur(12px)}
+.top{max-width:1250px;min-height:66px;margin:auto;display:flex;align-items:center;justify-content:space-between;padding:10px 24px;gap:18px}
+.brand{font-size:15px;font-weight:850;letter-spacing:.04em}.back{font-weight:750;text-decoration:none;font-size:13px}
+.layout{max-width:1250px;display:grid;grid-template-columns:260px minmax(0,1fr);margin:auto;gap:45px;padding:34px 24px 90px}
+aside{position:sticky;top:105px;align-self:start}
+aside h2{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
+aside a{display:block;color:var(--muted);text-decoration:none;padding:8px 12px;border-left:2px solid var(--line);font-size:13px}
+aside a:hover{border-color:var(--accent);color:var(--text)}
+main{min-width:0}.eyebrow{color:var(--accent);font-size:12px;font-weight:900;letter-spacing:.16em;text-transform:uppercase}
+.hero{padding:15px 0 28px}h1{font-size:clamp(2.1rem,5vw,4rem);line-height:1.08;letter-spacing:-.04em;margin:10px 0 18px;max-width:780px}h2{font-size:clamp(1.35rem,2vw,1.85rem);line-height:1.25}h3{font-size:1.05rem}
+.hero p{max-width:740px;color:var(--muted);font-size:1.12rem}
+.version{display:flex;flex-wrap:wrap;gap:9px;margin:20px 0}.pill{font-size:12px;font-weight:850;color:var(--text);border:1px solid var(--line);border-radius:100px;padding:7px 12px;background:#252640}
+section{scroll-margin-top:95px;border-bottom:1px solid var(--line);padding:24px 0 34px}
+section p,section li{color:var(--muted)}li{margin:7px 0}strong{color:var(--text)}
+.pathcards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:20px 0}.pathcards>a{border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:18px 19px;color:var(--text);text-decoration:none;min-height:110px}.pathcards>a:hover{border-color:var(--accent)}.pathcards span{display:block;color:var(--muted);font-size:13px;margin-top:5px}
+.steps{counter-reset:step;list-style:none;margin:17px 0;padding:0}.steps>li{counter-increment:step;position:relative;background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:16px 16px 16px 59px;margin:11px 0}.steps>li:before{content:counter(step);position:absolute;left:14px;top:17px;width:29px;height:29px;border:1px solid #ae718d;border-radius:9px;display:grid;place-items:center;color:var(--accent);font-weight:850}
+.notice{padding:16px 18px;margin:18px 0;border-radius:14px;background:#49352088;border-left:4px solid #f1b662}.notice strong{color:var(--alert)}
+.notice.success{background:#133d3088;border-left-color:var(--ok)}.notice.success strong{color:var(--ok)}
+.checks{display:grid;gap:10px;margin:17px 0}.checks label{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px;display:flex;align-items:flex-start;gap:11px;cursor:pointer}.checks input{accent-color:var(--accent);width:19px;height:19px;margin-top:4px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.grid article{padding:17px;background:var(--panel);border:1px solid var(--line);border-radius:15px}.grid h3{margin:2px 0 7px}.grid p{margin:0}
+footer{color:var(--muted);font-size:12px;margin-top:36px}
+@media(max-width:860px){.layout{display:block;max-width:790px;padding-top:13px}aside{position:static;display:flex;overflow:auto;gap:2px;margin-bottom:16px;padding:7px 0}aside h2{display:none}aside a{white-space:nowrap;border-left:0;border-bottom:2px solid var(--line)}}
+@media(max-width:560px){.pathcards,.grid{grid-template-columns:1fr}.top{padding:10px 16px}.layout{padding:13px 16px 50px}.version{gap:5px}h1{letter-spacing:-.02em}}
+@media print{header,aside,.checks input{display:none}.layout{display:block;padding:0}body{background:#fff;color:#111}.hero p,section p,section li{color:#222}section{break-inside:avoid}.steps>li,.pathcards>a,.grid article{background:#fff;color:#111}section strong{color:#111}}
+</style>
+</head>
+<body>
+<header><div class="top"><div class="brand">⬡ AI STUDIO GHRAB · MATURITA DESK</div><a class="back" href="../">↗ Otevřít aplikaci</a></div></header>
+<div class="layout">
+<aside aria-label="Obsah příručky">
+<h2>Obsah manuálu</h2>
+<a href="#first">První spuštění</a><a href="#demo">Nácvik</a><a href="#exam">Modelová zkouška</a><a href="#content">Content Pack</a><a href="#teacher">Učitelská vrstva</a><a href="#devices">Zařízení a offline</a><a href="#safety">Bezpečnost</a><a href="#troubleshooting">Problémy</a><a href="#checklist">Kontrolní seznam</a>
+</aside>
+<main>
+<div class="hero"><div class="eyebrow">Samostatný školní manuál · Etapa D</div><h1>Maturita Desk: od prvního spuštění k bezpečnému nácviku</h1>
+<p>Interaktivní průvodce pro učitele anglického jazyka. Vychází z verze 1.0.6 a jejího řízeného pilotního režimu. Je určen pro syntetická demonstrační data, nikoliv pro skutečné důvěrné maturitní zadání.</p>
+<div class="version"><span class="pill">Aplikace 1.0.6</span><span class="pill">Revize manuálu D-2026-10-08</span><span class="pill">Čeká na provozní ověření</span></div>
+<div class="pathcards"><a href="#first"><strong>Jsem tu poprvé</strong><span>Bezpečný vstup a orientace</span></a><a href="#demo"><strong>Chci nácvik</strong><span>Syntetický materiál a Teacher Guidance</span></a><a href="#exam"><strong>Chci modelovou zkoušku</strong><span>Preflight a 15 minut ve fázích 2/4/9</span></a><a href="#troubleshooting"><strong>Něco nefunguje</strong><span>Diagnostika bez obcházení ochrany</span></a></div>
+</div>
+<section id="first"><h2>1. První spuštění</h2><p>Pro veřejný školní pilot používejte výhradně schválený odkaz a svůj povolený účet. Samotná aplikace rozlišuje přístup, stav Content Packu, offline shell a dostupnost zařízení.</p>
+<ol class="steps"><li><strong>Otevřete Maturita Desk z AI Studia.</strong> Zkontrolujte, že jste v povoleném prostředí a vidíte verzi aplikace.</li>
+<li><strong>Podívejte se na stavový panel.</strong> Ověřte Přístup, Content Pack, Offline shell, Obnovu relace, Displej a Zařízení. Neignorujte varování.</li>
+<li><strong>Vyberte Nácvik nebo Ostrá zkouška.</strong> Na veřejné demo adrese znamená „Ostrá zkouška“ modelový průchod se syntetickým obsahem, nikoli povolení používat ostrá zadání.</li>
+<li><strong>Vyberte syntetické téma.</strong> Před spuštěním potvrďte, že téma a média jsou kompletní a že je připravená časomíra.</li></ol>
+<div class="notice"><strong>Žádné produkční údaje v demu.</strong> Reálný maturitní Content Pack a důvěrné zadání smí být použity jen v samostatně schváleném prostředí se splněnými bezpečnostními, podpisovými a originovými podmínkami.</div>
+</section>
+<section id="demo"><h2>2. Nácvik (Practice Mode)</h2><p>Režim Nácvik slouží k ověření pracovního postupu. Student má cvičný obsah, učitel navíc Teacher Guidance s návodnými body a follow-up otázkami.</p>
+<ol class="steps"><li>Na úvodní obrazovce vyberte <strong>Nácvik</strong>.</li><li>Zvolte dostupné syntetické téma.</li><li>V preflightu si přečtěte zprávu o případných blokátorech.</li><li>Ověřte zobrazení obrázků, Task Boxu a Topic části a učitelských podkladů.</li><li>Vyzkoušejte poznámky i návrat zpět bez ukládání reálných studentských údajů.</li></ol>
+</section>
+<section id="exam"><h2>3. Modelový průchod 15minutovou zkouškou</h2><p>Exam Engine má řízené časování fází <strong>2 / 4 / 9 minut</strong>. Modelový průchod lze zahájit až po úspěšném preflightu.</p>
+<ol class="steps"><li>Vyberte <strong>Ostrá zkouška</strong> — ve veřejném buildu jde stále o syntetické demo.</li><li>Vyberte téma a na obrazovce preflightu ověřte obsah, Pictures, Obnovu relace a Offline shell.</li><li>Pokud aplikace hlásí blokátor, <strong>nepokračujte</strong>. Vyřešte příčinu bezpečným způsobem.</li><li>Před předáním obrázků zahajte časomíru tlačítkem <strong>Zahájit zkoušku · 15:00</strong>.</li><li>Ověřte průchod fázemi, poznámky, ovládání a zakončení modelové relace.</li></ol>
+<div class="notice success"><strong>Kontrolní bod:</strong> Úspěšný nácvik znamená, že jste prošli časování, vizuální obsah a bezpečný návrat bez skutečných maturitních dat. Neznamená schválení ostrého provozu.</div>
+</section>
+<section id="content"><h2>4. Content Pack: oddělený důvěrný obsah</h2><div class="grid">
+<article><h3>Veřejné demo</h3><p>Obsahuje pouze syntetický demonstrační balíček. Na veřejné adrese zůstává používání skutečných CONFIDENTIAL-EXAM balíčků blokované.</p></article>
+<article><h3>Schválené chráněné prostředí</h3><p>Vyžaduje oddělené bezpečnostní podmínky: schválený origin, platný podpis, šifrování, řízení přístupu a provozní kontrolu.</p></article></div>
+<p>Soukromý obsah se neukládá nešifrovaný do veřejné aplikace. Přístupové fráze nesdílejte ani nevkládejte do prezentací, e-mailů nebo screenshotů.</p>
+</section>
+<section id="teacher"><h2>5. Co musí znát zkoušející a přísedící</h2><p>Teacher Guidance je podpora orientace a cílených doplňujících otázek. Není automatickou známkou ani závazným vyhodnocením výkonu.</p>
+<ul><li>Předem ověřte správné téma, Pictures, Task Box a Topic.</li><li>Oddělte vlastní učitelské poznámky od toho, co uvidí student.</li><li>Průběžně kontrolujte čas i správné fáze zkoušky.</li><li>Konečné pedagogické a klasifikační rozhodnutí činí oprávněná komise.</li></ul>
+</section>
+<section id="devices"><h2>6. Zařízení, režim offline a sdílený počítač</h2><p>Rozhraní funguje na iPadu, telefonu i počítači; před modelovým průchodem vyzkoušejte stejné zařízení a prohlížeč, které budou použity při školení.</p>
+<ul><li>Ověřte načtení offline shellu a obnovy relace, aniž byste vypínali ochranná pravidla.</li><li>Jestliže je aktivní relace na jiné kartě nebo zařízení, aplikace může start zablokovat.</li><li>Neopouštějte živou relaci jen kvůli změně vzhledu či aktualizaci.</li><li>Po práci na sdíleném zařízení dokončete provozní kroky bezpečného ukončení.</li></ul>
+</section>
+<section id="safety"><h2>7. Bezpečnost a odpovědnost</h2><p>Aplikace nepřevádí veřejný demo origin na schválené úložiště maturitních materiálů. Název „Ostrá zkouška“ neznamená, že lze obejít obsahové a provozní brány.</p><div class="notice"><strong>Pokud jde o skutečné maturitní zadání:</strong> nepoužívejte veřejný demo build. Nejprve vyžádejte výslovně schválený provozní režim školy a kontrolu příslušných bezpečnostních pravidel.</div></section>
+<section id="troubleshooting"><h2>8. Když něco nefunguje</h2>
+<div class="grid"><article><h3>Nelze zahájit relaci</h3><p>Zkontrolujte stav Content Packu, validitu tématu, aktivní souběžnou relaci, offline shell a preflight hlášení.</p></article>
+<article><h3>Nevidím správný obsah</h3><p>Vraťte se k výběru syntetického tématu, neobcházejte blokovaný Content Pack ani bezpečnostní konfiguraci.</p></article>
+<article><h3>Časomíra či obrazovka se chová neočekávaně</h3><p>Nejdříve zkontrolujte zařízení, stav probíhající relace a údaje diagnostiky bez osobních dat.</p></article>
+<article><h3>Potřebuji hlásit chybu</h3><p>Zaznamenejte název verze, čas, syntetické kroky k reprodukci a text hlášení. Neposílejte passphrase, zkušební materiály ani identitu studentů.</p></article></div>
+</section>
+<section id="checklist"><h2>9. Kontrola před první ukázkou</h2><div class="checks">
+<label><input type="checkbox"><span>Používám schválený školní odkaz a mám povolený přístup.</span></label>
+<label><input type="checkbox"><span>Jsem v demo režimu a používám pouze syntetický obsah.</span></label>
+<label><input type="checkbox"><span>Preflight, časomíra a obrázky fungují na cílovém zařízení.</span></label>
+<label><input type="checkbox"><span>Učitelská vrstva neodhaluje studentům neveřejné poznámky.</span></label>
+<label><input type="checkbox"><span>Vím, že ostrý provoz vyžaduje samostatné schválení.</span></label>
+</div></section>
+<footer>© 2026 Gymnázium, Ostrava-Hrabůvka · Maturita Desk · obsahový návrh Etapy D, provozní ověření dosud neprovedeno</footer>
+</main></div>
+<script type="module" src="./manual.js"></script>
+<noscript><div style="padding:24px;color:#fff">Manuál vyžaduje JavaScript a platné školní oprávnění.</div></noscript>
+</body></html>
