@@ -3,6 +3,7 @@ import path from 'node:path';
 
 const root = path.resolve(new URL('..', import.meta.url).pathname);
 const required = [
+  'manual/index.html','manual/manual.js',
   'index.html','manifest.webmanifest','studio-manifest.json','src/studio-manifest.template.json','sw.js','runtime-config.js','platform-build-info.json','config/deployment.json','config/origin-authorization.json','config/origin-authorization.README.txt','config/platform-manifest.json','config/brand-manifest.json','ghrab-platform.consumer.json',
   'src/main.js','src/platform-config.js','src/suite-session.js','src/config/data-manifest.json','src/styles.css','src/demo-content.js','src/exam-engine.js','src/notes.js','src/content-validator.js','src/content-pack.js','src/content-pack-store.js',
   'src/review-model.js','src/review-store.js','src/review-patch.js','src/fact-check.js','src/net/read-limited.js','src/device-runtime.js','src/pilot.js','src/session-coordinator.js','src/origin-authorization.js',
