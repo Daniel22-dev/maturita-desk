@@ -1325,6 +1325,7 @@ function renderHome() {
           <button class="soft-button compact" data-action="open-content">Content Pack</button>
           <button class="soft-button compact" data-action="open-pilot">Diagnostika</button>
           <button class="soft-button compact" data-action="open-about">O aplikaci</button>
+          <a class="soft-button compact" href="./manual/" target="_blank" rel="noopener">Manuál</a>
           <span class="prototype-pill">${APP_VERSION} · Serverless</span>
           <button class="icon-button" data-action="cycle-theme" aria-label="Změnit vzhled" title="Vzhled: ${escapeHtml(state.theme)}">${icon('theme')}</button>
         </div>
