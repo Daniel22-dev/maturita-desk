@@ -96,3 +96,14 @@ test('dark/light contrast and focus styles exist', () => {
   assert.match(style, /:focus-visible/);
   assert.match(style, /@media\s*\(max-width/);
 });
+
+
+test('App-origin link preserves draft work and explicit launch context', () => {
+  const source = readFileSync('src/main.js', 'utf8');
+  const anchors = [...source.matchAll(/<a\b[^>]*href=["']\.\/manual\/\?from=app(?:#[^"']*)?["'][^>]*>/g)].map(m => m[0]);
+  assert.ok(anchors.length >= 1, 'Missing Maturita Desk manual launch');
+  for (const anchor of anchors) {
+    assert.match(anchor, /target=["']_blank["']/);
+    assert.match(anchor, /rel=["']noopener["']/);
+  }
+});
