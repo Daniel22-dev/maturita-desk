@@ -11,7 +11,7 @@ const files=[
   '.nojekyll','index.html','manifest.webmanifest','runtime-config.js','sw.js',
   'ghrab-platform.consumer.json','platform-build-info.json','studio-manifest.json'
 ];
-const dirs=['assets','ghrab','config','src'];
+const dirs=['assets','ghrab','config','src','manual'];
 for(const rel of files){
   const src=path.join(root,rel);
   if(!fs.existsSync(src)) throw new Error(`Pages build missing required file: ${rel}`);
